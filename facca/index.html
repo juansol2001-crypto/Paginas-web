@@ -87,8 +87,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .poster .tagp i{font-style:normal;color:var(--tomato);margin-right:6px;font-variant-numeric:tabular-nums}
 .poster .tagp em{font-style:normal;color:var(--ink)}
 .hero .sticker{left:auto;right:max(16px,4vw);top:-6px;bottom:auto;z-index:3}
-.hero h1{font-size:clamp(46px,7.4vw,104px);color:var(--green)}
-.hero h1 .word{display:inline-block;animation:drop .7s cubic-bezier(.3,1.5,.5,1) both}
+.hero-top>div:first-child{container-type:inline-size;min-width:0}
+.hero h1{font-size:clamp(40px,7.4vw,104px);color:var(--green)}
+@supports (font-size:1cqi){.hero h1{font-size:min(104px,13.4cqi)}}
+.hero h1 .word{display:inline-block;white-space:nowrap;animation:drop .7s cubic-bezier(.3,1.5,.5,1) both}
 .hero h1 .word:nth-child(2){animation-delay:.08s}.hero h1 .word:nth-child(3){animation-delay:.16s}.hero h1 .word:nth-child(4){animation-delay:.24s}.hero h1 .word:nth-child(5){animation-delay:.32s}
 @keyframes drop{from{transform:translateY(-26px) rotate(-4deg)}to{transform:none}}
 .hero h1 em{font-style:normal;color:var(--tomato)}

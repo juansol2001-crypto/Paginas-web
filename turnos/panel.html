@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Panel de turnos · Me Encargo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+body{background:#F2EEE5}
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login .box{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:30px}
+.login h1{font-size:30px;margin:14px 0 6px}
+.brandmark{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:var(--muted)}
+.brandmark i{width:26px;height:26px;border-radius:8px;background:var(--brand);display:grid;place-items:center;color:#fff;font-style:normal;font-size:12px}
+.demo{margin-top:18px;padding:14px;border-radius:14px;background:var(--soft);font-size:14px}
+.demo .btn{width:100%;margin-top:10px}
+/* layout */
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.side{background:var(--ink);color:#E9E4D8;padding:18px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.side .biz{padding:6px 10px 18px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
+.side .biz b{display:block;font-family:var(--f-display);font-size:19px;color:#fff;line-height:1.15}
+.side .biz small{color:#A9A496;font-size:12px}
+.nav{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-weight:500;font-size:15px;color:#CFC9BA;min-height:42px}
+.nav:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav.on{background:rgba(255,255,255,.12);color:#fff}
+.nav svg{width:18px;height:18px;flex:none}
+.side .foot{margin-top:auto;display:flex;flex-direction:column;gap:4px;border-top:1px solid rgba(255,255,255,.1);padding-top:10px}
+.main{padding:22px 26px 60px;min-width:0}
+.head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.head h1{font-size:30px;margin-right:auto}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ok);background:#E3F1E8;padding:5px 10px;border-radius:999px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,125,79,.5)}70%{box-shadow:0 0 0 7px rgba(46,125,79,0)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{padding:14px 16px}
+.kpi small{display:block;color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi b{font-family:var(--f-display);font-size:28px;font-variant-numeric:tabular-nums}
+.datebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.iconbtn{all:unset;box-sizing:border-box;cursor:pointer;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;border:1.5px solid var(--line);background:#fff}
+.iconbtn:hover{border-color:var(--ink)}
+.datebar .lbl{font-family:var(--f-display);font-size:20px;font-weight:700;margin:0 6px}
+/* agenda grid */
+.agenda{overflow:auto;max-height:calc(100vh - 250px);position:relative}
+.ag{display:grid;position:relative;min-width:fit-content}
+.ag-h{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:10px 8px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.ag-h .avatar{width:26px;height:26px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:12px;color:var(--brand)}
+.ag-h.corner{left:0;z-index:6}
+.ag-times{position:sticky;left:0;z-index:4;background:var(--card);border-right:1px solid var(--line)}
+.ag-times div{position:absolute;right:8px;font-size:12px;color:var(--muted);transform:translateY(-50%);font-variant-numeric:tabular-nums}
+.ag-col{position:relative;border-right:1px solid var(--line);min-width:170px;background:repeating-linear-gradient(-45deg,#F4F0E7 0 6px,#EFEADF 6px 12px)}
+.ag-col .work{position:absolute;left:0;right:0;background:#fff}
+.ag-col .hl{position:absolute;left:0;right:0;border-top:1px solid #EEE8DC;pointer-events:none}
+.ag-col .hl.half{border-top-style:dashed;border-color:#F3EEE5}
+.ag-col .blk{position:absolute;left:4px;right:4px;border-radius:8px;background:repeating-linear-gradient(45deg,#E9DDD0 0 5px,#E2D3C3 5px 10px);font-size:12px;padding:4px 8px;color:#6E5A45;overflow:hidden}
+.tn{all:unset;box-sizing:border-box;cursor:pointer;position:absolute;left:4px;right:4px;border-radius:9px;padding:5px 8px;font-size:12.5px;line-height:1.25;overflow:hidden;background:#E5EFE8;border-left:4px solid var(--brand);color:var(--ink);transition:transform .12s,box-shadow .12s}
+.tn:hover{transform:translateX(1px);box-shadow:0 4px 14px rgba(24,32,27,.12);z-index:3}
+.tn b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tn small{color:var(--muted)}
+.tn.web::after{content:'web';position:absolute;top:5px;right:6px;font-size:10px;font-weight:700;color:var(--brand);background:#fff;border-radius:6px;padding:0 5px}
+.tn.atendido{background:#ECEAE4;border-color:#9A968C;color:#55524B}
+.tn.ausente{background:#FBEFD9;border-color:var(--warn)}
+.tn.cancelado{background:#fff;border-color:#E3B4AD;border-left-style:dashed;color:#9C8F8C;text-decoration:line-through}
+.tn.flash{animation:flash 1.6s ease 2}
+@keyframes flash{50%{box-shadow:0 0 0 4px rgba(201,154,75,.55)}}
+.now{position:absolute;left:0;right:0;height:2px;background:var(--bad);z-index:2;pointer-events:none}
+.now::before{content:'';position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--bad)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--line);font-weight:600}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.click{cursor:pointer} .tbl tr.click:hover td{background:#FBF8F1}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl input.input{min-height:38px;padding:7px 10px}
+.wa{color:var(--ok);font-weight:600;text-decoration:none}
+.switch{position:relative;width:42px;height:24px;flex:none;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.switch span{position:absolute;inset:0;border-radius:999px;background:#D7D0C2;transition:.2s;cursor:pointer}
+.switch span::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked+span{background:var(--ok)} .switch input:checked+span::after{transform:translateX(18px)}
+.switch input:focus-visible+span{outline:3px solid color-mix(in srgb,var(--brand) 35%,transparent)}
+/* equipo */
+.pros{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.pro{padding:18px}
+.pro-h{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.pro-h input{font-weight:700;font-size:17px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 10px;border-radius:999px;border:1.5px solid var(--line);cursor:pointer;background:#fff;user-select:none}
+.chk input{accent-color:var(--brand)}
+.chk:has(input:checked){border-color:var(--brand);background:color-mix(in srgb,var(--brand) 7%,#fff)}
+.hrs{border-top:1px solid var(--line);padding-top:10px}
+.hr{display:grid;grid-template-columns:44px 1fr auto;gap:8px;align-items:center;padding:5px 0;font-size:14px}
+.hr b{font-size:13px;color:var(--muted)}
+.fr{display:flex;flex-wrap:wrap;gap:6px}
+.fr span{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:8px;padding:4px 4px 4px 9px;font-size:13px;font-variant-numeric:tabular-nums}
+.fr span button{all:unset;cursor:pointer;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;color:var(--muted)}
+.fr span button:hover{background:#fff;color:var(--bad)}
+.addfr{display:none;gap:6px;align-items:center}
+.addfr.on{display:flex}
+.addfr input{width:96px;min-height:34px;padding:5px 8px}
+.link{all:unset;cursor:pointer;color:var(--brand);font-weight:600;font-size:13px}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(24,32,27,.35);z-index:40;opacity:0;pointer-events:none;transition:.2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:var(--card);z-index:41;box-shadow:-10px 0 40px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer .dh{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.drawer .dh h2{font-size:22px}
+.drawer .db{padding:20px;overflow:auto;flex:1}
+.drawer .df{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv span{color:var(--muted)} .kv b{text-align:right}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;max-height:190px;overflow:auto;padding:2px}
+.slot{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;border:1.5px solid var(--line);border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;background:#fff}
+.slot.sel{background:var(--brand);border-color:var(--brand);color:#fff}
+.seg{display:flex;background:var(--soft);border-radius:10px;padding:3px;margin-bottom:12px}
+.seg button{all:unset;flex:1;text-align:center;padding:7px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.sugg{border:1.5px solid var(--line);border-radius:10px;margin-top:-8px;margin-bottom:12px;max-height:180px;overflow:auto;background:#fff}
+.sugg button{all:unset;box-sizing:border-box;display:block;width:100%;padding:9px 12px;cursor:pointer;font-size:14px}
+.sugg button:hover{background:var(--soft)}
+.feed{display:flex;flex-direction:column}
+.ev{display:grid;grid-template-columns:34px 1fr auto;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:center;font-size:14px}
+.ev:last-child{border:0}
+.ev i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-size:14px;background:var(--soft)}
+.ev.reserva i{background:#E3F1E8} .ev.cancelacion i{background:#F7E3E0} .ev.reprogramado i{background:#FBEFD9}
+.ev small{color:var(--muted);font-size:12px;white-space:nowrap}
+.cols2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+.sec-h{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.pill.pendiente{background:#FBEFD9;color:var(--warn)} .pill.anulada{background:#F1EEE8;color:#9A968C}
+.mtabs{display:none}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.cols2{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding:16px 12px 90px}
+  .head h1{font-size:24px}
+  .mtabs{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--ink);padding:6px 4px calc(6px + env(safe-area-inset-bottom));overflow-x:auto}
+  .mtabs .nav{flex:1;flex-direction:column;gap:2px;font-size:11px;padding:6px 8px;min-width:64px;text-align:center}
+  .agenda{max-height:none}
+  .ag-col{min-width:150px}
+  .pros{grid-template-columns:1fr}
+  .tbl .hide-m{display:none}
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="spinner" style="margin-top:30vh"></div></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt"><div class="dh"><h2 id="dt"></h2><button class="iconbtn" id="dclose" aria-label="Cerrar">✕</button></div><div class="db" id="db"></div><div class="df" id="df"></div></aside>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+const { sb, money, esc, hora, ymd, hoyYMD, addDays, fechaLarga, diaSemana, zoned, err, toast } = ME;
+const root = document.getElementById('root');
+const DEMO = { email: 'demo@meencargo.app', pass: 'DemoTurnos2026' };
+const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const ORD = [1,2,3,4,5,6,0];
+const PX = 1.5; // píxeles por minuto
+const ICON = {
+  agenda:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  clientes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.5c1.9.7 3.1 2.5 3.5 5.5"/></svg>',
+  servicios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l12 18M18 3L6 21"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/></svg>',
+  equipo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.2-7 8-7s7 2.5 8 7"/></svg>',
+  bloqueos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
+  actividad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
+  ajustes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>'
+};
+const TABS = [['agenda','Agenda'],['clientes','Clientes'],['servicios','Servicios'],['equipo','Equipo y horarios'],['bloqueos','Feriados y ausencias'],['actividad','Actividad'],['ajustes','Ajustes']];
+let D = { neg:null, pros:[], servs:[], ps:[], hrs:[], clientes:[] };
+let V = { tab:'agenda', dia:null, turnos:[], bloq:[], showCanc:false };
+let channel = null;
+
+/* ---------- auth ---------- */
+sb.auth.getSession().then(({ data }) => data.session ? boot() : drawLogin());
+
+function drawLogin(msg){
+  root.innerHTML = `<div class="login"><div class="box">
+    <span class="brandmark"><i>ME</i> Me Encargo · Turnos</span>
+    <h1>Entrá a tu panel</h1><p class="muted" style="margin:0 0 20px">Tu agenda, tus clientes y tus horarios, todo en un lugar.</p>
+    <form id="lf">
+      <div class="field"><label for="le">Mail</label><input class="input" id="le" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="lp">Contraseña</label><input class="input" id="lp" type="password" autocomplete="current-password" required></div>
+      <div class="formerr" id="lerr" role="alert" style="color:var(--bad);font-size:14px;min-height:1em;margin-bottom:8px">${esc(msg||'')}</div>
+      <button class="btn" style="width:100%">Entrar</button>
+    </form>
+    <div class="demo"><b>¿Lo querés probar?</b><br><span class="muted">Entrá a la Barbería Norte de ejemplo, con turnos de muestra.</span><button class="btn ghost" id="ldemo">Entrar a la demo</button></div>
+  </div></div>`;
+  const go = async (e, p) => {
+    const lerr = document.getElementById('lerr'); lerr.textContent = '';
+    const { error } = await sb.auth.signInWithPassword({ email: e, password: p });
+    if (error) { lerr.textContent = err(error); return; }
+    boot();
+  };
+  document.getElementById('lf').onsubmit = ev => { ev.preventDefault(); go(document.getElementById('le').value.trim(), document.getElementById('lp').value); };
+  document.getElementById('ldemo').onclick = () => go(DEMO.email, DEMO.pass);
+}
+
+async function boot(){
+  root.innerHTML = '<div class="spinner" style="margin-top:30vh"></div>';
+  const { data: m, error } = await sb.from('miembros').select('negocio_id, rol').limit(1);
+  if (error || !m || !m.length) { await sb.auth.signOut(); return drawLogin('Tu usuario no tiene un negocio asignado.'); }
+  const nid = m[0].negocio_id;
+  const [n, p, s, ps, h] = await Promise.all([
+    sb.from('negocios').select('*').eq('id', nid).single(),
+    sb.from('profesionales').select('*').eq('negocio_id', nid).order('orden'),
+    sb.from('servicios').select('*').eq('negocio_id', nid).order('orden'),
+    sb.from('profesional_servicio').select('*').eq('negocio_id', nid),
+    sb.from('horarios').select('*').eq('negocio_id', nid).order('desde')
+  ]);
+  D.neg = n.data; D.pros = p.data || []; D.servs = s.data || []; D.ps = ps.data || []; D.hrs = h.data || [];
+  if (D.neg.color) document.documentElement.style.setProperty('--brand', D.neg.color);
+  document.title = 'Panel · ' + D.neg.nombre;
+  V.dia = hoyYMD(D.neg.tz);
+  shell(); subscribe(); go(location.hash.slice(1) || 'agenda');
+}
+
+function shell(){
+  const nav = cls => TABS.map(([k,l]) => `<button class="nav ${cls}" data-tab="${k}">${ICON[k]}<span>${cls?l.split(' ')[0]:l}</span></button>`).join('');
+  root.innerHTML = `<div class="shell">
+    <aside class="side"><div class="biz"><b>${esc(D.neg.nombre)}</b><small>${esc(D.neg.rubro||'')} · Panel</small></div>
+      ${nav('')}
+      <div class="foot">
+        <a class="nav" href="./?n=${encodeURIComponent(D.neg.slug)}" target="_blank" rel="noopener">${ICON.agenda}<span>Mi página de reservas ↗</span></a>
+        <button class="nav" id="logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg><span>Salir</span></button>
+      </div></aside>
+    <main class="main" id="main"></main>
+    <nav class="mtabs">${nav('m')}</nav>
+  </div>`;
+  root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => go(b.dataset.tab));
+  document.getElementById('logout').onclick = async () => { if (channel) sb.removeChannel(channel); await sb.auth.signOut(); drawLogin(); };
+}
+
+function go(tab){
+  if (!TABS.find(t => t[0] === tab)) tab = 'agenda';
+  V.tab = tab; history.replaceState(null, '', '#' + tab);
+  root.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  ({ agenda, clientes, servicios, equipo, bloqueos, actividad, ajustes })[tab]();
+}
+const main = () => document.getElementById('main');
+const head = (t, right) => `<div class="head"><h1>${t}</h1>${right||''}</div>`;
+const proN = id => (D.pros.find(p => p.id === id) || {}).nombre || '—';
+const servN = id => (D.servs.find(s => s.id === id) || {}).nombre || '—';
+
+/* ---------- tiempo real ---------- */
+function subscribe(){
+  channel = sb.channel('neg-' + D.neg.id)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'turnos', filter: 'negocio_id=eq.' + D.neg.id }, async ev => {
+      const t = ev.new;
+      if (ev.eventType === 'INSERT' && t.origen === 'web') {
+        toast('Nueva reserva online · ' + servN(t.servicio_id) + ' con ' + proN(t.profesional_id) + ' · ' + fechaLarga(ymd(t.inicio, D.neg.tz)).split(',')[0] + ' ' + hora(t.inicio, D.neg.tz), 'ok');
+        V.flash = t.id;
+      } else if (ev.eventType === 'UPDATE' && t.estado === 'cancelado' && t.cancelado_por === 'cliente' && ev.old && ev.old.estado !== 'cancelado') {
+        toast('Un cliente canceló su turno de las ' + hora(t.inicio, D.neg.tz) + ' · el horario quedó libre', 'bad');
+      }
+      if (V.tab === 'agenda') loadAgenda();
+      if (V.tab === 'actividad') actividad();
+    })
+    .subscribe();
+}
+
+/* ---------- AGENDA ---------- */
+function agenda(){
+  main().innerHTML = head('Agenda', `<span class="live" title="Se actualiza sola cuando entra o se cancela un turno"><i></i>En vivo</span><button class="btn ghost sm" id="exp">Exportar a Excel</button><button class="btn sm" id="nuevo">+ Nuevo turno</button>`) + `
+    <div class="kpis" id="kpis"></div>
+    <div class="card" style="padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="datebar"><button class="iconbtn" id="prev" aria-label="Día anterior">‹</button><button class="btn ghost sm" id="hoy">Hoy</button><button class="iconbtn" id="next" aria-label="Día siguiente">›</button><span class="lbl" id="dlbl"></span><input type="date" class="input" id="dpick" style="width:auto;min-height:40px"></div>
+      <label class="chk"><input type="checkbox" id="showc" ${V.showCanc?'checked':''}> Mostrar cancelados</label>
+    </div>
+    <div class="card agenda" id="ag"><div class="spinner"></div></div>
+    <div class="legend"><span style="--c:#E5EFE8">Confirmado</span><span style="--c:#ECEAE4">Atendido</span><span style="--c:#FBEFD9">No vino</span><span style="--c:#fff;outline:1px dashed #E3B4AD">Cancelado</span><span style="--c:#E2D3C3">Bloqueado</span><span style="--c:#EFEADF">Fuera de horario</span></div>`;
+  const set = d => { V.dia = d; loadAgenda(); };
+  document.getElementById('prev').onclick = () => set(addDays(V.dia, -1));
+  document.getElementById('next').onclick = () => set(addDays(V.dia, 1));
+  document.getElementById('hoy').onclick = () => set(hoyYMD(D.neg.tz));
+  document.getElementById('dpick').onchange = e => e.target.value && set(e.target.value);
+  document.getElementById('showc').onchange = e => { V.showCanc = e.target.checked; drawAgenda(); };
+  document.getElementById('nuevo').onclick = () => nuevoTurno();
+  document.getElementById('exp').onclick = exportar;
+  loadAgenda();
+}
+
+async function loadAgenda(){
+  const tz = D.neg.tz, d0 = zoned(V.dia, '00:00', tz), d1 = zoned(addDays(V.dia, 1), '00:00', tz);
+  const [t, b] = await Promise.all([
+    sb.from('turnos').select('*, clientes(nombre,telefono,email,notas)').eq('negocio_id', D.neg.id).gte('inicio', d0.toISOString()).lt('inicio', d1.toISOString()).order('inicio'),
+    sb.from('bloqueos').select('*').eq('negocio_id', D.neg.id).lt('desde', d1.toISOString()).gt('hasta', d0.toISOString())
+  ]);
+  if (t.error) return toast(err(t.error), 'bad');
+  V.turnos = t.data; V.bloq = b.data || [];
+  if (V.tab === 'agenda') drawAgenda();
+}
+
+function drawAgenda(){
+  const tz = D.neg.tz, dow = diaSemana(V.dia), isHoy = V.dia === hoyYMD(tz);
+  const lbl = document.getElementById('dlbl'); if (!lbl) return;
+  lbl.textContent = (isHoy ? 'Hoy · ' : '') + fechaLarga(V.dia);
+  document.getElementById('dpick').value = V.dia;
+  const act = V.turnos.filter(t => t.estado !== 'cancelado');
+  const ing = act.filter(t => t.estado !== 'ausente').reduce((a, t) => a + Number(t.precio || 0), 0);
+  document.getElementById('kpis').innerHTML = `
+    <div class="card kpi"><small>Turnos</small><b>${act.length}</b></div>
+    <div class="card kpi"><small>Ingreso estimado</small><b>${money(ing)}</b></div>
+    <div class="card kpi"><small>Reservados online</small><b>${act.filter(t=>t.origen==='web').length}</b></div>
+    <div class="card kpi"><small>Cancelados</small><b>${V.turnos.length - act.length}</b></div>`;
+  const pros = D.pros.filter(p => p.activo);
+  const hrsDia = D.hrs.filter(h => h.dia_semana === dow);
+  const toMin = s => +s.slice(0,2) * 60 + +s.slice(3,5);
+  let start = 9 * 60, end = 21 * 60;
+  hrsDia.forEach(h => { start = Math.min(start, toMin(h.desde)); end = Math.max(end, toMin(h.hasta)); });
+  V.turnos.forEach(t => { const a = minOf(t.inicio), b = a + (new Date(t.fin) - new Date(t.inicio)) / 60000; start = Math.min(start, a); end = Math.max(end, b); });
+  start = Math.floor(start / 60) * 60; end = Math.ceil(end / 60) * 60;
+  const H = (end - start) * PX, y = m => (m - start) * PX;
+  function minOf(ts){ const p = ME.parts(ts, tz); return p.ymd < V.dia ? 0 : p.ymd > V.dia ? 1440 : p.h * 60 + p.m; }
+
+  let times = ''; for (let m = start; m <= end; m += 60) times += `<div style="top:${y(m)}px">${String(m/60).padStart(2,'0')}:00</div>`;
+  let lines = ''; for (let m = start; m < end; m += 30) lines += `<div class="hl ${m%60?'half':''}" style="top:${y(m)}px"></div>`;
+  const nowM = isHoy ? minOf(new Date()) : -1;
+  const cols = pros.map(p => {
+    const work = hrsDia.filter(h => h.profesional_id === p.id).map(h => `<div class="work" style="top:${y(toMin(h.desde))}px;height:${(toMin(h.hasta)-toMin(h.desde))*PX}px"></div>`).join('');
+    const bl = V.bloq.filter(b => !b.profesional_id || b.profesional_id === p.id).map(b => {
+      const a = Math.max(start, minOf(b.desde)), z = Math.min(end, minOf(b.hasta));
+      return z > a ? `<div class="blk" style="top:${y(a)}px;height:${(z-a)*PX}px">⛔ ${esc(b.motivo||'Bloqueado')}</div>` : '';
+    }).join('');
+    const tn = V.turnos.filter(t => t.profesional_id === p.id && (V.showCanc || t.estado !== 'cancelado')).map(t => {
+      const a = minOf(t.inicio), dur = (new Date(t.fin) - new Date(t.inicio)) / 60000, hgt = Math.max(dur * PX - 3, 24);
+      return `<button class="tn ${t.estado} ${t.origen==='web'?'web':''} ${V.flash===t.id?'flash':''}" data-id="${t.id}" style="top:${y(a)+1}px;height:${hgt}px">
+        <b>${esc(t.clientes?.nombre||'')}</b><small>${hora(t.inicio,tz)}–${hora(t.fin,tz)} · ${esc(servN(t.servicio_id))}</small></button>`;
+    }).join('');
+    return `<div class="ag-col" style="height:${H}px">${work}${lines}${bl}${tn}${nowM>=start&&nowM<=end?`<div class="now" style="top:${y(nowM)}px"></div>`:''}</div>`;
+  }).join('');
+  const ag = document.getElementById('ag');
+  ag.innerHTML = `<div class="ag" style="grid-template-columns:58px repeat(${pros.length}, minmax(170px,1fr))">
+    <div class="ag-h corner"></div>${pros.map(p=>`<div class="ag-h"><span class="avatar">${esc(p.nombre[0])}</span>${esc(p.nombre)}</div>`).join('')}
+    <div class="ag-times" style="height:${H}px;position:sticky">${times}</div>${cols}</div>`;
+  ag.querySelectorAll('.tn').forEach(b => b.onclick = () => verTurno(V.turnos.find(t => t.id === b.dataset.id)));
+  V.flash = null;
+  if (isHoy && nowM > start && !ag.dataset.scrolled) { ag.scrollTop = Math.max(0, y(nowM) - 120); ag.dataset.scrolled = 1; }
+}
+
+/* drawer */
+const scrim = document.getElementById('scrim'), drawer = document.getElementById('drawer');
+function openDrawer(title, body, foot){
+  document.getElementById('dt').textContent = title;
+  document.getElementById('db').innerHTML = body; document.getElementById('df').innerHTML = foot || '';
+  document.getElementById('df').style.display = foot ? '' : 'none';
+  scrim.classList.add('on'); drawer.classList.add('on');
+  setTimeout(() => document.getElementById('dclose').focus(), 50);
+}
+function closeDrawer(){ scrim.classList.remove('on'); drawer.classList.remove('on'); }
+scrim.onclick = closeDrawer; document.getElementById('dclose').onclick = closeDrawer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+const waLink = tel => { let d = String(tel||'').replace(/\D/g,''); if (!d) return ''; if (!d.startsWith('54')) d = '549' + d.replace(/^0/,'').replace(/^15/,''); return 'https://wa.me/' + d; };
+
+function verTurno(t){
+  const tz = D.neg.tz, c = t.clientes || {};
+  const ESTADO = { confirmado:'Confirmado', atendido:'Atendido', ausente:'No vino', cancelado:'Cancelado' };
+  openDrawer(c.nombre || 'Turno', `
+    <span class="tag">${ESTADO[t.estado]}${t.estado==='cancelado'&&t.cancelado_por?' por '+esc(t.cancelado_por):''}</span> <span class="tag">${t.origen==='web'?'Reservó online':'Cargado en el panel'}</span>
+    <div style="margin-top:14px">
+      <div class="kv"><span>Servicio</span><b>${esc(servN(t.servicio_id))}</b></div>
+      <div class="kv"><span>Profesional</span><b>${esc(proN(t.profesional_id))}</b></div>
+      <div class="kv"><span>Cuándo</span><b>${esc(fechaLarga(ymd(t.inicio,tz)))} · ${hora(t.inicio,tz)}–${hora(t.fin,tz)}</b></div>
+      <div class="kv"><span>Precio</span><b>${money(t.precio)}</b></div>
+      <div class="kv"><span>Celular</span><b>${c.telefono?`<a class="wa" href="${waLink(c.telefono)}" target="_blank" rel="noopener">${esc(c.telefono)} · WhatsApp</a>`:'—'}</b></div>
+      <div class="kv"><span>Mail</span><b>${esc(c.email||'—')}</b></div>
+      ${t.notas?`<div class="kv"><span>Nota del cliente</span><b>${esc(t.notas)}</b></div>`:''}
+    </div>
+    ${t.estado==='confirmado'?`<h3 style="font-size:16px;margin:22px 0 10px">Reprogramar</h3>
+      <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field"><label for="rf">Día</label><input class="input" type="date" id="rf" value="${ymd(t.inicio,tz)}"></div>
+        <div class="field"><label for="rp">Profesional</label><select class="input" id="rp">${D.pros.filter(p=>p.activo&&D.ps.some(x=>x.profesional_id===p.id&&x.servicio_id===t.servicio_id)).map(p=>`<option value="${p.id}" ${p.id===t.profesional_id?'selected':''}>${esc(p.nombre)}</option>`).join('')}</select></div>
+      </div><div class="slots" id="rs"></div>`:''}`,
+    t.estado === 'confirmado'
+      ? `<button class="btn sm" data-a="atendido">✓ Atendido</button><button class="btn ghost sm" data-a="ausente">No vino</button><button class="btn ghost sm" data-a="cancelado" style="color:var(--bad)">Cancelar turno</button><button class="btn ghost sm" id="rgo" disabled>Mover al horario elegido</button>`
+      : `<button class="btn ghost sm" data-a="confirmado">Volver a confirmado</button>`);
+  document.querySelectorAll('#df [data-a]').forEach(b => b.onclick = async () => {
+    if (b.dataset.a === 'cancelado' && b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = '¿Seguro? Tocá de nuevo'; return; }
+    const upd = { estado: b.dataset.a }; if (b.dataset.a === 'confirmado') { upd.cancelado_por = null; upd.cancelado_at = null; }
+    const { error } = await sb.from('turnos').update(upd).eq('id', t.id);
+    if (error) return toast(err(error), 'bad');
+    toast(b.dataset.a === 'cancelado' ? 'Turno cancelado · el horario quedó libre' : 'Listo', 'ok'); closeDrawer(); loadAgenda();
+  });
+  if (t.estado === 'confirmado') {
+    let pick = null;
+    const load = async () => {
+      const box = document.getElementById('rs'); box.innerHTML = '<div class="spinner"></div>'; pick = null; document.getElementById('rgo').disabled = true;
+      const { data } = await sb.rpc('publico_disponibilidad', { p_slug: D.neg.slug, p_servicio: t.servicio_id, p_fecha: document.getElementById('rf').value, p_profesional: document.getElementById('rp').value });
+      box.innerHTML = (data||[]).length ? data.map((s,i)=>`<button class="slot" data-i="${i}">${hora(s.inicio,tz)}</button>`).join('') : '<p class="muted" style="font-size:13px">Sin horarios libres ese día.</p>';
+      box.querySelectorAll('.slot').forEach(x => x.onclick = () => { pick = data[+x.dataset.i]; box.querySelectorAll('.slot').forEach(y=>y.classList.toggle('sel',y===x)); document.getElementById('rgo').disabled = false; });
+    };
+    document.getElementById('rf').onchange = load; document.getElementById('rp').onchange = load; load();
+    document.getElementById('rgo').onclick = async () => {
+      if (!pick) return;
+      const { error } = await sb.from('turnos').update({ inicio: pick.inicio, profesional_id: document.getElementById('rp').value }).eq('id', t.id);
+      if (error) return toast(err(error), 'bad');
+      toast('Turno reprogramado', 'ok'); closeDrawer(); V.dia = ymd(pick.inicio, tz); loadAgenda();
+    };
+  }
+}
+
+async function nuevoTurno(){
+  if (!D.clientes.length) { const { data } = await sb.from('clientes').select('*').eq('negocio_id', D.neg.id).order('nombre'); D.clientes = data || []; }
+  const tz = D.neg.tz; let cli = null, pick = null, modo = 'lista';
+  openDrawer('Nuevo turno', `
+    <div class="field"><label for="nc">Cliente</label><input class="input" id="nc" placeholder="Buscá por nombre o celular" autocomplete="off"></div>
+    <div class="sugg" id="ncs" hidden></div>
+    <div id="ncnew" hidden><div class="field"><label for="nt">Celular</label><input class="input" id="nt" type="tel"></div><div class="field"><label for="nm">Mail (opcional)</label><input class="input" id="nm" type="email"></div></div>
+    <div class="field"><label for="ns">Servicio</label><select class="input" id="ns">${D.servs.filter(s=>s.activo).map(s=>`<option value="${s.id}">${esc(s.nombre)} · ${s.duracion_min} min · ${money(s.precio)}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="field"><label for="np">Profesional</label><select class="input" id="np"></select></div>
+      <div class="field"><label for="nf">Día</label><input class="input" type="date" id="nf" value="${V.dia < hoyYMD(tz) ? hoyYMD(tz) : V.dia}"></div>
+    </div>
+    <div class="seg"><button class="on" data-m="lista">Horarios libres</button><button data-m="manual">Otro horario</button></div>
+    <div id="nslots" class="slots"></div>
+    <div id="nman" hidden class="field"><label for="nh">Hora</label><input class="input" type="time" id="nh" step="300" value="10:00"><small class="muted">Útil para sobreturnos o fuera del horario habitual.</small></div>
+    <div class="formerr" id="nerr" style="color:var(--bad);font-size:14px;min-height:1em"></div>`,
+    `<button class="btn" id="nsave" style="flex:1">Guardar turno</button>`);
+  const $ = id => document.getElementById(id);
+  const fillPros = () => { const s = $('ns').value; $('np').innerHTML = D.pros.filter(p => p.activo && D.ps.some(x => x.profesional_id === p.id && x.servicio_id === s)).map(p => `<option value="${p.id}">${esc(p.nombre)}</option>`).join(''); };
+  const loadSlots = async () => {
+    pick = null; if (modo !== 'lista') return;
+    const box = $('nslots'); box.innerHTML = '<div class="spinner"></div>';
+    const { data } = await sb.rpc('publico_disponibilidad', { p_slug: D.neg.slug, p_servicio: $('ns').value, p_fecha: $('nf').value, p_profesional: $('np').value || null });
+    box.innerHTML = (data||[]).length ? data.map((s,i)=>`<button class="slot" data-i="${i}">${hora(s.inicio,tz)}</button>`).join('') : '<p class="muted" style="font-size:13px">No hay horarios libres. Probá otro día o usá "Otro horario".</p>';
+    box.querySelectorAll('.slot').forEach(x => x.onclick = () => { pick = data[+x.dataset.i]; box.querySelectorAll('.slot').forEach(y => y.classList.toggle('sel', y === x)); });
+  };
+  $('ns').onchange = () => { fillPros(); loadSlots(); }; $('np').onchange = loadSlots; $('nf').onchange = loadSlots;
+  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { modo = b.dataset.m; document.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b)); $('nslots').hidden = modo !== 'lista'; $('nman').hidden = modo === 'lista'; loadSlots(); });
+  $('nc').oninput = () => {
+    cli = null; const q = $('nc').value.trim().toLowerCase(), box = $('ncs');
+    if (q.length < 2) { box.hidden = true; $('ncnew').hidden = true; return; }
+    const res = D.clientes.filter(c => (c.nombre||'').toLowerCase().includes(q) || (c.telefono||'').replace(/\D/g,'').includes(q.replace(/\D/g,'')||'¬')).slice(0, 6);
+    box.hidden = false;
+    box.innerHTML = res.map(c => `<button data-id="${c.id}"><b>${esc(c.nombre)}</b> <span class="muted">${esc(c.telefono||'')}</span></button>`).join('') + `<button data-new="1">+ Cliente nuevo: <b>${esc($('nc').value.trim())}</b></button>`;
+    box.querySelectorAll('button').forEach(b => b.onclick = () => {
+      if (b.dataset.new) { cli = { nuevo: true }; $('ncnew').hidden = false; $('nt').focus(); }
+      else { cli = D.clientes.find(c => c.id === b.dataset.id); $('nc').value = cli.nombre; $('ncnew').hidden = true; }
+      box.hidden = true;
+    });
+  };
+  fillPros(); loadSlots(); $('nc').focus();
+  $('nsave').onclick = async () => {
+    const e = m => { $('nerr').textContent = m; };
+    if (!cli) return e('Elegí un cliente o creá uno nuevo.');
+    let inicio = pick && pick.inicio;
+    if (modo === 'manual') inicio = zoned($('nf').value, $('nh').value, tz).toISOString();
+    if (!inicio) return e('Elegí un horario.');
+    $('nsave').disabled = true;
+    let cid = cli.id;
+    if (cli.nuevo) {
+      const nombre = $('nc').value.trim(), tel = $('nt').value.trim(), mail = $('nm').value.trim() || null;
+      if (nombre.length < 2) { $('nsave').disabled = false; return e('Escribí el nombre del cliente.'); }
+      const { data, error } = await sb.from('clientes').insert({ negocio_id: D.neg.id, nombre, telefono: tel || null, email: mail }).select().single();
+      if (error) { $('nsave').disabled = false; return e(/duplicate|unique/i.test(error.message) ? 'Ya hay un cliente con ese mail: buscalo en la lista.' : err(error)); }
+      cid = data.id; D.clientes.push(data);
+    }
+    const { error } = await sb.from('turnos').insert({ negocio_id: D.neg.id, cliente_id: cid, servicio_id: $('ns').value, profesional_id: $('np').value, inicio, origen: 'panel' });
+    $('nsave').disabled = false;
+    if (error) return e(err(error));
+    toast('Turno guardado', 'ok'); closeDrawer(); V.dia = ymd(inicio, tz); if (V.tab === 'agenda') loadAgenda();
+  };
+}
+
+/* ---------- CLIENTES ---------- */
+async function clientes(){
+  main().innerHTML = head('Clientes', `<button class="btn ghost sm" id="expc">Exportar a Excel</button>`) + `<div class="field" style="max-width:360px"><input class="input" id="q" placeholder="Buscar por nombre, celular o mail" aria-label="Buscar"></div><div class="card" id="ct"><div class="spinner"></div></div>`;
+  const { data, error } = await sb.from('clientes').select('*, turnos(inicio,estado,precio)').eq('negocio_id', D.neg.id).order('nombre');
+  if (error) return toast(err(error), 'bad');
+  D.clientes = data;
+  const rows = data.map(c => {
+    const vis = (c.turnos||[]).filter(t => t.estado !== 'cancelado');
+    const past = vis.filter(t => new Date(t.inicio) < new Date()).sort((a,b)=>b.inicio.localeCompare(a.inicio));
+    const fut = vis.filter(t => new Date(t.inicio) >= new Date()).sort((a,b)=>a.inicio.localeCompare(b.inicio));
+    return { c, n: vis.length, ult: past[0], prox: fut[0], gasto: vis.filter(t=>t.estado==='atendido').reduce((a,t)=>a+Number(t.precio||0),0) };
+  });
+  const draw = () => {
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const r = rows.filter(x => !q || [x.c.nombre, x.c.telefono, x.c.email].join(' ').toLowerCase().includes(q));
+    document.getElementById('ct').innerHTML = r.length ? `<table class="tbl"><thead><tr><th>Cliente</th><th class="hide-m">Celular</th><th class="hide-m">Mail</th><th class="num">Turnos</th><th class="hide-m">Último</th><th>Próximo</th></tr></thead><tbody>${r.map(x=>`
+      <tr class="click" data-id="${x.c.id}"><td><b>${esc(x.c.nombre)}</b></td><td class="hide-m">${x.c.telefono?`<a class="wa" href="${waLink(x.c.telefono)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(x.c.telefono)}</a>`:'—'}</td><td class="hide-m">${esc(x.c.email||'—')}</td><td class="num">${x.n}</td><td class="hide-m">${x.ult?esc(ymd(x.ult.inicio,D.neg.tz).split('-').reverse().join('/')):'—'}</td><td>${x.prox?esc(ymd(x.prox.inicio,D.neg.tz).split('-').reverse().join('/'))+' '+hora(x.prox.inicio,D.neg.tz):'—'}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="muted" style="padding:18px">No hay clientes con esa búsqueda.</p>';
+    document.querySelectorAll('#ct tr.click').forEach(tr => tr.onclick = () => verCliente(rows.find(x => x.c.id === tr.dataset.id)));
+  };
+  document.getElementById('q').oninput = draw; draw();
+  document.getElementById('expc').onclick = () => csv('clientes-' + D.neg.slug, ['Nombre','Celular','Mail','Turnos','Último turno','Próximo turno','Notas'],
+    rows.map(x => [x.c.nombre, x.c.telefono, x.c.email, x.n, x.ult?ymd(x.ult.inicio,D.neg.tz):'', x.prox?ymd(x.prox.inicio,D.neg.tz):'', x.c.notas]));
+}
+async function verCliente(x){
+  const { data } = await sb.from('turnos').select('*').eq('cliente_id', x.c.id).order('inicio', { ascending: false });
+  const tz = D.neg.tz;
+  openDrawer(x.c.nombre, `
+    <div class="kv"><span>Celular</span><b>${x.c.telefono?`<a class="wa" href="${waLink(x.c.telefono)}" target="_blank" rel="noopener">${esc(x.c.telefono)} · WhatsApp</a>`:'—'}</b></div>
+    <div class="kv"><span>Mail</span><b>${esc(x.c.email||'—')}</b></div>
+    <div class="kv"><span>Turnos</span><b>${x.n}</b></div>
+    <div class="kv"><span>Gastado (atendidos)</span><b>${money(x.gasto)}</b></div>
+    <div class="field" style="margin-top:16px"><label for="cn">Notas internas</label><textarea class="input" id="cn" rows="3" placeholder="Ej: prefiere a Martín, alérgico a…">${esc(x.c.notas||'')}</textarea></div>
+    <h3 style="font-size:16px;margin:18px 0 6px">Historial</h3>
+    ${(data||[]).map(t=>`<div class="kv"><span>${esc(ymd(t.inicio,tz).split('-').reverse().join('/'))} ${hora(t.inicio,tz)} · ${esc(servN(t.servicio_id))} · ${esc(proN(t.profesional_id))}</span><b class="tag">${t.estado}</b></div>`).join('') || '<p class="muted">Sin turnos.</p>'}`,
+    `<button class="btn sm" id="csave">Guardar notas</button>`);
+  document.getElementById('csave').onclick = async () => {
+    const { error } = await sb.from('clientes').update({ notas: document.getElementById('cn').value.trim() || null }).eq('id', x.c.id);
+    if (error) return toast(err(error), 'bad'); x.c.notas = document.getElementById('cn').value.trim(); toast('Notas guardadas', 'ok'); closeDrawer();
+  };
+}
+
+/* ---------- SERVICIOS ---------- */
+function servicios(){
+  main().innerHTML = head('Servicios', `<button class="btn sm" id="sadd">+ Nuevo servicio</button>`) + `<p class="muted" style="margin:-8px 0 14px">Lo que cambies acá se actualiza al instante en tu página de reservas.</p><div class="card" id="st"></div>`;
+  const draw = () => {
+    document.getElementById('st').innerHTML = `<table class="tbl"><thead><tr><th>Servicio</th><th class="hide-m">Descripción</th><th>Minutos</th><th>Precio</th><th>Activo</th><th></th></tr></thead><tbody>${D.servs.map(s=>`
+      <tr data-id="${s.id}"><td><input class="input" data-k="nombre" value="${esc(s.nombre)}" aria-label="Nombre"></td><td class="hide-m"><input class="input" data-k="descripcion" value="${esc(s.descripcion||'')}" aria-label="Descripción"></td>
+      <td style="width:96px"><input class="input" data-k="duracion_min" type="number" min="5" step="5" value="${s.duracion_min}" aria-label="Duración"></td>
+      <td style="width:130px"><input class="input" data-k="precio" type="number" min="0" step="500" value="${s.precio??''}" aria-label="Precio"></td>
+      <td><label class="switch"><input type="checkbox" data-k="activo" ${s.activo?'checked':''} aria-label="Activo"><span></span></label></td>
+      <td><button class="btn sm ghost" data-save>Guardar</button></td></tr>`).join('')}</tbody></table>`;
+    document.querySelectorAll('#st [data-save]').forEach(b => b.onclick = async () => {
+      const tr = b.closest('tr'), upd = {};
+      tr.querySelectorAll('[data-k]').forEach(i => upd[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.type === 'number' ? (i.value === '' ? null : Number(i.value)) : i.value.trim());
+      if (!upd.nombre || !(upd.duracion_min >= 5)) return toast('Revisá nombre y duración', 'bad');
+      const { error } = await sb.from('servicios').update(upd).eq('id', tr.dataset.id);
+      if (error) return toast(err(error), 'bad');
+      Object.assign(D.servs.find(s => s.id === tr.dataset.id), upd); toast('Servicio guardado', 'ok');
+    });
+  };
+  document.getElementById('sadd').onclick = async () => {
+    const { data, error } = await sb.from('servicios').insert({ negocio_id: D.neg.id, nombre: 'Nuevo servicio', duracion_min: 30, orden: D.servs.length + 1 }).select().single();
+    if (error) return toast(err(error), 'bad'); D.servs.push(data); draw();
+    toast('Agregado. Asignalo a un profesional en "Equipo y horarios" para que aparezca en la web.');
+  };
+  draw();
+}
+
+/* ---------- EQUIPO ---------- */
+function equipo(){
+  main().innerHTML = head('Equipo y horarios', `<button class="btn sm" id="padd">+ Nuevo profesional</button>`) + `<p class="muted" style="margin:-8px 0 14px">Qué hace cada uno y en qué horarios atiende. La web solo ofrece turnos dentro de estas franjas.</p><div class="pros" id="pl"></div>`;
+  const draw = () => {
+    document.getElementById('pl').innerHTML = D.pros.map(p => `<div class="card pro" data-id="${p.id}">
+      <div class="pro-h"><input class="input" data-k="nombre" value="${esc(p.nombre)}" aria-label="Nombre"><label class="switch" title="Activo"><input type="checkbox" data-k="activo" ${p.activo?'checked':''} aria-label="Activo"><span></span></label></div>
+      <div class="field"><input class="input" data-k="bio" value="${esc(p.bio||'')}" placeholder="Especialidad (se ve en la web)" aria-label="Especialidad"></div>
+      <div class="chips">${D.servs.map(s=>`<label class="chk"><input type="checkbox" data-s="${s.id}" ${D.ps.some(x=>x.profesional_id===p.id&&x.servicio_id===s.id)?'checked':''}>${esc(s.nombre)}</label>`).join('')}</div>
+      <div class="hrs">${ORD.map(d => `<div class="hr" data-d="${d}"><b>${DIAS[d]}</b><div class="fr">${D.hrs.filter(h=>h.profesional_id===p.id&&h.dia_semana===d).map(h=>`<span data-h="${h.desde.slice(0,5)}-${h.hasta.slice(0,5)}">${h.desde.slice(0,5)}–${h.hasta.slice(0,5)}<button aria-label="Quitar">✕</button></span>`).join('') || '<em class="muted" style="font-size:13px">No atiende</em>'}</div>
+        <button class="link" data-addfr>+ franja</button>
+        <div class="addfr" style="grid-column:2/4"><input class="input" type="time" value="10:00" aria-label="Desde"> a <input class="input" type="time" value="14:00" aria-label="Hasta"><button class="btn sm ghost" data-okfr>Agregar</button></div></div>`).join('')}</div>
+      <button class="btn sm" data-save style="margin-top:12px;width:100%">Guardar cambios</button></div>`).join('');
+    document.querySelectorAll('.pro').forEach(card => {
+      card.querySelectorAll('.fr span button').forEach(b => b.onclick = () => { const fr = b.closest('.fr'); b.parentElement.remove(); if (!fr.children.length) fr.innerHTML = '<em class="muted" style="font-size:13px">No atiende</em>'; });
+      card.querySelectorAll('[data-addfr]').forEach(b => b.onclick = () => b.nextElementSibling.classList.toggle('on'));
+      card.querySelectorAll('[data-okfr]').forEach(b => b.onclick = () => {
+        const [a, z] = [...b.parentElement.querySelectorAll('input')].map(i => i.value);
+        if (!a || !z || z <= a) return toast('La franja tiene que terminar después de empezar', 'bad');
+        const fr = b.closest('.hr').querySelector('.fr'); fr.querySelector('em')?.remove();
+        const sp = document.createElement('span'); sp.dataset.h = a + '-' + z; sp.innerHTML = `${a}–${z}<button aria-label="Quitar">✕</button>`;
+        sp.querySelector('button').onclick = () => { sp.remove(); if (!fr.children.length) fr.innerHTML = '<em class="muted" style="font-size:13px">No atiende</em>'; };
+        fr.appendChild(sp); b.parentElement.classList.remove('on');
+      });
+      card.querySelector('[data-save]').onclick = async () => {
+        const id = card.dataset.id, upd = {};
+        card.querySelectorAll('[data-k]').forEach(i => upd[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value.trim());
+        if (!upd.nombre) return toast('Falta el nombre', 'bad');
+        const servs = [...card.querySelectorAll('[data-s]:checked')].map(i => i.dataset.s);
+        const hrs = []; card.querySelectorAll('.hr').forEach(r => r.querySelectorAll('[data-h]').forEach(s => { const [a, z] = s.dataset.h.split('-'); hrs.push({ negocio_id: D.neg.id, profesional_id: id, dia_semana: +r.dataset.d, desde: a, hasta: z }); }));
+        const r1 = await sb.from('profesionales').update(upd).eq('id', id);
+        const r2 = await sb.from('profesional_servicio').delete().eq('profesional_id', id);
+        const r3 = servs.length ? await sb.from('profesional_servicio').insert(servs.map(s => ({ profesional_id: id, servicio_id: s, negocio_id: D.neg.id }))) : {};
+        const r4 = await sb.from('horarios').delete().eq('profesional_id', id);
+        const r5 = hrs.length ? await sb.from('horarios').insert(hrs) : {};
+        const e = [r1, r2, r3, r4, r5].find(r => r && r.error); if (e) return toast(err(e.error), 'bad');
+        Object.assign(D.pros.find(p => p.id === id), upd);
+        D.ps = D.ps.filter(x => x.profesional_id !== id).concat(servs.map(s => ({ profesional_id: id, servicio_id: s, negocio_id: D.neg.id })));
+        D.hrs = D.hrs.filter(h => h.profesional_id !== id).concat(hrs.map(h => ({ ...h, desde: h.desde + ':00', hasta: h.hasta + ':00' })));
+        toast('Guardado: la web ya muestra estos horarios', 'ok');
+      };
+    });
+  };
+  document.getElementById('padd').onclick = async () => {
+    const { data, error } = await sb.from('profesionales').insert({ negocio_id: D.neg.id, nombre: 'Nuevo profesional', orden: D.pros.length + 1 }).select().single();
+    if (error) return toast(err(error), 'bad'); D.pros.push(data); draw();
+  };
+  draw();
+}
+
+/* ---------- BLOQUEOS ---------- */
+async function bloqueos(){
+  const tz = D.neg.tz, hoy = hoyYMD(tz);
+  main().innerHTML = head('Feriados y ausencias') + `<p class="muted" style="margin:-8px 0 14px">Bloqueá un día o unas horas (feriado, vacaciones, médico). Esos horarios dejan de ofrecerse en la web.</p>
+    <div class="cols2"><div class="card" id="bl"><div class="spinner"></div></div>
+    <div class="card" style="padding:18px"><h3 style="font-size:18px;margin-bottom:12px">Nuevo bloqueo</h3>
+      <div class="field"><label for="bq">Quién</label><select class="input" id="bq"><option value="">Todo el negocio</option>${D.pros.map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('')}</select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="field"><label for="bd">Desde el día</label><input class="input" type="date" id="bd" value="${hoy}"></div><div class="field"><label for="bh">Hasta el día</label><input class="input" type="date" id="bh" value="${hoy}"></div></div>
+      <label class="chk" style="margin-bottom:12px"><input type="checkbox" id="bt" checked> Días completos</label>
+      <div id="bhs" hidden style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="field"><label for="b1">Desde la hora</label><input class="input" type="time" id="b1" value="10:00"></div><div class="field"><label for="b2">Hasta la hora</label><input class="input" type="time" id="b2" value="13:00"></div></div>
+      <div class="field"><label for="bm">Motivo</label><input class="input" id="bm" placeholder="Feriado, vacaciones…"></div>
+      <div id="bwarn" class="muted" style="font-size:13px;margin-bottom:10px"></div>
+      <button class="btn" id="bsave" style="width:100%">Bloquear</button></div></div>`;
+  const $ = id => document.getElementById(id);
+  $('bt').onchange = () => { $('bhs').hidden = $('bt').checked; $('bhs').style.display = $('bt').checked ? 'none' : 'grid'; };
+  $('bhs').style.display = 'none';
+  const load = async () => {
+    const { data } = await sb.from('bloqueos').select('*').eq('negocio_id', D.neg.id).gte('hasta', new Date().toISOString()).order('desde');
+    $('bl').innerHTML = `<div class="sec-h">Próximos bloqueos</div>` + ((data||[]).length ? (data).map(b => `<div class="ev"><i>⛔</i><div><b>${esc(b.motivo||'Bloqueado')}</b><br><small>${b.profesional_id?esc(proN(b.profesional_id)):'Todo el negocio'} · ${esc(ymd(b.desde,tz).split('-').reverse().join('/'))} ${hora(b.desde,tz)} → ${esc(ymd(b.hasta,tz).split('-').reverse().join('/'))} ${hora(b.hasta,tz)}</small></div><button class="btn sm ghost" data-del="${b.id}">Quitar</button></div>`).join('') : '<p class="muted" style="padding:16px">No hay bloqueos cargados.</p>');
+    $('bl').querySelectorAll('[data-del]').forEach(b => b.onclick = async () => { const { error } = await sb.from('bloqueos').delete().eq('id', b.dataset.del); if (error) return toast(err(error), 'bad'); toast('Bloqueo quitado: esos horarios vuelven a estar disponibles', 'ok'); load(); });
+  };
+  $('bsave').onclick = async () => {
+    const full = $('bt').checked;
+    const desde = zoned($('bd').value, full ? '00:00' : $('b1').value, tz), hasta = full ? zoned(addDays($('bh').value, 1), '00:00', tz) : zoned($('bh').value, $('b2').value, tz);
+    if (!(hasta > desde)) return toast('Revisá las fechas', 'bad');
+    let q = sb.from('turnos').select('id', { count: 'exact', head: true }).eq('negocio_id', D.neg.id).eq('estado', 'confirmado').lt('inicio', hasta.toISOString()).gt('fin', desde.toISOString());
+    if ($('bq').value) q = q.eq('profesional_id', $('bq').value);
+    const { count } = await q;
+    const { error } = await sb.from('bloqueos').insert({ negocio_id: D.neg.id, profesional_id: $('bq').value || null, desde: desde.toISOString(), hasta: hasta.toISOString(), motivo: $('bm').value.trim() || null });
+    if (error) return toast(err(error), 'bad');
+    toast(count ? `Bloqueado. Ojo: hay ${count} turno(s) ya reservados en ese rango, revisalos en la agenda.` : 'Bloqueado: la web ya no ofrece esos horarios', count ? 'bad' : 'ok');
+    load();
+  };
+  load();
+}
+
+/* ---------- ACTIVIDAD ---------- */
+async function actividad(){
+  if (!document.getElementById('feed')) main().innerHTML = head('Actividad', '<span class="live"><i></i>En vivo</span>') + `<div class="cols2"><div class="card"><div class="sec-h">Qué pasó</div><div class="feed" id="feed"><div class="spinner"></div></div></div>
+    <div class="card"><div class="sec-h">Avisos automáticos <span class="pill">cola</span></div><div class="feed" id="notif"><div class="spinner"></div></div><p class="muted" style="font-size:12px;padding:0 16px 14px">Cada reserva genera solos la confirmación al cliente, el aviso a vos y el recordatorio del día anterior. Si se cancela, el recordatorio se anula. El envío por mail se activa al conectar el servicio de correo.</p></div></div>`;
+  const tz = D.neg.tz;
+  const [a, n] = await Promise.all([
+    sb.from('actividad').select('*').eq('negocio_id', D.neg.id).order('created_at', { ascending: false }).limit(60),
+    sb.from('notificaciones').select('*, turnos(inicio, clientes(nombre))').eq('negocio_id', D.neg.id).order('created_at', { ascending: false }).limit(30)
+  ]);
+  const IC = { reserva:'＋', cancelacion:'✕', reprogramado:'↻', atendido:'✓', ausente:'!', confirmado:'●' };
+  const LB = { reserva:'Nueva reserva', cancelacion:'Cancelación', reprogramado:'Reprogramado', atendido:'Atendido', ausente:'No vino', confirmado:'Reconfirmado' };
+  const ago = ts => { const s = (Date.now() - new Date(ts)) / 1000; return s < 60 ? 'recién' : s < 3600 ? 'hace ' + Math.floor(s/60) + ' min' : s < 86400 ? 'hace ' + Math.floor(s/3600) + ' h' : ymd(ts, tz).split('-').reverse().join('/'); };
+  const feed = document.getElementById('feed'); if (!feed) return;
+  feed.innerHTML = (a.data||[]).map(e => `<div class="ev ${e.accion}"><i>${IC[e.accion]||'•'}</i><div><b>${LB[e.accion]||e.accion}</b> · ${esc(e.detalle||'')}<br><small>${esc(e.quien||'')}</small></div><small>${ago(e.created_at)}</small></div>`).join('') || '<p class="muted" style="padding:16px">Todavía no hay movimientos.</p>';
+  const TN = { confirmacion:'Confirmación al cliente', cancelacion:'Aviso de cancelación al cliente', recordatorio:'Recordatorio 24 h antes', aviso_dueno:'Aviso al negocio' };
+  const ST = { pendiente:'listo para enviar', anulada:'anulado', enviada:'enviado', error:'error' };
+  document.getElementById('notif').innerHTML = (n.data||[]).map(x => `<div class="ev"><i>✉</i><div><b>${TN[x.tipo]}</b><br><small>${esc(x.turnos?.clientes?.nombre||'')}${x.tipo==='recordatorio'?' · sale el '+esc(ymd(x.programada_para,tz).split('-').reverse().join('/'))+' '+hora(x.programada_para,tz):''}</small></div><span class="pill ${x.estado}">${ST[x.estado]}</span></div>`).join('') || '<p class="muted" style="padding:16px">Sin avisos todavía. Hacé una reserva de prueba desde tu página.</p>';
+}
+
+/* ---------- AJUSTES ---------- */
+function ajustes(){
+  const n = D.neg;
+  const f = (k, l, t, extra) => `<div class="field"><label for="a_${k}">${l}</label><input class="input" id="a_${k}" data-k="${k}" type="${t||'text'}" value="${esc(n[k]??'')}" ${extra||''}></div>`;
+  main().innerHTML = head('Ajustes') + `<div class="cols2"><div class="card" style="padding:20px">
+    <h3 style="font-size:18px;margin-bottom:12px">Tu negocio</h3>
+    ${f('nombre','Nombre')}${f('bajada','Frase de la página')}${f('direccion','Dirección')}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${f('telefono','Teléfono')}${f('instagram','Instagram')}</div>
+    ${f('email','Mail donde recibís los avisos','email')}
+    <div class="field"><label for="a_color">Color de la marca</label><input class="input" id="a_color" data-k="color" type="color" value="${esc(n.color||'#1f3a2e')}" style="padding:4px;width:80px"></div>
+  </div><div class="card" style="padding:20px">
+    <h3 style="font-size:18px;margin-bottom:12px">Reglas de reserva</h3>
+    ${f('intervalo_min','Cada cuántos minutos se ofrecen horarios','number','min="5" max="60" step="5"')}
+    ${f('anticipacion_min','Anticipación mínima para reservar (minutos)','number','min="0" step="15"')}
+    ${f('dias_maximos','Hasta cuántos días adelante se puede reservar','number','min="1" max="90"')}
+    ${f('cancelacion_horas','Hasta cuántas horas antes pueden cancelar online','number','min="0" max="72"')}
+    <p class="muted" style="font-size:13px">Tu página de reservas: <a href="./?n=${encodeURIComponent(n.slug)}" target="_blank" rel="noopener">${esc(location.host)}/?n=${esc(n.slug)}</a></p>
+    <button class="btn" id="asave" style="width:100%;margin-top:6px">Guardar</button></div></div>`;
+  document.getElementById('asave').onclick = async () => {
+    const upd = {}; main().querySelectorAll('[data-k]').forEach(i => upd[i.dataset.k] = i.type === 'number' ? Number(i.value) : (i.value.trim() || null));
+    if (!upd.nombre) return toast('Falta el nombre', 'bad');
+    const { error } = await sb.from('negocios').update(upd).eq('id', n.id);
+    if (error) return toast(err(error), 'bad');
+    Object.assign(D.neg, upd); document.documentElement.style.setProperty('--brand', D.neg.color); document.querySelector('.side .biz b').textContent = D.neg.nombre;
+    toast('Ajustes guardados', 'ok');
+  };
+}
+
+/* ---------- exportar ---------- */
+function csv(name, headers, rows){
+  const q = v => { v = v == null ? '' : String(v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const txt = '﻿' + [headers, ...rows].map(r => r.map(q).join(';')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/csv;charset=utf-8' })); a.download = name + '.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function exportar(){
+  const tz = D.neg.tz, hoy = hoyYMD(tz);
+  openDrawer('Exportar turnos a Excel', `<p class="muted">Bajá un archivo que se abre directo en Excel o Google Sheets.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="field"><label for="e1">Desde</label><input class="input" type="date" id="e1" value="${addDays(hoy,-30)}"></div><div class="field"><label for="e2">Hasta</label><input class="input" type="date" id="e2" value="${addDays(hoy,30)}"></div></div>`,
+    `<button class="btn" id="ego" style="flex:1">Descargar</button>`);
+  document.getElementById('ego').onclick = async () => {
+    const d0 = zoned(document.getElementById('e1').value, '00:00', tz), d1 = zoned(addDays(document.getElementById('e2').value, 1), '00:00', tz);
+    const { data, error } = await sb.from('turnos').select('*, clientes(nombre,telefono,email)').eq('negocio_id', D.neg.id).gte('inicio', d0.toISOString()).lt('inicio', d1.toISOString()).order('inicio');
+    if (error) return toast(err(error), 'bad');
+    csv('turnos-' + D.neg.slug, ['Fecha','Hora','Fin','Profesional','Servicio','Cliente','Celular','Mail','Estado','Origen','Precio'],
+      data.map(t => [ymd(t.inicio,tz), hora(t.inicio,tz), hora(t.fin,tz), proN(t.profesional_id), servN(t.servicio_id), t.clientes?.nombre, t.clientes?.telefono, t.clientes?.email, t.estado, t.origen, t.precio]));
+    closeDrawer(); toast('Archivo descargado', 'ok');
+  };
+}
+})();
+</script>
+</body>
+</html>

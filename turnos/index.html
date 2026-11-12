@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Reservá tu turno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:20px}
+.logo i{width:34px;height:34px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;font-style:normal;font-size:15px}
+.hero{padding:56px 0 28px}
+.hero .kick{display:inline-flex;gap:8px;align-items:center;font-weight:600;font-size:13px;color:var(--brand);background:color-mix(in srgb,var(--brand) 9%,transparent);padding:6px 12px;border-radius:999px}
+.hero h1{font-size:clamp(38px,6.4vw,72px);margin:16px 0 14px;max-width:14ch}
+.hero p{font-size:18px;color:var(--muted);max-width:52ch;margin:0}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;font-size:14px;color:var(--muted)}
+.hero .meta b{color:var(--ink);font-weight:600}
+.book{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;padding-bottom:40px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.steps{padding:8px}
+.step{border-radius:14px;padding:18px 18px 20px}
+.step+.step{border-top:1px dashed var(--line);border-radius:0}
+.step-h{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.step-h .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--soft);color:var(--muted);flex:none}
+.step.done .n{background:var(--brand);color:#fff}
+.step.active .n{background:var(--accent);color:#fff}
+.step-h h2{font-size:21px}
+.step-h .chosen{margin-left:auto;font-size:14px;color:var(--muted);text-align:right}
+.step.locked{opacity:.45;pointer-events:none}
+.step.locked .body{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;transition:border-color .15s,transform .15s,box-shadow .15s;min-height:44px}
+.opt:hover{border-color:color-mix(in srgb,var(--brand) 50%,var(--line));transform:translateY(-1px)}
+.opt:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 35%,transparent)}
+.opt.sel{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 14%,transparent)}
+.opt b{font-size:16px} .opt small{color:var(--muted);font-size:13px}
+.opt .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-top:4px;font-size:14px}
+.opt .price{font-weight:700;font-variant-numeric:tabular-nums}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-weight:700;color:var(--brand);font-family:var(--f-display)}
+.pro{flex-direction:row;align-items:center;gap:12px}
+.days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.day{all:unset;box-sizing:border-box;cursor:pointer;scroll-snap-align:start;flex:none;width:68px;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:10px 0;text-align:center;transition:.15s}
+.day small{display:block;font-size:12px;color:var(--muted);text-transform:capitalize}
+.day b{display:block;font-family:var(--f-display);font-size:24px;line-height:1.1;margin:2px 0}
+.day em{display:block;font-style:normal;font-size:11px;color:var(--ok);font-weight:600}
+.day.off{opacity:.38;cursor:not-allowed}.day.off em{color:var(--muted)}
+.day.sel{background:var(--brand);border-color:var(--brand);color:#fff}.day.sel small,.day.sel em{color:#fff}
+.day:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 35%,transparent)}
+.slots h3{font-size:13px;font-family:var(--f-body);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px}
+.slotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.slot{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 0;font-weight:600;font-variant-numeric:tabular-nums;min-height:44px;transition:.15s}
+.slot:hover{border-color:var(--brand)} .slot.sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.slot:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 35%,transparent)}
+.empty{padding:18px;border-radius:12px;background:var(--soft);color:var(--muted);font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.summary{position:sticky;top:84px;padding:22px}
+.summary h3{font-size:20px;margin-bottom:14px}
+.sum-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sum-row span{color:var(--muted)} .sum-row b{text-align:right}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 18px}
+.sum-total b{font-family:var(--f-display);font-size:28px}
+.summary .btn{width:100%}
+.summary .note{font-size:12px;color:var(--muted);margin-top:12px;text-align:center}
+.formerr{color:var(--bad);font-size:14px;margin-top:10px;min-height:1em}
+.done-card{max-width:620px;margin:48px auto 64px;padding:34px;text-align:center}
+.check{width:72px;height:72px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin:0 auto 18px;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+.done-card h2{font-size:34px;margin-bottom:8px}
+.ticket{margin:24px 0;padding:18px;border-radius:16px;background:var(--bg);border:1px dashed var(--line);text-align:left}
+.ticket .sum-row:last-child{border:0}
+.done-card .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.linkbox{display:flex;gap:8px;margin-top:18px}
+.linkbox input{flex:1;font-size:13px}
+@media (max-width:880px){
+  .book{grid-template-columns:1fr}
+  .summary{position:static}
+  .mobilebar{position:sticky;bottom:0;z-index:15}
+}
+@media (max-width:520px){.two{grid-template-columns:1fr}.hero{padding:36px 0 18px}.step{padding:16px 12px 18px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><div class="logo"><i id="logo-i">·</i><span id="logo-n">Cargando…</span></div><a class="btn sm ghost" href="#reservar">Reservar</a></div></header>
+
+<main id="app">
+  <div class="spinner" aria-label="Cargando"></div>
+</main>
+<p class="powered">Reservas online por <a href="https://me-encargo.vercel.app" target="_blank" rel="noopener">Me Encargo</a></p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  const { sb, money, esc, hora, hoyYMD, addDays, fechaLarga, toast, gcal } = ME;
+  const slug = new URLSearchParams(location.search).get('n') || 'barberia-demo';
+  const app = document.getElementById('app');
+  const S = { neg:null, serv:null, pro:null, anyPro:true, dia:null, slot:null, dias:{}, slots:[] };
+  let N;
+
+  init();
+  async function init(){
+    const { data, error } = await sb.rpc('publico_negocio', { p_slug: slug });
+    if (error || !data) { app.innerHTML = '<div class="wrap"><div class="empty" style="margin:60px 0">No encontramos este negocio.</div></div>'; return; }
+    N = S.neg = data;
+    document.title = 'Reservá tu turno · ' + N.nombre;
+    if (N.color) document.documentElement.style.setProperty('--brand', N.color);
+    document.getElementById('logo-n').textContent = N.nombre;
+    document.getElementById('logo-i').textContent = N.nombre.trim().charAt(0);
+    render();
+  }
+
+  function render(){
+    app.innerHTML = `
+    <section class="hero"><div class="wrap">
+      <span class="kick">● ${esc(N.rubro || 'Turnos online')}</span>
+      <h1>Reservá tu turno en ${esc(N.nombre)}</h1>
+      <p>${esc(N.bajada || 'Elegí el servicio, el día y el horario. Te lleva menos de un minuto.')}</p>
+      <div class="meta">
+        ${N.direccion ? `<span>📍 <b>${esc(N.direccion)}</b></span>` : ''}
+        ${N.instagram ? `<span>📷 <b>${esc(N.instagram)}</b></span>` : ''}
+        ${N.telefono ? `<span>📞 <b>${esc(N.telefono)}</b></span>` : ''}
+      </div>
+    </div></section>
+    <section class="wrap book" id="reservar">
+      <div class="panel steps">
+        <div class="step" id="st1"><div class="step-h"><span class="n">1</span><h2>Servicio</h2><span class="chosen"></span></div><div class="body"></div></div>
+        <div class="step" id="st2"><div class="step-h"><span class="n">2</span><h2>Profesional</h2><span class="chosen"></span></div><div class="body"></div></div>
+        <div class="step" id="st3"><div class="step-h"><span class="n">3</span><h2>Día y horario</h2><span class="chosen"></span></div><div class="body"></div></div>
+        <div class="step" id="st4"><div class="step-h"><span class="n">4</span><h2>Tus datos</h2></div><div class="body"></div></div>
+      </div>
+      <aside class="panel summary" aria-live="polite"></aside>
+    </section>`;
+    drawServicios(); refresh();
+  }
+
+  function stepState(){
+    const st = [S.serv, S.serv && (S.pro || S.anyPro) && S._proChosen, S.slot, false];
+    ['st1','st2','st3','st4'].forEach((id,i)=>{
+      const el = document.getElementById(id);
+      const unlocked = i===0 || st.slice(0,i).every(Boolean);
+      el.classList.toggle('locked', !unlocked);
+      el.classList.toggle('done', !!st[i]);
+      el.classList.toggle('active', unlocked && !st[i]);
+    });
+    const ch = (id,t)=>document.querySelector('#'+id+' .chosen').innerHTML = t||'';
+    ch('st1', S.serv ? esc(S.serv.nombre) : '');
+    ch('st2', S._proChosen ? (S.pro ? esc(S.pro.nombre) : 'Cualquiera') : '');
+    ch('st3', S.slot ? esc(fechaLarga(S.dia)) + ' · ' + hora(S.slot.inicio, N.tz) : '');
+  }
+
+  function drawServicios(){
+    const b = document.querySelector('#st1 .body');
+    b.innerHTML = '<div class="grid">' + N.servicios.map(s => `
+      <button class="opt ${S.serv&&S.serv.id===s.id?'sel':''}" data-id="${s.id}">
+        <b>${esc(s.nombre)}</b>${s.descripcion?`<small>${esc(s.descripcion)}</small>`:''}
+        <span class="row"><span class="muted">${s.duracion_min} min</span><span class="price">${money(s.precio)}</span></span>
+      </button>`).join('') + '</div>';
+    b.querySelectorAll('.opt').forEach(o => o.onclick = () => {
+      S.serv = N.servicios.find(s => s.id === o.dataset.id);
+      S.pro = null; S.anyPro = true; S._proChosen = false; S.dia = null; S.slot = null;
+      drawServicios(); drawPros(); document.querySelector('#st3 .body').innerHTML=''; drawDatos(); refresh();
+      const pros = N.profesionales.filter(p => p.servicios.includes(S.serv.id));
+      if (pros.length === 1) { S.pro = pros[0]; S.anyPro=false; S._proChosen = true; drawPros(); loadDias(); refresh(); }
+      document.getElementById('st2').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
+
+  function drawPros(){
+    const b = document.querySelector('#st2 .body');
+    if (!S.serv) { b.innerHTML=''; return; }
+    const pros = N.profesionales.filter(p => p.servicios.includes(S.serv.id));
+    b.innerHTML = '<div class="grid">' +
+      (pros.length>1 ? `<button class="opt pro ${S._proChosen&&!S.pro?'sel':''}" data-id=""><span class="avatar">★</span><span><b>Cualquiera</b><br><small>El primero disponible</small></span></button>`:'') +
+      pros.map(p => `<button class="opt pro ${S.pro&&S.pro.id===p.id?'sel':''}" data-id="${p.id}"><span class="avatar">${esc(p.nombre.charAt(0))}</span><span><b>${esc(p.nombre)}</b>${p.bio?`<br><small>${esc(p.bio)}</small>`:''}</span></button>`).join('') + '</div>';
+    b.querySelectorAll('.opt').forEach(o => o.onclick = () => {
+      S.pro = o.dataset.id ? pros.find(p => p.id === o.dataset.id) : null; S.anyPro = !S.pro; S._proChosen = true;
+      S.dia = null; S.slot = null; drawPros(); drawDatos(); loadDias(); refresh();
+      document.getElementById('st3').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
+
+  async function loadDias(){
+    const b = document.querySelector('#st3 .body');
+    b.innerHTML = '<div class="spinner"></div>';
+    const desde = hoyYMD(N.tz), hasta = addDays(desde, Math.min(N.dias_maximos || 30, 30));
+    const { data, error } = await sb.rpc('publico_dias', { p_slug: slug, p_servicio: S.serv.id, p_desde: desde, p_hasta: hasta, p_profesional: S.pro ? S.pro.id : null });
+    if (error) { b.innerHTML = '<div class="empty">No pudimos cargar los días. Probá de nuevo.</div>'; return; }
+    S.dias = {}; data.forEach(d => S.dias[d.fecha] = d.libres);
+    const first = data.find(d => d.libres > 0);
+    b.innerHTML = '<div class="days" role="listbox" aria-label="Días">' + data.map(d => {
+      const dt = new Date(d.fecha + 'T12:00:00Z');
+      const wd = dt.toLocaleDateString('es-AR', { weekday:'short', timeZone:'UTC' }).replace('.','');
+      const mo = dt.toLocaleDateString('es-AR', { month:'short', timeZone:'UTC' }).replace('.','');
+      return `<button class="day ${d.libres?'':'off'}" data-f="${d.fecha}" ${d.libres?'':'disabled aria-disabled="true"'}><small>${wd}</small><b>${dt.getUTCDate()}</b><small>${mo}</small><em>${d.libres?d.libres+' libres':'—'}</em></button>`;
+    }).join('') + '</div><div class="slots"></div>';
+    b.querySelectorAll('.day:not(.off)').forEach(x => x.onclick = () => pickDia(x.dataset.f));
+    if (first) pickDia(first.fecha, true); else b.querySelector('.slots').innerHTML = '<div class="empty">No hay horarios libres en los próximos días.</div>';
+  }
+
+  async function pickDia(f, silent){
+    S.dia = f; S.slot = null; refresh(); drawDatos();
+    document.querySelectorAll('.day').forEach(x => x.classList.toggle('sel', x.dataset.f === f));
+    const box = document.querySelector('#st3 .slots');
+    box.innerHTML = '<div class="spinner"></div>';
+    const { data, error } = await sb.rpc('publico_disponibilidad', { p_slug: slug, p_servicio: S.serv.id, p_fecha: f, p_profesional: S.pro ? S.pro.id : null });
+    if (error) { box.innerHTML = '<div class="empty">No pudimos cargar los horarios.</div>'; return; }
+    S.slots = data;
+    if (!data.length) { box.innerHTML = '<div class="empty">Ese día ya no quedan horarios. Elegí otro.</div>'; return; }
+    const g = { 'Mañana':[], 'Tarde':[], 'Noche':[] };
+    data.forEach((s,i) => { const h = +hora(s.inicio, N.tz).slice(0,2); (h<13?g['Mañana']:h<19?g['Tarde']:g['Noche']).push(i); });
+    box.innerHTML = Object.entries(g).filter(([,v])=>v.length).map(([k,v]) =>
+      `<h3>${k}</h3><div class="slotgrid">${v.map(i=>`<button class="slot" data-i="${i}">${hora(data[i].inicio, N.tz)}</button>`).join('')}</div>`).join('');
+    box.querySelectorAll('.slot').forEach(x => x.onclick = () => {
+      S.slot = data[+x.dataset.i];
+      box.querySelectorAll('.slot').forEach(y => y.classList.toggle('sel', y === x));
+      drawDatos(); refresh();
+      document.getElementById('st4').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
+
+  function drawDatos(){
+    const b = document.querySelector('#st4 .body');
+    if (!S.slot) { b.innerHTML = ''; return; }
+    if (b.querySelector('form')) return;
+    const saved = (()=>{ try { return JSON.parse(localStorage.getItem('me-turnos-datos')||'{}'); } catch(e){ return {}; } })();
+    b.innerHTML = `<form id="f" novalidate>
+      <div class="field"><label for="fn">Nombre y apellido</label><input class="input" id="fn" autocomplete="name" required value="${esc(saved.n||'')}"></div>
+      <div class="two">
+        <div class="field"><label for="ft">Celular</label><input class="input" id="ft" type="tel" inputmode="tel" autocomplete="tel" placeholder="11 2345 6789" required value="${esc(saved.t||'')}"></div>
+        <div class="field"><label for="fe">Mail</label><input class="input" id="fe" type="email" inputmode="email" autocomplete="email" placeholder="vos@mail.com" required value="${esc(saved.e||'')}"></div>
+      </div>
+      <div class="field"><label for="fo">¿Algo que debamos saber? <span class="muted">(opcional)</span></label><textarea class="input" id="fo" rows="2" maxlength="300"></textarea></div>
+    </form>`;
+  }
+
+  function refresh(){
+    stepState();
+    const sm = document.querySelector('.summary'); if (!sm) return;
+    const ok = !!S.slot;
+    sm.innerHTML = `<h3>Tu turno</h3>
+      <div class="sum-row"><span>Servicio</span><b>${S.serv?esc(S.serv.nombre):'—'}</b></div>
+      <div class="sum-row"><span>Profesional</span><b>${S._proChosen?(S.pro?esc(S.pro.nombre):(S.slot?'Primero libre':'Cualquiera')):'—'}</b></div>
+      <div class="sum-row"><span>Día</span><b>${S.dia?esc(fechaLarga(S.dia)):'—'}</b></div>
+      <div class="sum-row"><span>Horario</span><b>${S.slot?hora(S.slot.inicio,N.tz)+' hs':'—'}</b></div>
+      <div class="sum-total"><span class="muted">${S.serv?S.serv.duracion_min+' min':''}</span><b>${S.serv?money(S.serv.precio):''}</b></div>
+      <button class="btn" id="go" ${ok?'':'disabled'}>Confirmar turno</button>
+      <div class="formerr" id="ferr" role="alert"></div>
+      <p class="note">Podés cancelarlo online hasta ${N.cancelacion_horas} h antes.</p>`;
+    sm.querySelector('#go').onclick = reservar;
+  }
+
+  async function reservar(){
+    const v = id => (document.getElementById(id)||{}).value?.trim() || '';
+    const n = v('fn'), t = v('ft'), e = v('fe'), o = v('fo');
+    const ferr = document.getElementById('ferr');
+    if (n.length < 2) return showErr('Escribí tu nombre.', 'fn');
+    if (t.replace(/\D/g,'').length < 8) return showErr('Revisá el celular.', 'ft');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return showErr('Revisá el mail.', 'fe');
+    const btn = document.getElementById('go'); btn.disabled = true; btn.textContent = 'Reservando…'; ferr.textContent = '';
+    const pro = S.pro ? S.pro.id : S.slot.profesionales[0];
+    const { data, error } = await sb.rpc('publico_reservar', { p_slug: slug, p_servicio: S.serv.id, p_inicio: S.slot.inicio,
+      p_nombre: n, p_telefono: t, p_email: e, p_profesional: pro, p_notas: o || null });
+    if (error) {
+      btn.disabled = false; btn.textContent = 'Confirmar turno';
+      showErr(ME.err(error)); if (S.dia) pickDia(S.dia); return;
+    }
+    try { localStorage.setItem('me-turnos-datos', JSON.stringify({ n, t, e })); } catch(_){}
+    done(data);
+    function showErr(m, focus){ ferr.textContent = m; if (focus) { const el = document.getElementById(focus); el && el.focus(); } }
+  }
+
+  function done(r){
+    const link = location.origin + location.pathname.replace(/[^/]*$/, '') + 'turno.html?t=' + r.token;
+    const f = ME.ymd(r.inicio, N.tz);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    app.innerHTML = `<div class="wrap"><div class="panel done-card">
+      <div class="check"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>¡Turno confirmado!</h2>
+      <p class="muted">Te esperamos en ${esc(N.nombre)}.</p>
+      <div class="ticket">
+        <div class="sum-row"><span>Servicio</span><b>${esc(r.servicio)}</b></div>
+        <div class="sum-row"><span>Profesional</span><b>${esc(r.profesional)}</b></div>
+        <div class="sum-row"><span>Cuándo</span><b>${esc(fechaLarga(f))} · ${hora(r.inicio, N.tz)} hs</b></div>
+        ${N.direccion?`<div class="sum-row"><span>Dónde</span><b>${esc(N.direccion)}</b></div>`:''}
+      </div>
+      <div class="actions">
+        <a class="btn" target="_blank" rel="noopener" href="${gcal(r.servicio+' · '+N.nombre, r.inicio, r.fin, N.direccion)}">Agregar a mi calendario</a>
+        <a class="btn ghost" href="${link}">Ver o cancelar mi turno</a>
+      </div>
+      <p class="muted" style="font-size:14px;margin-top:20px">Guardá este link para ver o cancelar tu turno:</p>
+      <div class="linkbox"><input class="input" readonly value="${esc(link)}" aria-label="Link de tu turno"><button class="btn sm ghost" id="cp">Copiar</button></div>
+      <p style="margin-top:22px"><a href="?n=${encodeURIComponent(slug)}" class="muted">Reservar otro turno</a></p>
+    </div></div>`;
+    document.getElementById('cp').onclick = async () => { try { await navigator.clipboard.writeText(link); toast('Link copiado', 'ok'); } catch(_) { toast('No se pudo copiar'); } };
+  }
+})();
+</script>
+</body>
+</html>

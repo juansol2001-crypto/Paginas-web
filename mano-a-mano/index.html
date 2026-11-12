@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mano a Mano · El fantasy del fútbol argentino</title>
+<meta name="description" content="Fantasy de la Liga Profesional con Apertura y Clausura: draft en vivo, un cruce por fecha contra un amigo y desafíos mano a mano.">
+<meta name="theme-color" content="#0B1810">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+.wrap{width:min(1160px,100% - 32px);margin-inline:auto}
+.s{position:relative;padding:96px 0}
+.osc{background:var(--noche);color:var(--papel)}
+.osc .gris{color:#A9B9AE}
+.gris{color:var(--gris)}
+.lima{color:var(--lima)}
+.kicker{display:inline-flex;align-items:center;gap:10px;font:700 13px/1 var(--f-text);letter-spacing:.12em;text-transform:uppercase}
+.kicker .dot{width:9px;height:9px;border-radius:50%;background:var(--lima);animation:latido 2s infinite}
+@keyframes latido{0%{box-shadow:0 0 0 0 rgba(212,243,90,.55)}70%{box-shadow:0 0 0 10px rgba(212,243,90,0)}100%{box-shadow:0 0 0 0 rgba(212,243,90,0)}}
+.cabeza{display:grid;gap:16px;margin-bottom:48px;max-width:760px}
+.cabeza h2{font-size:clamp(46px,6.6vw,84px)}
+.cabeza p{font-size:clamp(18px,1.5vw,20px)}
+.osc .cabeza p{color:#C9D6CD}
+
+/* Barra superior */
+.top{position:sticky;top:0;z-index:40;background:rgba(11,24,16,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--papel);border-bottom:1px solid rgba(255,255,255,.08)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.top nav{display:flex;gap:2px}
+.top nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;color:#C9D6CD}
+.top nav a:hover,.top nav a[aria-current=true]{color:var(--papel);background:rgba(255,255,255,.07)}
+@media (max-width:1040px){.top nav{display:none}}
+@media (max-width:520px){.top .btn{display:none}}
+
+/* Portada */
+.hero{min-height:calc(100svh - 68px);display:flex;align-items:center;overflow:hidden;padding:64px 0 80px}
+.cancha-fondo{position:absolute;inset:0;opacity:.1;pointer-events:none}
+.cancha-fondo svg{width:100%;height:100%}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:64px;align-items:center}
+.hero h1{font-size:clamp(58px,8.6vw,118px);margin:22px 0 24px}
+.hero .bajada{font-size:clamp(18px,1.6vw,21px);color:#C9D6CD;max-width:44ch}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.estado{display:flex;align-items:flex-start;gap:10px;margin-top:28px;font-size:15px;color:#C9D6CD;max-width:46ch}
+.estado b{color:var(--papel)}
+.estado .luz{width:10px;height:10px;margin-top:6px;border-radius:50%;background:var(--oro);flex:none}
+.estado.en-juego .luz{background:var(--lima);animation:latido 2s infinite}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:44px}}
+
+.cruce{position:relative;background:linear-gradient(160deg,var(--noche-3),var(--noche-2));border:1px solid var(--linea-osc);border-radius:24px;padding:24px;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.cruce-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:#A9B9AE;flex-wrap:wrap}
+.vivo-chip{background:rgba(229,72,77,.16);color:#FF8D90;font-weight:700}
+.vivo-chip::before{content:"";width:8px;height:8px;border-radius:50%;background:#FF6B6F;animation:parpadeo 1.4s infinite}
+@keyframes parpadeo{50%{opacity:.3}}
+.marcador{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:22px 0 18px;text-align:center}
+.marcador b{display:block;font-size:16px;color:#C9D6CD;font-weight:600}
+.marcador .pts{display:block;font:700 clamp(64px,7vw,84px)/1 var(--f-num);color:var(--papel);transition:color .3s}
+.marcador .pts.sube{color:var(--lima)}
+.marcador .vs{font:900 22px/1 var(--f-display);color:#6F8577}
+.prob-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.prob-bar i{display:block;height:100%;background:var(--lima);border-radius:99px;transition:width .8s ease}
+.prob p{margin-top:8px;font-size:15px;color:#C9D6CD}
+.prob p b{color:var(--papel)}
+.eventos{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:8px;min-height:126px}
+.eventos li{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);font-size:15px;animation:entra .5s ease}
+.eventos li span{color:var(--lima);font:700 16px/1.2 var(--f-num);white-space:nowrap}
+.eventos li.contra span{color:#FF8D90}
+@keyframes entra{from{opacity:0;transform:translateY(-8px)}}
+.sticker{position:absolute;top:-44px;right:-14px;width:104px;height:104px;animation:gira 16s linear infinite;z-index:2}
+.sticker text{font:800 12px var(--f-text);letter-spacing:.2em;fill:var(--tinta)}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (max-width:520px){.sticker{width:84px;height:84px;top:-40px;right:-4px}}
+
+/* Cintas */
+.tira{background:var(--lima);color:var(--tinta);overflow:hidden;border-block:3px solid var(--tinta)}
+.cinta{overflow:hidden;position:relative}
+.cinta-in{display:flex;width:max-content;will-change:transform}
+.ticker span{display:inline-flex;align-items:center;gap:22px;padding:16px 22px;font:900 clamp(22px,2.6vw,30px)/1 var(--f-display);text-transform:uppercase;white-space:nowrap}
+.ticker span::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--tinta)}
+.jugadores{background:var(--noche);padding:26px 0 18px}
+.jugadores .cinta-in{gap:14px;padding-inline:7px}
+.jcard{width:196px;flex:none;background:var(--papel);border-radius:16px;padding:14px 14px 12px;display:grid;gap:4px;position:relative;overflow:hidden}
+.jcard::before{content:"";position:absolute;top:10px;right:12px;width:50px;height:46px;background:var(--bg);clip-path:polygon(28% 0,72% 0,100% 18%,88% 42%,80% 36%,80% 100%,20% 100%,20% 36%,12% 42%,0 18%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.jcard-nom{font:900 28px/1 var(--f-display);text-transform:uppercase;margin-top:10px;position:relative}
+.jcard-club{font-size:14px;color:var(--gris)}
+.jcard-dueno{margin-top:8px;font:600 13px/1.3 var(--f-text);background:rgba(14,24,17,.06);border-radius:8px;padding:6px 8px}
+.jcard-dueno.libre{background:rgba(31,122,74,.12);color:var(--cesped)}
+.cinta-ayuda{font-size:13px;color:#A9B9AE;text-align:center;margin-top:14px;padding-inline:16px}
+.sin-mov .cinta{overflow-x:auto}
+
+/* El año */
+.anio{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
+.torneo{background:var(--papel);border:1px solid var(--linea);border-radius:22px;padding:24px;display:grid;gap:18px;align-content:start;box-shadow:var(--sombra)}
+.torneo-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.torneo h3{font-size:clamp(36px,4vw,52px)}
+.torneo .cuando{color:var(--gris);font-size:15px}
+.etapa-chip{font-weight:700}
+.etapa-chip.fin{background:#E1F0C9;color:#2D5A12}
+.etapa-chip.vivo{background:#FAD4D5;color:#9E1C21}
+.etapas{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.etapas li{display:grid;grid-template-columns:28px 1fr;gap:14px;position:relative;padding-bottom:16px}
+.etapas li:last-child{padding-bottom:0}
+.etapas li::before{content:"";width:16px;height:16px;border-radius:50%;margin:4px 0 0 6px;background:var(--papel);border:3px solid var(--cesped-2);z-index:1}
+.etapas li::after{content:"";position:absolute;left:13px;top:20px;bottom:-4px;width:2px;background:#CFE5B8}
+.etapas li:last-child::after{display:none}
+.etapas li.copa::before{background:var(--oro);border-color:var(--tinta)}
+.etapas b{display:block;font-size:17px}
+.etapas span{color:var(--gris);font-size:15px}
+.puente{display:grid;place-items:center;align-content:center;gap:10px;text-align:center;width:150px}
+.puente .flecha{width:56px;height:56px;border-radius:50%;background:var(--tinta);color:var(--lima);display:grid;place-items:center}
+.puente p{font-size:14px;font-weight:600}
+.puente small{font-size:13px;color:var(--gris)}
+.anual{margin-top:18px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;background:var(--tinta);color:var(--papel);border-radius:22px;padding:22px 26px}
+.anual .copa{width:52px;height:52px;border-radius:14px;background:var(--oro);display:grid;place-items:center}
+.anual h3{font-size:clamp(28px,3vw,38px)}
+.anual p{color:#C9D6CD}
+.anual .chip{background:rgba(255,255,255,.1);color:var(--papel)}
+.real{margin-top:22px;font-size:15px;color:var(--gris);max-width:80ch}
+@media (max-width:900px){.anio{grid-template-columns:1fr}.puente{width:auto;grid-template-columns:auto 1fr;text-align:left;justify-items:start;padding:4px 8px}.puente .flecha{transform:rotate(90deg)}.anual{grid-template-columns:auto 1fr}.anual .chip{grid-column:1/-1;justify-self:start}}
+
+/* Cómo se juega una fecha */
+.pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.paso{border:1px solid var(--linea-osc);border-radius:var(--r);padding:24px;background:var(--noche-2);display:grid;gap:12px;align-content:start}
+.paso .n{font:900 56px/.9 var(--f-display);color:var(--lima)}
+.paso h3{font-size:30px}
+.paso p{color:#C9D6CD;font-size:16px}
+.fecha-ej{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:22px}
+.boleta{background:var(--papel);color:var(--tinta);border-radius:20px;padding:22px}
+.boleta h3{font-size:28px;margin-bottom:12px}
+.boleta table{width:100%;border-collapse:collapse;font-size:15px}
+.boleta th{font:700 12px/1 var(--f-text);letter-spacing:.06em;text-transform:uppercase;color:var(--gris);text-align:right;padding:8px 6px;border-bottom:2px solid var(--linea)}
+.boleta th:first-child{text-align:left}
+.boleta td{padding:9px 6px;border-bottom:1px solid var(--linea);text-align:right;font:700 18px/1 var(--f-num)}
+.boleta td:first-child{text-align:left;font:600 15px/1.2 var(--f-text)}
+.boleta tr.tot td{border-bottom:0;font-size:26px;padding-top:12px}
+.boleta tr.tot td:first-child{font:900 20px/1 var(--f-display);text-transform:uppercase}
+.boleta .gana{color:var(--cesped-2)}
+.boleta .res{margin-top:14px;padding:12px 14px;border-radius:12px;background:#EEF6E2;font-weight:600}
+.boleta td.cero{color:var(--gris-2)}
+@media (max-width:900px){.pasos,.fecha-ej{grid-template-columns:1fr}}
+
+/* Draft */
+.dos-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center}
+.lista-check{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:12px}
+.lista-check li{display:flex;gap:12px;align-items:flex-start;font-size:17px}
+.lista-check li::before{content:"";flex:none;width:22px;height:22px;margin-top:2px;border-radius:7px;background:var(--lima) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='%230E1811' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.serpiente{background:var(--papel);border:1px solid var(--linea);border-radius:22px;padding:22px;box-shadow:var(--sombra)}
+.serp-grid{display:grid;grid-template-columns:72px repeat(4,1fr);gap:10px;align-items:center}
+.serp-grid .cab{font:700 14px/1.2 var(--f-text);text-align:center}
+.serp-grid .ron{font-size:14px;color:var(--gris)}
+.serp-grid .c{min-height:56px;border-radius:12px;border:1.5px solid var(--linea);display:grid;place-items:center;font:700 22px/1 var(--f-num);color:var(--gris-2);transition:background .3s,color .3s,border-color .3s,transform .3s}
+.serp-grid .c.hecho{background:#EDF6E2;color:var(--cesped);border-color:#CFE5B8}
+.serp-grid .c.ahora{background:var(--lima);color:var(--tinta);border-color:var(--tinta);transform:scale(1.06)}
+.serp-nota{margin-top:16px;font-size:15px;color:var(--gris)}
+@media (max-width:900px){.dos-col{grid-template-columns:1fr;gap:36px}}
+@media (max-width:420px){.serp-grid{grid-template-columns:54px repeat(4,1fr);gap:6px}.serp-grid .cab{font-size:12px}}
+
+/* Desafíos */
+.chats{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--papel);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--linea);font-weight:700}
+.panel-h small{font-weight:500;color:var(--gris)}
+.panel-b{padding:16px;display:grid;gap:10px;align-content:start;min-height:300px}
+.msg{max-width:85%;padding:10px 14px;border-radius:16px 16px 16px 4px;background:#EAE5D7;font-size:15px}
+.msg b{display:block;font-size:13px;color:var(--cesped)}
+.msg.yo{justify-self:end;background:#DDF0C2;border-radius:16px 16px 4px 16px}
+.msg.anuncio{max-width:100%;justify-self:stretch;background:var(--tinta);color:var(--papel);border-radius:14px;border-left:6px solid var(--lima);animation:entra .5s ease}
+.msg.anuncio b{color:var(--lima)}
+.desafio{border:2px solid var(--tinta);border-radius:16px;padding:16px;background:#fff;display:grid;gap:10px}
+.desafio .tipo{font:700 12px/1 var(--f-text);letter-spacing:.1em;text-transform:uppercase;color:var(--gris)}
+.desafio h3{font-size:28px;line-height:1}
+.desafio .monto{font:700 34px/1 var(--f-num)}
+.desafio .acciones{display:flex;gap:10px;flex-wrap:wrap}
+.desafio.ok{border-color:var(--cesped);background:#F1F8EC}
+.desafio.no{opacity:.6}
+.estado-desafio{font-weight:700}
+.nota{font-size:14px;color:var(--gris)}
+.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:44px 0 20px}
+.filtros button{min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--linea-osc);background:transparent;color:var(--papel);font-weight:600;cursor:pointer}
+.filtros button[aria-pressed=true]{background:var(--lima);color:var(--tinta);border-color:var(--lima)}
+.catalogo{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mod{background:var(--noche-2);border:1px solid var(--linea-osc);border-radius:var(--r);padding:20px;display:grid;gap:8px;align-content:start}
+.mod .plazo{justify-self:start;background:rgba(255,255,255,.08);color:#C9D6CD}
+.mod h3{font-size:28px}
+.mod p{color:#A9B9AE;font-size:15px}
+.mod q{display:block;font-weight:600;font-size:15px;quotes:"“" "”"}
+.mod[hidden]{display:none}
+@media (max-width:980px){.catalogo{grid-template-columns:1fr 1fr}}
+@media (max-width:820px){.chats{grid-template-columns:1fr}.panel-b{min-height:0}}
+@media (max-width:600px){.catalogo{grid-template-columns:1fr}}
+
+/* Pozo */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:stretch}
+.calc-in,.calc-out{border-radius:22px;padding:26px}
+.calc-in{background:var(--noche);color:var(--papel);display:grid;gap:22px}
+.campo{display:grid;gap:10px}
+.campo label,.campo .lbl{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.campo output{font:700 22px/1 var(--f-num);color:var(--lima)}
+input[type=range]{width:100%;height:44px;accent-color:var(--lima);background:transparent}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--linea-osc);background:transparent;color:var(--papel);font-weight:600;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--lima);color:var(--tinta);border-color:var(--lima)}
+.calc-out{background:var(--papel);border:1px solid var(--linea);display:grid;gap:18px;align-content:start;box-shadow:var(--sombra)}
+.big{font:700 clamp(54px,6vw,76px)/1 var(--f-num)}
+.reparto{display:flex;height:22px;border-radius:99px;overflow:hidden;background:#E7E1D2}
+.reparto i{display:block;height:100%;transition:width .4s ease}
+.reparto .rf{background:var(--cesped-2)}.reparto .rc{background:var(--oro)}
+.fila{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px dashed var(--linea)}
+.fila span{display:flex;align-items:center;gap:10px}
+.fila span i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.fila b{font:700 30px/1 var(--f-num)}
+@media (max-width:900px){.calc{grid-template-columns:1fr}}
+
+/* Nacional */
+.nac{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:22px;align-items:start}
+.caja{background:var(--noche-2);border:1px solid var(--linea-osc);border-radius:22px;padding:22px}
+.caja h3{font-size:30px;margin-bottom:14px}
+.feed{display:grid;gap:10px}
+.oferta{display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:center;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.05)}
+.oferta p{font-weight:600}
+.oferta small{color:#A9B9AE;font-size:14px}
+.oferta .monto{font:700 26px/1 var(--f-num);color:var(--lima);text-align:right}
+.oferta .btn{grid-column:2;justify-self:end}
+.sel-fila{display:grid;gap:8px;margin-bottom:14px}
+.rank{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rank li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--linea-osc)}
+.rank li b{font:700 20px/1 var(--f-num);color:#6F8577}
+.rank li:first-child b{color:var(--oro)}
+.rank li span:last-child{font:700 20px/1 var(--f-num)}
+.unafecha{margin-top:16px;background:var(--lima);color:var(--tinta);border-radius:18px;padding:18px;display:grid;gap:6px}
+.unafecha h4{margin:0;font:900 26px/1 var(--f-display);text-transform:uppercase}
+.pend{display:inline-block;font:700 11px/1 var(--f-text);letter-spacing:.06em;background:var(--oro);color:var(--tinta);padding:4px 7px;border-radius:6px;vertical-align:middle}
+@media (max-width:900px){.nac{grid-template-columns:1fr}}
+
+/* Reglas y extras */
+.re{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+.re-col{display:grid;gap:12px;align-content:start}
+.re-col h3{font-size:34px;margin-bottom:6px}
+.regla{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;padding:16px;border-radius:16px;background:var(--papel);border:1px solid var(--linea)}
+.regla .ic{width:44px;height:44px;border-radius:12px;background:var(--tinta);color:var(--lima);display:grid;place-items:center;font:900 20px/1 var(--f-display)}
+.regla b{display:block;font-size:17px}
+.regla p{color:var(--gris);font-size:15px}
+.extras{display:flex;flex-wrap:wrap;gap:8px}
+.extras span{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:999px;background:var(--papel);border:1px solid var(--linea);font-weight:600;font-size:15px}
+@media (max-width:860px){.re{grid-template-columns:1fr}}
+
+/* Cierre */
+.final{background:var(--lima);text-align:center;padding:110px 0}
+.final h2{font-size:clamp(56px,10vw,140px)}
+.final p{font-size:19px;margin-top:14px}
+.final .ctas{justify-content:center}
+footer{background:var(--noche);color:#A9B9AE;padding:40px 0 110px;font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:18px 40px;justify-content:space-between;align-items:flex-start}
+footer .logo{color:var(--papel)}
+footer p+p{margin-top:6px}
+
+.flota{position:fixed;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom));z-index:50;display:none;transition:transform .3s ease}
+.flota .btn{width:100%;min-height:54px;font-size:17px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.flota.oculta{transform:translateY(140%)}
+@media (max-width:760px){.flota{display:block}}
+
+.dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:30;display:grid;gap:4px}
+.dots a{display:grid;place-items:center;width:28px;height:28px}
+.dots a i{width:9px;height:9px;border-radius:50%;background:rgba(120,140,128,.6);transition:transform .2s,background .2s}
+.dots a[aria-current=true] i{background:var(--lima);transform:scale(1.5);box-shadow:0 0 0 2px var(--tinta)}
+@media (max-width:1180px),(max-height:640px){.dots{display:none}}
+@media (min-width:1181px) and (min-height:700px){
+  html{scroll-snap-type:y proximity}
+  .s{scroll-snap-align:start;scroll-margin-top:68px}
+  .s:not(.final){min-height:calc(100svh - 68px);display:flex;flex-direction:column;justify-content:center}
+}
+
+.rev{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.rev.ve{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rev{opacity:1;transform:none}.sticker{animation:none}}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);opacity:0;z-index:60;background:var(--tinta);color:var(--papel);padding:12px 18px;border-radius:12px;font-weight:600;transition:opacity .25s,transform .25s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+.toast.ve{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<a class="sr" href="#portada">Ir al contenido</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#portada" aria-label="Mano a Mano, inicio">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#D4F35A"/><path d="M20 2a18 18 0 0 1 0 36z" fill="#F3EFE4"/><circle cx="20" cy="20" r="18" fill="none" stroke="#0E1811" stroke-width="2.5"/><path d="M13 14l-4 6 4 6M27 14l4 6-4 6" fill="none" stroke="#0E1811" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Mano a Mano<small>Fantasy · fútbol argentino</small></span>
+    </a>
+    <nav aria-label="Secciones" id="menu">
+      <a href="#anio">El año</a><a href="#como">Cómo se juega</a><a href="#draft">Draft</a><a href="#desafios">Desafíos</a><a href="#pozo">Pozo</a><a href="#nacional">Nacional</a>
+    </nav>
+    <a class="btn btn-lima btn-chico" href="https://mano-a-mano-juego.vercel.app/" data-juego>Entrar al juego</a>
+  </div>
+</header>
+
+<main>
+<!-- 1. Portada -->
+<section id="portada" class="s osc hero" data-titulo="Portada">
+  <div class="cancha-fondo" aria-hidden="true">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#F3EFE4" stroke-width="3">
+      <rect x="60" y="60" width="1080" height="680"/><line x1="600" y1="60" x2="600" y2="740"/><circle cx="600" cy="400" r="110"/><circle cx="600" cy="400" r="5" fill="#F3EFE4"/>
+      <rect x="60" y="230" width="170" height="340"/><rect x="60" y="320" width="60" height="160"/><rect x="970" y="230" width="170" height="340"/><rect x="1080" y="320" width="60" height="160"/>
+    </svg>
+  </div>
+  <div class="wrap hero-grid">
+    <div class="rev">
+      <p class="kicker"><span class="dot"></span>Fantasy de la Liga Profesional</p>
+      <h1>Tu liga de amigos, <span class="lima">fecha a fecha.</span></h1>
+      <p class="bajada">Armás tu equipo con jugadores del fútbol argentino, cada fecha enfrentás a un amigo y las apuestas se cierran en tarjetas, no perdidas en el grupo de WhatsApp.</p>
+      <div class="ctas">
+        <a class="btn btn-lima" href="https://mano-a-mano-juego.vercel.app/" data-juego>Entrar al juego</a>
+        <a class="btn btn-borde" href="#como">Cómo se juega</a>
+      </div>
+      <p class="estado" id="estadoTorneo" aria-live="polite"><span class="luz"></span><span>Calculando…</span></p>
+    </div>
+    <div class="rev" style="position:relative">
+      <svg class="sticker" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="58" fill="#D4F35A" stroke="#0E1811" stroke-width="3"/>
+        <defs><path id="circ" d="M60,60 m-42,0 a42,42 0 1,1 84,0 a42,42 0 1,1 -84,0"/></defs>
+        <text><textPath href="#circ">DEMO · DATOS DE EJEMPLO · DEMO ·</textPath></text>
+        <text x="60" y="69" text-anchor="middle" style="font:900 28px 'Big Shoulders Display';letter-spacing:0">+18</text>
+      </svg>
+      <article class="cruce" aria-label="Ejemplo de un cruce en vivo">
+        <div class="cruce-top"><span class="chip vivo-chip">En vivo</span><span id="cruceFecha">Fecha 12 · Los del Sábado</span></div>
+        <div class="marcador">
+          <div><b>Vos</b><span class="pts num" id="ptsYo">58</span></div>
+          <span class="vs">VS</span>
+          <div><b>Charrito</b><span class="pts num" id="ptsEl">54</span></div>
+        </div>
+        <div class="prob">
+          <div class="prob-bar" role="progressbar" aria-label="Probabilidad de ganar el cruce" aria-valuemin="0" aria-valuemax="100" aria-valuenow="58"><i id="probBar" style="width:58%"></i></div>
+          <p><b id="probTxt">Vas 58%</b> a ganar el cruce de la fecha</p>
+        </div>
+        <ul class="eventos" id="eventos" aria-live="polite"></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Cintas en movimiento -->
+<div class="tira ticker" aria-label="Lo que pasa en una liga">
+  <div class="cinta" id="cintaFrases"><div class="cinta-in" id="frases"></div></div>
+</div>
+<div class="jugadores" aria-label="Jugadores de la Liga Profesional en un draft de ejemplo">
+  <div class="cinta" id="cintaJug"><div class="cinta-in" id="jugStrip"></div></div>
+  <p class="cinta-ayuda">Draft de ejemplo: cada jugador tiene un solo dueño en la liga. Pasá el mouse para frenar la cinta.</p>
+</div>
+
+<!-- 2. El año -->
+<section id="anio" class="s" data-titulo="El año">
+  <div class="wrap">
+    <div class="cabeza rev">
+      <p class="kicker">Como la Liga Profesional</p>
+      <h2>Dos torneos por año.</h2>
+      <p class="gris">El juego sigue el calendario del fútbol argentino: un Apertura en el primer semestre y un Clausura en el segundo. Cada uno tiene su draft, su campeón y su pozo.</p>
+    </div>
+    <div class="anio">
+      <article class="torneo rev" id="tApertura"></article>
+      <div class="puente rev" aria-hidden="false">
+        <span class="flecha" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div><p>Mercado de pases</p><small>Nuevo draft: cada uno se guarda 2 jugadores</small></div>
+      </div>
+      <article class="torneo rev" id="tClausura"></article>
+    </div>
+    <div class="anual rev">
+      <span class="copa" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#0E1811" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7"/></svg></span>
+      <div><h3>Campeón del año</h3><p>La tabla anual suma los dos torneos. El que más puntos hizo en el año se lleva el título, aunque no haya salido campeón de ninguno.</p></div>
+      <span class="chip">Tabla anual</span>
+    </div>
+    <p class="real rev">En la Liga Profesional, cada torneo tiene 16 fechas de fase regular y después playoffs a partido único. En Mano a Mano, la liga de amigos juega cruces de la fecha 1 a la 14 y define su campeón en las fechas 15 y 16. Mientras se juegan los playoffs reales, se abre el ProDE de las llaves.</p>
+  </div>
+</section>
+
+<!-- 3. Cómo se juega una fecha -->
+<section id="como" class="s osc" data-titulo="Cómo se juega">
+  <div class="wrap">
+    <div class="cabeza rev">
+      <p class="kicker">Cómo se juega</p>
+      <h2>Se compite por fecha, <span class="lima">no por partido.</span></h2>
+      <p>Tus jugadores suman en el partido que juega su club. Cuando termina la fecha, se suma todo tu equipo y se compara con el de tu rival.</p>
+    </div>
+    <div class="pasos">
+      <article class="paso rev"><span class="n">01</span><h3>Armás tu 11</h3><p>Elegís titulares y capitán, que suma doble. Cada jugador se bloquea cuando arranca su partido, así que podés tocar el equipo de viernes a lunes.</p></article>
+      <article class="paso rev"><span class="n">02</span><h3>Suman en la cancha</h3><p>Cada uno suma en el partido de su club: goles, asistencias, valla invicta. Si un titular no juega, entra el suplente de su puesto.</p></article>
+      <article class="paso rev"><span class="n">03</span><h3>Gana el que suma más</h3><p>Al terminar la fecha se suma todo. El que hizo más puntos gana el cruce: 3 puntos en la tabla; el empate da 1 a cada uno.</p></article>
+    </div>
+    <div class="fecha-ej">
+      <div class="boleta rev">
+        <h3>Ejemplo: Fecha 12</h3>
+        <table aria-label="Puntos por línea de cada equipo">
+          <thead><tr><th>Línea</th><th>Vos</th><th>Charrito</th></tr></thead>
+          <tbody>
+            <tr><td>Arquero</td><td>6</td><td>2</td></tr>
+            <tr><td>Defensores</td><td>14</td><td>18</td></tr>
+            <tr><td>Mediocampistas</td><td>21</td><td>15</td></tr>
+            <tr><td>Delanteros (capitán ×2)</td><td>23</td><td>23</td></tr>
+            <tr class="tot"><td>Total</td><td class="gana">64</td><td>58</td></tr>
+          </tbody>
+        </table>
+        <p class="res">Ganaste el cruce: +3 en la tabla. Y si había desafío, se cobra solo.</p>
+      </div>
+      <div class="boleta rev">
+        <h3>Cuánto suma cada cosa</h3>
+        <table id="tablaPuntaje" aria-label="Puntaje por acción y posición"></table>
+        <p class="nota" style="margin-top:12px">Puntaje propuesto, a definir. Cada liga puede ajustarlo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Draft -->
+<section id="draft" class="s" data-titulo="Draft">
+  <div class="wrap dos-col">
+    <div class="rev">
+      <p class="kicker">El draft</p>
+      <h2 style="font-size:clamp(46px,6.6vw,84px);margin-top:16px">La noche que arranca cada torneo.</h2>
+      <p class="gris" style="font-size:19px;margin-top:18px">Antes de la fecha 1 del Apertura y del Clausura, la liga elige por turnos. Cada jugador tiene un solo dueño: si te llevaste al 9 de River, nadie más lo tiene.</p>
+      <ul class="lista-check">
+        <li>18 rondas: 11 titulares y 7 suplentes.</li>
+        <li>90 segundos por turno. Si no estás, elige el sistema.</li>
+        <li>Orden en serpiente: el último de una ronda elige primero en la siguiente.</li>
+        <li>Para el Clausura, cada uno se guarda 2 jugadores del Apertura.</li>
+      </ul>
+    </div>
+    <div class="serpiente rev" aria-label="Orden en serpiente de un draft de 4 equipos y 3 rondas">
+      <div class="serp-grid" id="serp"></div>
+      <p class="serp-nota">El Equipo 4 elige cuarto y quinto seguidos: la serpiente compensa al que arranca último.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Desafíos -->
+<section id="desafios" class="s osc" data-titulo="Desafíos">
+  <div class="wrap">
+    <div class="cabeza rev">
+      <p class="kicker">Desafíos</p>
+      <h2>Dos chats. <span class="lima">Cero quilombo.</span></h2>
+      <p>Una solapa para joder y otra para apostar en serio. Los desafíos se arman en tarjetas y, cuando alguien acepta, el chat se entera solo.</p>
+    </div>
+    <div class="chats rev">
+      <div class="panel">
+        <div class="panel-h">Boludeo <small>chat libre</small></div>
+        <div class="panel-b" id="boludeo" aria-live="polite">
+          <div class="msg"><b>Pastilla</b>¿Vieron lo que erró el 9 el domingo? Lo vendo ya.</div>
+          <div class="msg"><b>Tano</b>Te lo cambio por un lateral y un alfajor</div>
+          <div class="msg yo"><b>Vos</b>Este finde te paso por arriba, Charrito</div>
+          <div class="msg"><b>Charrito</b>Mandame el desafío y hablamos</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Desafíos <small>solo tarjetas</small></div>
+        <div class="panel-b">
+          <article class="desafio" id="tarjeta">
+            <span class="tipo" id="tTipo"></span>
+            <h3 id="tTxt"></h3>
+            <p class="gris" id="tRival"></p>
+            <span class="monto num" id="tMonto"></span>
+            <div class="acciones" id="tAcc">
+              <button class="btn btn-osc btn-chico" id="tSi">Aceptar</button>
+              <button class="btn btn-borde btn-chico" id="tNo">Rechazar</button>
+            </div>
+            <p class="estado-desafio" id="tEstado" aria-live="polite"></p>
+          </article>
+          <p class="nota">Tocá Aceptar y mirá el Boludeo.</p>
+        </div>
+      </div>
+    </div>
+    <div class="filtros rev" role="group" aria-label="Filtrar desafíos por plazo" id="filtros">
+      <button type="button" data-f="todos" aria-pressed="true">Todos</button>
+      <button type="button" data-f="fecha" aria-pressed="false">Una fecha</button>
+      <button type="button" data-f="varias" aria-pressed="false">Varias fechas</button>
+      <button type="button" data-f="torneo" aria-pressed="false">Todo el torneo</button>
+    </div>
+    <div class="catalogo" id="catalogo"></div>
+  </div>
+</section>
+
+<!-- 6. Pozo -->
+<section id="pozo" class="s" data-titulo="Pozo">
+  <div class="wrap">
+    <div class="cabeza rev">
+      <p class="kicker">El pozo</p>
+      <h2>Claro desde el día uno.</h2>
+      <p class="gris">Cada torneo tiene su pozo. El organizador decide cuánto pone cada uno y qué parte va a premios por fecha; el resto lo calcula el sistema. Probalo:</p>
+    </div>
+    <div class="calc rev">
+      <div class="calc-in">
+        <div class="campo"><label for="cJug">Jugadores en la liga <output id="oJug" for="cJug">10</output></label><input id="cJug" type="range" min="4" max="20" value="10"></div>
+        <div class="campo"><span class="lbl" id="lAporte">Aporte por jugador</span>
+          <div class="seg" role="group" aria-labelledby="lAporte" id="cAporte">
+            <button type="button" data-v="5000" aria-pressed="false">$5.000</button><button type="button" data-v="10000" aria-pressed="true">$10.000</button><button type="button" data-v="20000" aria-pressed="false">$20.000</button><button type="button" data-v="50000" aria-pressed="false">$50.000</button>
+          </div>
+        </div>
+        <div class="campo"><label for="cPct">Parte para premios por fecha <output id="oPct" for="cPct">30%</output></label><input id="cPct" type="range" min="0" max="80" step="5" value="30"></div>
+        <p style="font-size:14px;color:#A9B9AE">Un torneo tiene 16 fechas: cada una paga un premio al que más suma.</p>
+      </div>
+      <div class="calc-out" aria-live="polite">
+        <div><p class="gris">Pozo del torneo</p><p class="big num" id="rPozo">$100.000</p></div>
+        <div class="reparto" aria-hidden="true"><i class="rf" id="barF"></i><i class="rc" id="barC"></i></div>
+        <div>
+          <div class="fila"><span><i style="background:var(--cesped-2)"></i>Premio de cada fecha</span><b class="num" id="rFecha">$1.875</b></div>
+          <div class="fila"><span><i style="background:var(--oro)"></i>Campeón del torneo</span><b class="num" id="rCamp">$70.000</b></div>
+        </div>
+        <p class="nota">La inscripción a la plataforma va aparte y no entra al pozo. El premio por fecha se redondea para abajo y la diferencia va al campeón. Montos de ejemplo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Nacional -->
+<section id="nacional" class="s osc" data-titulo="Nacional">
+  <div class="wrap">
+    <div class="cabeza rev">
+      <p class="kicker">Nacional</p>
+      <h2>Todo el país. <span class="lima">Sin chat.</span></h2>
+      <p>Un tablero de desafíos abiertos: cualquiera publica y cualquiera acepta. Y un ranking nacional con un equipo de presupuesto, estilo Gran DT.</p>
+    </div>
+    <div class="nac rev">
+      <div class="caja">
+        <h3>Mercado de desafíos</h3>
+        <div class="sel-fila">
+          <div class="seg" role="group" aria-label="Monto máximo" id="fMonto">
+            <button type="button" data-v="0" aria-pressed="true">Cualquier monto</button><button type="button" data-v="5000" aria-pressed="false">Hasta $5.000</button><button type="button" data-v="20000" aria-pressed="false">Hasta $20.000</button>
+          </div>
+          <div class="seg" role="group" aria-label="Medida" id="fMedida">
+            <button type="button" data-v="todas" aria-pressed="true">Goles y puntos</button><button type="button" data-v="goles" aria-pressed="false">Solo goles</button><button type="button" data-v="puntos" aria-pressed="false">Solo puntos</button>
+          </div>
+        </div>
+        <div class="feed" id="feed" aria-live="polite"></div>
+      </div>
+      <div>
+        <div class="caja">
+          <h3>Ranking nacional</h3>
+          <ol class="rank" id="rank"></ol>
+          <p class="gris" style="font-size:14px;margin-top:12px">Usuarios y puntajes de ejemplo. Premio: <span class="pend">PENDIENTE</span></p>
+        </div>
+        <div class="unafecha"><h4>Torneos de una fecha</h4><p>Armás un equipo con presupuesto solo para esa fecha y competís con todo el país.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Reglas y extras -->
+<section id="reglas" class="s" data-titulo="Reglas">
+  <div class="wrap">
+    <div class="cabeza rev">
+      <p class="kicker">Reglas claras</p>
+      <h2>Sin discusiones por la plata.</h2>
+    </div>
+    <div class="re">
+      <div class="re-col rev">
+        <div class="regla"><span class="ic">1</span><div><b>Todo se cierra antes de la pelota</b><p>Los desafíos se crean y se aceptan antes del primer partido de la fecha. Después quedan congelados.</p></div></div>
+        <div class="regla"><span class="ic">2</span><div><b>Se paga solo</b><p>Al terminar la fecha, con los puntajes oficiales, el sistema paga los desafíos y el premio de la fecha.</p></div></div>
+        <div class="regla"><span class="ic">3</span><div><b>Plata en regla</b><p>Depósitos, retiros y pozos pasan por una casa de apuestas habilitada. Solo mayores de 18 con identidad verificada. <span class="pend">PENDIENTE</span></p></div></div>
+      </div>
+      <div class="re-col rev">
+        <h3>Y además</h3>
+        <div class="extras">
+          <span>Avisos antes de que cierre la fecha</span><span>Resumen automático en el chat</span><span>Castigo para el último</span><span>Historial de campeones</span><span>Probabilidad de ganar en vivo</span><span>Equipo automático si te olvidás</span><span>Puntaje a elección de la liga</span><span>ProDE del torneo</span><span>Cara a cara con cada amigo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Cierre -->
+<section class="final" id="final" data-titulo="Cierre">
+  <div class="wrap rev">
+    <h2>¿Armamos la liga?</h2>
+    <p>Probá el juego con una liga de ejemplo.</p>
+    <div class="ctas"><a class="btn btn-osc" href="https://mano-a-mano-juego.vercel.app/" data-juego>Entrar al juego</a></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <span class="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#D4F35A"/><path d="M20 2a18 18 0 0 1 0 36z" fill="#F3EFE4"/><circle cx="20" cy="20" r="18" fill="none" stroke="#0E1811" stroke-width="2.5"/><path d="M13 14l-4 6 4 6M27 14l4 6-4 6" fill="none" stroke="#0E1811" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Mano a Mano</span>
+      <p style="margin-top:10px">Nombre provisorio.</p>
+    </div>
+    <div>
+      <p>Demo con datos de ejemplo: no se juega plata real.</p>
+      <p>Clubes y jugadores de la Liga Profesional; puntajes inventados.</p>
+      <p>+18. Jugá con responsabilidad.</p>
+    </div>
+    <div><p>Diseño de muestra hecho por Me Encargo</p></div>
+  </div>
+</footer>
+
+<div class="flota" id="flota"><a class="btn btn-lima" href="https://mano-a-mano-juego.vercel.app/" data-juego>Entrar al juego</a></div>
+<nav class="dots" id="dots" aria-label="Pantallas de la presentación"></nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="datos.js"></script>
+<script>
+(function(){
+  const D = window.MAM;
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pesos = n => '$' + Math.round(n).toLocaleString('es-AR');
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const club = n => D.clubes[n] || {corto:n, c1:'#ccc', c2:'#999', bg:'#ccc'};
+  function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('ve'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('ve'), 2600); }
+
+  /* El juego vive aparte: en local apunta al servidor de prueba */
+  if(['localhost','127.0.0.1'].includes(location.hostname)) $$('[data-juego]').forEach(a => a.href = 'http://localhost:5181/');
+
+  /* Estado real del torneo (hora de Buenos Aires, UTC-3) */
+  function estadoTorneo(){
+    const T = D.torneo, el = $('#estadoTorneo');
+    const hoy = new Date(Date.now() - 3*3600e3).toISOString().slice(0,10);
+    const dias = iso => Math.round((Date.parse(iso) - Date.parse(hoy)) / 864e5);
+    const dia = iso => { const [a,m,d] = iso.split('-').map(Number); return ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][new Date(Date.UTC(a,m-1,d)).getUTCDay()] + ' ' + d + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][m-1]; };
+    let txt, vivo = false;
+    if(hoy < T.octavos){ const n = dias(T.octavos); txt = `<b>${T.nombre}:</b> terminó la fase regular. Los octavos de final arrancan el ${dia(T.octavos)} · ${n === 1 ? 'falta 1 día' : `faltan <b>${n} días</b>`}.`; }
+    else if(hoy <= T.final){ vivo = true; txt = hoy === T.final ? `<b>${T.nombre}:</b> hoy se juega la final.` : `<b>${T.nombre}:</b> playoffs en juego. La final es el ${dia(T.final)}.`; }
+    else txt = `<b>${T.nombre}</b> terminado. Se viene el Apertura.`;
+    el.classList.toggle('en-juego', vivo);
+    el.innerHTML = `<span class="luz"></span><span>${txt}</span>`;
+  }
+  estadoTorneo(); setInterval(estadoTorneo, 60000);
+  $('#cruceFecha').textContent = `Fecha ${D.torneo.fechaActual} · ${D.liga.nombre}`;
+
+  /* Cruce en vivo de la portada */
+  const miEquipo = D.jugadores.filter((j,i) => i%3===0).slice(0,8), suEquipo = D.jugadores.filter((j,i) => i%3===1).slice(0,8);
+  let yo = 58, el = 54, nEv = 0;
+  const acciones = [['Gol',7],['Asistencia',5],['Valla invicta',4],['Penal atajado',6],['Amarilla',-2]];
+  function evento(){
+    if(++nEv > 22){ nEv = 1; yo = 58; el = 54; $('#ptsYo').textContent = yo; $('#ptsEl').textContent = el; $('#eventos').innerHTML = ''; }
+    const mio = Math.random() < .55, eq = mio ? miEquipo : suEquipo, j = eq[Math.floor(Math.random()*eq.length)];
+    if(!j) return;
+    let a = acciones[Math.floor(Math.random()*acciones.length)];
+    if(a[0]==='Valla invicta' && !['ARQ','DEF'].includes(j.pos)) a = acciones[0];
+    if(a[0]==='Penal atajado' && j.pos!=='ARQ') a = acciones[1];
+    if(mio) yo += a[1]; else el += a[1];
+    const p = Math.max(5, Math.min(95, Math.round(50 + (yo-el)*2.2)));
+    const box = mio ? $('#ptsYo') : $('#ptsEl');
+    box.textContent = mio ? yo : el; box.classList.add('sube'); setTimeout(()=>box.classList.remove('sube'), 700);
+    $('#probBar').style.width = p + '%'; $('#probBar').parentElement.setAttribute('aria-valuenow', p); $('#probTxt').textContent = 'Vas ' + p + '%';
+    const li = document.createElement('li'); if(!mio) li.className = 'contra';
+    li.innerHTML = `<b>${esc(a[0])} de ${esc(j.corto)}</b><span>${a[1]>0?'+':''}${a[1]} ${mio?'vos':'él'}</span>`;
+    const ul = $('#eventos'); ul.prepend(li); while(ul.children.length > 3) ul.lastChild.remove();
+  }
+  for(let i = 0; i < 3; i++) evento();
+  if(!quieto) setInterval(evento, 4200);
+
+  /* Cintas */
+  $('#frases').innerHTML = [...D.frases, ...D.frases].map((f,i) => `<span${i >= D.frases.length ? ' aria-hidden="true"' : ''}>${esc(f)}</span>`).join('');
+  const cards = D.jugadores.slice(0, 40).map((j,i) => {
+    const c = club(j.club), libre = i % 5 === 3;
+    const due = libre ? '<span class="jcard-dueno libre">Libre · se puede pedir</span>' : `<span class="jcard-dueno">Elegido por ${esc(D.amigos[i % D.amigos.length])} · Ronda ${1 + (i % 18)}</span>`;
+    return `<article class="jcard" style="--bg:${c.bg}"><div><span class="pos pos-${j.pos}">${j.pos}</span></div><b class="jcard-nom">${esc(j.corto)}</b><span class="jcard-club">${esc(j.club)}</span>${due}</article>`;
+  }).join('');
+  $('#jugStrip').innerHTML = cards + cards.replace(/<article /g, '<article aria-hidden="true" ');
+  function cinta(caja, vel){
+    const inner = caja.firstElementChild; let x = 0, extra = 0, pausa = false, ancho = 0, ultimo = performance.now();
+    const medir = () => { ancho = inner.scrollWidth / 2; }; medir(); addEventListener('resize', medir);
+    caja.addEventListener('mouseenter', () => pausa = true); caja.addEventListener('mouseleave', () => pausa = false);
+    caja.addEventListener('focusin', () => pausa = true); caja.addEventListener('focusout', () => pausa = false);
+    (function paso(t){ const dt = Math.min(50, t - ultimo); ultimo = t;
+      if(!pausa && ancho){ x -= Math.sign(vel) * (Math.abs(vel) + extra) * dt / 1000; if(x <= -ancho) x += ancho; if(x > 0) x -= ancho; inner.style.transform = `translate3d(${x}px,0,0)`; }
+      extra *= .94; requestAnimationFrame(paso); })(ultimo);
+    return { empujar(v){ extra = Math.min(700, extra + v); } };
+  }
+  if(quieto) document.body.classList.add('sin-mov');
+  else { const cs = [cinta($('#cintaFrases'), 70), cinta($('#cintaJug'), -45)]; let y0 = scrollY;
+    addEventListener('scroll', () => { const d = Math.abs(scrollY - y0); y0 = scrollY; cs.forEach(c => c.empujar(d * 1.6)); }, {passive:true}); }
+
+  /* El año: Apertura y Clausura */
+  const T = D.temporada, n = D.torneo.fechaActual;
+  function torneoCard(t){
+    const termino = t.estado === 'terminado';
+    const chip = termino ? '<span class="chip etapa-chip fin">Terminado</span>' : '<span class="chip etapa-chip vivo">En curso</span>';
+    return `<div class="torneo-h"><div><h3>${t.nombre.replace(' ', '<br>')}</h3><p class="cuando">${t.cuando}</p></div>${chip}</div>
+      <ol class="etapas">
+        <li><div><b>Draft</b><span>Antes de la fecha 1. Se arma el plantel de 18.</span></div></li>
+        <li><div><b>Fechas 1 a ${T.fechasCruces}</b><span>Un cruce por fecha contra un amigo.</span></div></li>
+        <li><div><b>Fechas ${T.fechasPlayoffs[0]} y ${T.fechasPlayoffs[1]}</b><span>Semifinal y final entre los 4 mejores.</span></div></li>
+        <li class="copa"><div><b>Campeón ${t.id === 'apertura' ? 'del Apertura' : 'del Clausura'}</b><span>Se lleva lo que queda del pozo.</span></div></li>
+      </ol>`;
+  }
+  $('#tApertura').innerHTML = torneoCard(T.torneos[0]); $('#tClausura').innerHTML = torneoCard(T.torneos[1]);
+
+  /* Tabla de puntaje */
+  $('#tablaPuntaje').innerHTML = '<thead><tr><th>Acción</th><th>ARQ</th><th>DEF</th><th>MED</th><th>DEL</th></tr></thead><tbody>' +
+    D.puntaje.map(r => `<tr><td>${esc(r[0])}</td>${r.slice(1).map(v => `<td class="${v === 0 ? 'cero' : ''}">${v === 0 ? '—' : (v > 0 ? '+' : '−') + Math.abs(v)}</td>`).join('')}</tr>`).join('') + '</tbody>';
+
+  /* Desafío de ejemplo */
+  const ejemplos = [
+    {tipo:'Mano a mano', txt:'Mi equipo hace más goles que el tuyo', rival:'Charrito', monto:20000},
+    {tipo:'Por línea', txt:'Mi mediocampo suma más que el tuyo', rival:'Pastilla', monto:10000},
+    {tipo:'La mufa', txt:'Te apuesto a que hacés menos de 30 puntos', rival:'Tano', monto:5000},
+    {tipo:'Capitanes', txt:'Mi capitán suma más que el tuyo', rival:'Ruso', monto:15000}
+  ];
+  let iDes = 0;
+  function pintarDesafio(){
+    const e = ejemplos[iDes % ejemplos.length];
+    $('#tTipo').textContent = `${e.tipo} · Fecha ${n}`; $('#tTxt').textContent = e.txt;
+    $('#tRival').innerHTML = `Vos desafiás a <b>${esc(e.rival)}</b>`; $('#tMonto').textContent = pesos(e.monto);
+    $('#tSi').textContent = `Aceptar como ${e.rival}`; $('#tSi').hidden = false; $('#tNo').hidden = false;
+    $('#tarjeta').className = 'desafio'; $('#tEstado').textContent = '';
+    const otro = $('#tOtro'); if(otro) otro.remove();
+  }
+  function resolver(ok){
+    const e = ejemplos[iDes % ejemplos.length];
+    $('#tSi').hidden = true; $('#tNo').hidden = true; $('#tarjeta').classList.add(ok ? 'ok' : 'no');
+    $('#tEstado').textContent = ok ? `${e.rival} aceptó. Queda cerrado hasta el final de la fecha.` : `${e.rival} lo rechazó. Se libera el monto.`;
+    if(ok){
+      const m = document.createElement('div'); m.className = 'msg anuncio';
+      m.innerHTML = `<b>Desafío aceptado</b>${esc(e.rival)} aceptó tu desafío de ${pesos(e.monto)}: “${esc(e.txt)}”.`; $('#boludeo').append(m);
+      setTimeout(() => { const r = document.createElement('div'); r.className = 'msg'; r.innerHTML = '<b>Pastilla</b>Uhhh se pudrió todo'; $('#boludeo').append(r); }, 900);
+    }
+    const b = document.createElement('button'); b.className = 'btn btn-borde btn-chico'; b.id = 'tOtro'; b.textContent = 'Mandar otro desafío';
+    b.onclick = () => { iDes++; pintarDesafio(); $('#tSi').focus(); }; $('#tAcc').append(b);
+  }
+  $('#tSi').onclick = () => resolver(true); $('#tNo').onclick = () => resolver(false); pintarDesafio();
+
+  /* Catálogo */
+  const mods = [
+    ['fecha','Una fecha','Mano a mano','Quién suma más con su equipo en la fecha.','$10.000 a que mi equipo saca más puntos que el tuyo'],
+    ['fecha','Una fecha','Por línea','Compara un sector de la cancha.','Mi mediocampo mete más goles que el tuyo'],
+    ['fecha','Una fecha','Capitanes','Solo cuenta el capitán de cada uno.','Mi capitán la rompe y el tuyo no'],
+    ['fecha','Una fecha','La mufa','Apostar a que al rival le va mal.','Este finde hacés menos de 30 puntos'],
+    ['varias','Varias fechas','Ventana','Un jugador o equipo en un tramo de fechas.','De acá a 5 fechas, mi 9 es el goleador'],
+    ['varias','Varias fechas','Supervivencia','Cada fecha elegís un jugador; el peor pierde una vida.','Queda uno solo'],
+    ['torneo','Todo el torneo','Tabla real','Qué club real termina más arriba en la zona.','San Lorenzo termina arriba de Huracán'],
+    ['torneo','Todo el torneo','Refuerzos','Qué refuerzo suma más desde que debuta.','Mi refuerzo le gana al tuyo'],
+    ['torneo','Todo el torneo','ProDE','Campeón, goleador, vallas y equipo más goleador.','Se pronostica al arrancar y se paga al final']
+  ];
+  $('#catalogo').innerHTML = mods.map(m => `<article class="mod rev" data-f="${m[0]}"><span class="chip plazo">${m[1]}</span><h3>${m[2]}</h3><p>${m[3]}</p><q>${esc(m[4])}</q></article>`).join('');
+  $$('#filtros button').forEach(b => b.onclick = () => { $$('#filtros button').forEach(x => x.setAttribute('aria-pressed', x === b)); $$('#catalogo .mod').forEach(m => m.hidden = !(b.dataset.f === 'todos' || m.dataset.f === b.dataset.f)); });
+
+  /* Serpiente del draft */
+  const serp = $('#serp');
+  serp.innerHTML = '<span></span>' + [1,2,3,4].map(k => `<span class="cab">Equipo ${k}</span>`).join('');
+  [[1,2,3,4],[8,7,6,5],[9,10,11,12]].forEach((fila, r) => serp.insertAdjacentHTML('beforeend', `<span class="ron">Ronda ${r+1}</span>` + fila.map(k => `<span class="c" data-n="${k}">${k}</span>`).join('')));
+  const celdas = $$('.c', serp);
+  if(quieto) celdas.forEach(c => c.classList.add('hecho'));
+  else { let k = 0; setInterval(() => { k = k % 13 + 1; celdas.forEach(c => { const v = +c.dataset.n; c.classList.toggle('hecho', v < k); c.classList.toggle('ahora', v === k); }); }, 750); }
+
+  /* Pozo */
+  let aporte = 10000; const FEC = D.temporada.fechasRegular;
+  function calc(){
+    const jug = +$('#cJug').value, pct = +$('#cPct').value;
+    $('#oJug').textContent = jug; $('#oPct').textContent = pct + '%';
+    const pozo = jug * aporte, pf = Math.floor(pozo * pct / 100 / FEC), camp = pozo - pf * FEC;
+    $('#rPozo').textContent = pesos(pozo); $('#rFecha').textContent = pesos(pf); $('#rCamp').textContent = pesos(camp);
+    $('#barF').style.width = (pf * FEC / pozo * 100) + '%'; $('#barC').style.width = (camp / pozo * 100) + '%';
+  }
+  ['#cJug','#cPct'].forEach(s => $(s).addEventListener('input', calc));
+  $$('#cAporte button').forEach(b => b.onclick = () => { $$('#cAporte button').forEach(x => x.setAttribute('aria-pressed', x === b)); aporte = +b.dataset.v; calc(); });
+  calc();
+
+  /* Nacional */
+  const ofertas = [
+    {u:'@elgalgo_23', txt:'Mi delantera mete más goles que la tuya', med:'goles', monto:5000},
+    {u:'@tinchoR', txt:'Mi equipo suma más puntos que el tuyo', med:'puntos', monto:20000},
+    {u:'@lafiera.cba', txt:'Mi capitán hace más puntos que el tuyo', med:'puntos', monto:3000},
+    {u:'@cuervo1908', txt:'Mi mediocampo mete más goles que el tuyo', med:'goles', monto:10000},
+    {u:'@pinchaloco', txt:'Mi defensa suma más puntos que la tuya', med:'puntos', monto:50000}
+  ];
+  let fM = 0, fMed = 'todas';
+  function feed(){
+    const lista = ofertas.filter(o => (!fM || o.monto <= fM) && (fMed === 'todas' || o.med === fMed));
+    $('#feed').innerHTML = lista.length ? lista.map(o => `<div class="oferta"><div><p>${esc(o.txt)}</p><small>${esc(o.u)} · ${o.med === 'goles' ? 'Goles' : 'Puntos'}</small></div><span class="monto num">${pesos(o.monto)}</span><button type="button" class="btn btn-lima btn-chico" data-acepta>Aceptar</button></div>`).join('') : '<p class="gris">No hay desafíos con ese filtro.</p>';
+    $$('#feed [data-acepta]').forEach(b => b.onclick = () => toast('En la demo no se mueve plata. En el juego, el desafío queda cerrado.'));
+  }
+  $$('#fMonto button').forEach(b => b.onclick = () => { $$('#fMonto button').forEach(x => x.setAttribute('aria-pressed', x === b)); fM = +b.dataset.v; feed(); });
+  $$('#fMedida button').forEach(b => b.onclick = () => { $$('#fMedida button').forEach(x => x.setAttribute('aria-pressed', x === b)); fMed = b.dataset.v; feed(); });
+  feed();
+  $('#rank').innerHTML = [['@lafiera.cba',812],['@tinchoR',798],['@cuervo1908',787],['@elgalgo_23',771],['@neneMDP',765]].map((r,i) => `<li><b>${i+1}</b><span>${esc(r[0])}</span><span class="num">${r[1]}</span></li>`).join('');
+
+  /* Aparición, puntos de navegación, teclado y botón flotante */
+  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('ve'); io.unobserve(e.target); } }), {threshold:.12});
+  $$('.rev').forEach(x => io.observe(x));
+  const secciones = $$('main > section');
+  $('#dots').innerHTML = secciones.map(s => `<a href="#${s.id}" aria-label="${esc(s.dataset.titulo)}"><i></i></a>`).join('');
+  const dots = $$('#dots a'), menu = $$('#menu a');
+  const io2 = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ const h = '#' + e.target.id; dots.forEach(d => d.setAttribute('aria-current', d.getAttribute('href') === h)); menu.forEach(d => d.setAttribute('aria-current', d.getAttribute('href') === h)); } }), {threshold:.45});
+  secciones.forEach(s => io2.observe(s));
+  addEventListener('keydown', e => {
+    if(e.target.closest('input,select,textarea,button,a,[contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
+    const sig = ['ArrowDown','PageDown'].includes(e.key), ant = ['ArrowUp','PageUp'].includes(e.key);
+    if(!sig && !ant) return;
+    const y = scrollY + 80; let actual = 0;
+    secciones.forEach((s, i) => { if(s.offsetTop <= y + 10) actual = i; });
+    const destino = sig ? Math.min(secciones.length - 1, actual + 1) : Math.max(0, secciones[actual].offsetTop < y - 120 ? actual : actual - 1);
+    e.preventDefault(); secciones[destino].scrollIntoView({behavior: quieto ? 'auto' : 'smooth'});
+  });
+  const flota = $('#flota');
+  const io3 = new IntersectionObserver(es => { es.forEach(e => e.target._ve = e.isIntersecting); flota.classList.toggle('oculta', [$('#portada'), $('#final')].some(s => s._ve)); }, {threshold:.15});
+  [$('#portada'), $('#final')].forEach(s => io3.observe(s));
+})();
+</script>
+</body>
+</html>

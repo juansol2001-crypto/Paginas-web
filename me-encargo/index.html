@@ -324,7 +324,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <svg viewBox="0 0 30 30" aria-hidden="true"><g stroke="#6F9AAB" stroke-width="1.4"><path d="M15 4L25.5 11.6 21.5 24 8.5 24 4.5 11.6Z" fill="none"/><path d="M15 4L21.5 24M15 4L8.5 24M4.5 11.6H25.5M4.5 11.6L21.5 24M25.5 11.6L8.5 24"/></g><circle cx="15" cy="15" r="5.5" fill="#1F2B3A"/><g fill="#1F2B3A"><circle cx="15" cy="4" r="2.6"/><circle cx="25.5" cy="11.6" r="2.6"/><circle cx="21.5" cy="24" r="2.6"/><circle cx="8.5" cy="24" r="2.6"/><circle cx="4.5" cy="11.6" r="2.6"/></g></svg>
       Me Encargo
     </a>
-    <nav class="nav" aria-label="Secciones"><a href="#demo">Cómo funciona</a><a href="#resultados">Caso Brorti</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
+    <nav class="nav" aria-label="Secciones"><a href="#sistema">El sistema</a><a href="#clientes">Clientes</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
     <a class="btn" href="#contacto">Hablemos</a>
   </header>
 
@@ -339,96 +339,10 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 </div>
 
 <main class="wrap">
-  <section class="more" id="demo" aria-labelledby="t-demo" style="padding-top:110px">
-    <h2 id="t-demo">Un pedido, de punta a punta, en 15 segundos.</h2>
-    <p class="lead">Un comercio te manda un audio por WhatsApp. Mirá lo que hace el sistema solo, sin que nadie copie nada.</p>
-    <div class="demo" id="demoBox">
-      <div class="demo-steps" role="tablist" aria-label="Pasos del pedido">
-        <button class="dstep" data-s="0" role="tab"><i>1</i><span>Pide por audio</span></button>
-        <button class="dstep" data-s="1" role="tab"><i>2</i><span>Se arma el pedido</span></button>
-        <button class="dstep" data-s="2" role="tab"><i>3</i><span>Falta stock</span></button>
-        <button class="dstep" data-s="3" role="tab"><i>4</i><span>Hoja de armado</span></button>
-        <button class="dstep" data-s="4" role="tab"><i>5</i><span>Remito y cuenta</span></button>
-        <div class="dctl"><button id="dPlay" aria-label="Pausar"><svg width="16" height="16" viewBox="0 0 16 16" fill="#1F2B3A"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg></button><button id="dAgain" aria-label="Ver de nuevo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1F2B3A" stroke-width="2.4" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg></button></div>
-      </div>
-      <div class="dprog"><i id="dBar"></i></div>
-      <div class="demo-grid">
-        <div class="phone" aria-label="Chat de WhatsApp de ejemplo">
-          <div class="phone-h"><span class="av">AJ</span><div><b>Almacén Don José</b><small>WhatsApp · cliente de la distribuidora</small></div></div>
-          <div class="chat" id="chat">
-            <div class="msg c" data-at="0.3" id="mAudio"><div class="audio"><span class="play"><svg width="10" height="12" viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z" fill="#fff"/></svg></span><span class="wave"></span><small style="margin:0">0:09</small></div><div class="transc" data-at="1.5">«Hola, ¿me mandás 10 cajones de palta Hass y 4 de limón para mañana?»</div></div>
-            <div class="msg b typing" data-at="2.6" data-until="3.6"><i></i><i></i><i></i></div>
-            <div class="msg b" data-at="3.6">¡Hola José! Anoto 10 cajones de palta Hass y 4 de limón para mañana. 🥑🍋<small>Asistente · 09:12</small></div>
-            <div class="msg b" data-at="6.3">De limón me quedan 2 cajones. ¿Te mando 2 mañana y los otros 2 el viernes?<small>Asistente · 09:12</small></div>
-            <div class="msg c" data-at="7.6">Dale, perfecto 👍<small>09:13</small></div>
-            <div class="msg b" data-at="8.4">Listo ✅ Pedido #1043 confirmado para mañana.<small>Asistente · 09:13</small></div>
-            <div class="msg b" data-at="12.6">🚚 Tu pedido ya salió. Te dejo el remito R-0871.<small>Asistente · jueves 07:40</small></div>
-          </div>
-        </div>
-        <div class="sysp" aria-live="polite">
-          <div class="sysp-h"><b>SISTEMA ME ENCARGO</b><span class="live">En vivo</span></div>
-          <div class="scr" data-s="0">
-            <h4>Llegó un audio</h4><p class="sub">El sistema reconoce al cliente por su número y transcribe el audio.</p>
-            <div class="rowl" data-at="0.6"><span>Cliente</span><span class="r"><b style="color:#fff">Almacén Don José</b><br>Zona Norte · cuenta corriente</span></div>
-            <div class="rowl" data-at="1.5"><span>Audio</span><span class="r ok">Transcripto ✓</span></div>
-            <div style="margin-top:12px"><span class="chip2" data-at="1.9">palta Hass</span><span class="chip2" data-at="2.1">10 cajones</span><span class="chip2" data-at="2.3">limón</span><span class="chip2" data-at="2.5">4 cajones</span><span class="chip2" data-at="2.7">mañana</span></div>
-          </div>
-          <div class="scr" data-s="1">
-            <h4>Pedido #1043</h4><p class="sub">Se arma solo, con los productos y precios de tu lista.</p>
-            <div class="rowl" data-at="3.4"><span><b>Palta Hass</b> · 10 cajones</span><span class="r">$ 62.000</span></div>
-            <div class="rowl" data-at="3.8"><span><b>Limón</b> · 4 cajones</span><span class="r">$ 24.000</span></div>
-            <div class="rowl" data-at="4.2"><span>Entrega</span><span class="r">Jueves · Zona Norte · reparto de la mañana</span></div>
-            <div class="rowl" data-at="4.6"><span>Revisando stock…</span><span class="r">cámara y depósito</span></div>
-          </div>
-          <div class="scr" data-s="2">
-            <h4>Falta stock</h4><p class="sub">Lo detecta antes de confirmar, no cuando el camión ya salió.</p>
-            <div class="rowl good" data-at="6.0"><span><b>Palta Hass</b> · pide 10</span><span class="r ok">Hay 42 ✓</span></div>
-            <div class="rowl alert" data-at="6.2"><span><b>Limón</b> · pide 4</span><span class="r bad">Hay 2 · faltan 2</span></div>
-            <div class="rowl" data-at="6.6"><span>El asistente ofrece</span><span class="r">2 mañana y 2 el viernes</span></div>
-            <div class="rowl good" data-at="7.8"><span>Cliente aceptó</span><span class="r ok">Pendiente para el viernes ✓</span></div>
-          </div>
-          <div class="scr" data-s="3">
-            <h4>Hoja de armado</h4><p class="sub">El depósito ve qué preparar y dónde está cada cosa.</p>
-            <div class="rowl in"><span style="display:flex;gap:10px;align-items:center"><span class="tick" data-tick="9.6"></span><b>Palta Hass × 10</b></span><span class="r">Cámara fría 2</span></div>
-            <div class="rowl in"><span style="display:flex;gap:10px;align-items:center"><span class="tick" data-tick="10.4"></span><b>Limón × 2</b></span><span class="r">Depósito · estante B</span></div>
-            <div class="rowl in"><span style="display:flex;gap:10px;align-items:center"><span class="tick" data-tick="11.2"></span>Stock descontado</span><span class="r">Limón quedó en 0 · aviso a compras</span></div>
-            <div class="rowl" data-at="11.4"><span>Chofer</span><span class="r ok">Raúl · sale jueves 07:00</span></div>
-          </div>
-          <div class="scr" data-s="4">
-            <h4>Remito y cuenta corriente</h4><p class="sub">Se entrega con foto del remito firmado y la cuenta se actualiza sola.</p>
-            <div class="doc" data-at="12.3"><div class="t"><span>Remito R-0871</span><span class="stamp" data-at="13.2" style="opacity:0;transition:opacity .3s">✓ Entregado con foto firmada</span></div><div class="l"><span>Palta Hass × 10</span><span>$ 62.000</span></div><div class="l"><span>Limón × 2</span><span>$ 12.000</span></div><div class="tot"><span>Total</span><span>$ 74.000</span></div></div>
-            <div class="doc" data-at="13.5"><div class="t"><span>Cuenta corriente · Don José</span><span style="color:#2E7D4F">Dentro del límite</span></div><div class="l"><span>Saldo anterior</span><span>$ 180.000</span></div><div class="l"><span>Este pedido</span><span>+ $ 74.000</span></div><div class="tot"><span>Saldo</span><span>$ 254.000</span></div></div>
-          </div>
-        </div>
-      </div>
-      <p class="demo-note">Demo con datos de ejemplo. Así funciona el paquete Pedidos que armamos para distribuidoras y mayoristas.</p>
-    </div>
-  </section>
-
   <section class="more" id="clientes" aria-labelledby="t-cl">
     <h2 id="t-cl">Clientes</h2>
     <p class="lead">Cada negocio con su web y su sistema conectado. Tocá una web para visitarla o arrastralas para verlas.</p>
     <div class="cases" id="cases"></div>
-  </section>
-
-  <section class="more" id="resultados" aria-labelledby="t-r">
-    <h2 id="t-r">Caso Brorti: el antes y el después.</h2>
-    <p class="lead">Brorti es una distribuidora de paltas. Le armamos el sistema completo de pedidos y medimos dos cosas que le importan a cualquier dueño: cuánto tiempo lleva cargar un pedido y cuántos hay que corregir antes de que salgan.</p>
-    <div class="caso">
-      <div class="caso-story">
-        <h3>Qué cambió en Brorti</h3>
-        <p>Un solo sistema donde los pedidos entran solos y cada área ve lo suyo: ventas, depósito, reparto y administración.</p>
-        <ul>
-          <li>Pedidos por WhatsApp, por texto o audio</li>
-          <li>Portal para que sus clientes pidan, repitan y vean su cuenta</li>
-          <li>Hoja de armado y stock de cámara y depósito</li>
-          <li>Entregas registradas con foto del remito</li>
-          <li>Cuenta corriente, límite de crédito y pagos</li>
-        </ul>
-        <a class="btn must" href="https://brorti-plataforma-git-diseno-d-cinematico-js1-bcb1.vercel.app/diseno/d" target="_blank" rel="noopener">Ver la web de Brorti</a>
-      </div>
-      <div class="metrics" id="metrics"></div>
-    </div>
   </section>
 
   <section class="more" id="integraciones" aria-labelledby="t-i">
@@ -453,7 +367,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <div class="packs">
       <article class="pack"><span class="launch">Precio de lanzamiento</span><h3>Web</h3><p class="for">Para que te encuentren.</p><div class="price"><small>desde</small><b>US$ 200</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="web,whatsapp,mail"></div><ul><li>Web con tu marca y tu dominio</li><li>Google, mapa y botón de WhatsApp</li><li>Mantenimiento y soporte incluidos</li></ul><a href="#contacto">Quiero mi web →</a></article>
       <article class="pack mid"><span class="launch">Precio de lanzamiento</span><h3>Turnos</h3><p class="for">Estética, peluquerías, consultorios, talleres y veterinarias.</p><div class="price"><small>desde</small><b>US$ 500</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="web,turnos,excel,mail"></div><ul><li>Tus clientes reservan desde tu web, a cualquier hora</li><li>Si alguien cancela, todo tu sistema se entera solo y el horario queda libre</li><li>Confirmación y recordatorio automáticos por mail, con opción de cancelar</li><li>Agenda, clientes y planilla en tu panel</li></ul><a href="#contacto">Quiero turnos →</a></article>
-      <article class="pack"><span class="launch">Precio de lanzamiento</span><h3>Pedidos</h3><p class="for">Distribuidoras y mayoristas.</p><div class="price"><small>desde</small><b>US$ 1.200</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="whatsapp,web,turnos,excel,mail"></div><ul><li>Asistente que toma pedidos por texto o audio</li><li>Portal para que tus clientes pidan y vean su cuenta</li><li>Stock, hoja de armado, entregas y cuenta corriente</li><li>Excel diario automático</li></ul><a href="#demo">Ver cómo funciona →</a></article>
+      <article class="pack"><span class="launch">Precio de lanzamiento</span><h3>Pedidos</h3><p class="for">Distribuidoras y mayoristas.</p><div class="price"><small>desde</small><b>US$ 1.200</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="whatsapp,web,turnos,excel,mail"></div><ul><li>Asistente que toma pedidos por texto o audio</li><li>Portal para que tus clientes pidan y vean su cuenta</li><li>Stock, hoja de armado, entregas y cuenta corriente</li><li>Excel diario automático</li></ul><a href="#contacto">Quiero pedidos →</a></article>
     </div>
     <div class="extras">
       <div class="extra"><b>Facturas a Excel con IA</b><span>Sacás foto a las facturas de compra y se arma la planilla sola.</span></div>

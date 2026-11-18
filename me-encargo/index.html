@@ -346,6 +346,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .tn-bot.tstep:not(.in){display:none}
 .pl-r{font-size:12px;font-weight:700;color:#1F7A4D;background:#F3FAF5;border-top:1px solid #E1F0E5;padding:5px 10px;opacity:0;transition:opacity .4s}
 .pl-r.in{opacity:1}
+.tn-re{font-style:normal}
+.tn-st{font-style:normal;font-size:12.5px;font-weight:700;justify-self:start;margin-top:6px;padding:3px 10px;border-radius:999px;background:#EAF1F3;color:var(--navy);transition:background .4s,color .4s}
+.tn-st.sw-b{background:#2E9E66;color:#fff}
+.tr.done .tn-ped{box-shadow:0 0 0 6px rgba(127,209,155,.35),0 14px 34px rgba(0,0,0,.35)}
+td.sw-b{color:#1F7A4D;font-weight:700}
 .tr-lines path{transition:stroke .4s}
 .tr-lines path.ok{stroke:#7FD19B;opacity:1}
 
@@ -542,17 +547,19 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
           <div class="tn-chat-h">WhatsApp · Distribuidora</div>
           <div class="tn-msg tstep" data-at="0.3"><small>Kiosco Lucía</small><span class="aud"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>«Mandame 6 packs de Coca 2,25 y 4 de agua sin gas para mañana»</div>
           <div class="tn-bot tstep" data-at="1.6"><small>Me Encargo · bot</small>¡Hola Lucía! Anoté: 6 Coca 2,25 y 4 agua sin gas. Mañana te llevamos 2 de agua y las otras 2 el viernes. Total $&nbsp;66.000 👍</div>
-          <div class="tn-bot tstep" data-at="9.2"><small>Me Encargo · bot</small>Tu pedido #3187 ya salió con Martín 🚚</div>
+          <div class="tn-bot tstep" data-at="8.6"><small>Me Encargo · bot</small>Tu pedido #3187 ya salió con Martín 🚚</div>
+          <div class="tn-bot tstep" data-at="10.2"><small>Me Encargo · bot</small>✅ Entregado 9:47 · recibió Lucía, remito firmado. ¿Llegó todo bien?</div>
+          <div class="tn-msg tn-re tstep" data-at="11.2"><small>Kiosco Lucía</small>Todo perfecto, gracias 🙌</div>
         </div>
         <div class="tn-ia tstep" data-at="1.0"><svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>La IA lo entiende y lo reparte</div>
-        <div class="tn-ped tstep" data-at="2.3" id="trCore"><b>Pedido #3187</b><span>Coca-Cola 2,25 L × 6</span><span>Agua sin gas × 2 <em>(2 para el viernes)</em></span><strong>$ 66.000</strong></div>
+        <div class="tn-ped tstep" data-at="2.3" id="trCore"><b>Pedido #3187</b><span>Coca-Cola 2,25 L × 6</span><span>Agua sin gas × 2 <em>(2 para el viernes)</em></span><strong>$ 66.000</strong><i class="tn-st" data-sw="10.2" data-a="En camino" data-b="✓ Entregado"></i></div>
       </div>
       <svg class="tr-lines" id="trLines" aria-hidden="true"></svg>
       <div class="tr-leaves">
-        <div class="pl tstep" data-at="3.0"><div class="pl-h">Ventas · Pedidos del día</div><table><tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th></tr><tr><td>3186</td><td>Almacén Sur</td><td>$ 41.200</td><td>En reparto</td></tr><tr class="nw"><td>3187</td><td>Kiosco Lucía</td><td>$ 66.000</td><td>Confirmado</td></tr></table><div class="pl-r" data-r="4.1">✓ Ventas: pedido registrado</div></div>
+        <div class="pl tstep" data-at="3.0"><div class="pl-h">Ventas · Pedidos del día</div><table><tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th></tr><tr><td>3186</td><td>Almacén Sur</td><td>$ 41.200</td><td>En reparto</td></tr><tr class="nw"><td>3187</td><td>Kiosco Lucía</td><td>$ 66.000</td><td data-sw="10.2" data-a="Confirmado" data-b="✓ Entregado"></td></tr></table><div class="pl-r" data-r="4.1">✓ Ventas: pedido registrado</div></div>
         <div class="pl tstep" data-at="3.8"><div class="pl-h">Depósito · Stock</div><table><tr><th>Producto</th><th>Antes</th><th>Ahora</th></tr><tr class="nw"><td>Coca-Cola 2,25 L</td><td>40</td><td>34</td></tr><tr class="nw warn"><td>Agua sin gas</td><td>2</td><td>0 · reponer</td></tr></table><div class="pl-r" data-r="4.9">✓ Stock: descontado · falta agua</div></div>
         <div class="pl tstep" data-at="4.6"><div class="pl-h">Depósito · Hoja de armado</div><table><tr><th>Producto</th><th>Cant.</th><th>Ubicación</th><th></th></tr><tr class="nw"><td>Coca-Cola 2,25 L</td><td>6</td><td>A3</td><td>✓</td></tr><tr class="nw"><td>Agua sin gas</td><td>2</td><td>B1</td><td>✓</td></tr></table><div class="pl-r" data-r="5.7">✓ Depósito: armado por Pablo 10:42</div></div>
-        <div class="pl tstep" data-at="5.4"><div class="pl-h">Reparto</div><table><tr><th>Cliente</th><th>Zona</th><th>Chofer</th><th>Remito</th></tr><tr class="nw"><td>Kiosco Lucía</td><td>Sur</td><td>Martín</td><td>R-2041 · foto ✓</td></tr></table><div class="pl-r" data-r="6.5">✓ Reparto: Martín sale mañana 9:00</div></div>
+        <div class="pl tstep" data-at="5.4"><div class="pl-h">Reparto</div><table><tr><th>Cliente</th><th>Zona</th><th>Chofer</th><th>Remito</th></tr><tr class="nw"><td>Kiosco Lucía</td><td>Sur</td><td>Martín</td><td data-sw="10.2" data-a="R-2041 · en camino" data-b="R-2041 · firmado ✓"></td></tr></table><div class="pl-r" data-r="6.5">✓ Reparto: Martín sale mañana 9:00</div></div>
         <div class="pl tstep" data-at="6.2"><div class="pl-h">Administración · Cuenta corriente</div><table><tr><th>Cliente</th><th>Anterior</th><th>Pedido</th><th>Saldo</th></tr><tr class="nw"><td>Kiosco Lucía</td><td>$ 120.000</td><td>+ $ 66.000</td><td>$ 186.000 ✓</td></tr></table><div class="pl-r" data-r="7.3">✓ Administración: saldo actualizado</div></div>
         <div class="pl tstep" data-at="7.0"><div class="pl-h">Avisos al equipo</div><table><tr class="nw warn"><td>Depósito</td><td>Reponer agua sin gas</td></tr><tr class="nw"><td>Ventas</td><td>2 packs pendientes para el viernes</td></tr></table><div class="pl-r" data-r="8.1">✓ Compras: pedido de agua generado</div></div>
       </div>
@@ -815,7 +822,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   (function(){
     var tr=document.getElementById('tr'); if(!tr)return;
     var steps=[].slice.call(tr.querySelectorAll('.tstep')), leaves=[].slice.call(tr.querySelectorAll('.pl')),
-        svgL=document.getElementById('trLines'), core=document.getElementById('trCore'), paths=[], t=0, last=performance.now(), vis=true, LEN=13;
+        svgL=document.getElementById('trLines'), sws=[].slice.call(tr.querySelectorAll('[data-sw]')), core=document.getElementById('trCore'), paths=[], t=0, last=performance.now(), vis=true, LEN=14.5;
     function draw(){
       var W=svgL.clientWidth, R=svgL.getBoundingClientRect(); if(!W){paths=[];return}
       svgL.setAttribute('viewBox','0 0 '+W+' '+svgL.clientHeight);
@@ -828,7 +835,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     function render(){
       steps.forEach(function(s){s.classList.toggle('in',t>=+s.dataset.at)});
       paths.forEach(function(p,i){var at=+leaves[i].dataset.at-.6, k=Math.max(0,Math.min(1,(t-at)/.6));p.style.strokeDashoffset=(1-k)*p.dataset.l});
-      tr.classList.toggle('core-on',t>=2.3);
+      tr.classList.toggle('core-on',t>=2.3);tr.classList.toggle('done',t>=10.2);
+      sws.forEach(function(e){var b=t>=+e.dataset.sw,v=b?e.dataset.b:e.dataset.a;if(e.textContent!==v){e.textContent=v;e.classList.toggle('sw-b',b)}});
       leaves.forEach(function(l,i){var r=l.querySelector('.pl-r'),on=r&&t>=+r.dataset.r;if(r)r.classList.toggle('in',on);if(paths[i])paths[i].classList.toggle('ok',on)});
     }
     function loop(now){var dt=Math.min(.1,(now-last)/1000);last=now;if(vis){t+=dt;if(t>LEN)t=0;render()}requestAnimationFrame(loop)}
@@ -836,7 +844,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){draw();render()},120)});
     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){draw();render()});
     draw();
-    if(reduce){t=10;render()}else requestAnimationFrame(loop);
+    if(reduce){t=12;render()}else requestAnimationFrame(loop);
   })();
 
   /* ===== alertas: aparecen al llegar ===== */

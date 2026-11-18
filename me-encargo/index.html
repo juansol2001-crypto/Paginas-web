@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Me Encargo</title>
-<meta name="description" content="Tu web, tu WhatsApp con inteligencia artificial, tus turnos y pedidos, las planillas y tu mail, conectados en un solo sistema. Lo armamos y lo mantenemos.">
+<meta name="description" content="Sistema de pedidos para distribuidoras y mayoristas: tus clientes piden por WhatsApp, el sistema arma el pedido, revisa stock, genera la hoja de armado, lleva la cuenta corriente y te avisa quién dejó de comprar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;700&display=swap">
@@ -292,6 +292,48 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .que em{font-style:normal;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;font-weight:700;margin-bottom:12px}
 @media (max-width:900px){.ucols,.que{grid-template-columns:1fr}.ucol:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-15px;transform:translateX(-50%)}.upanel{padding:18px}}
 
+/* ===== portada pedidos ===== */
+.kicker{display:inline-flex;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);background:var(--accent-2);border-radius:999px;padding:7px 14px;margin-bottom:18px}
+.intro h1{max-width:17ch}
+.hero-lead{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:44em;margin-top:18px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+/* ===== alertas ===== */
+.alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}
+.al{background:var(--navy);color:#fff;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
+.al.in{opacity:1;transform:none}
+.al:nth-child(2){transition-delay:.15s}.al:nth-child(3){transition-delay:.3s}
+.al-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#C3D4DC}
+.al-h small{margin-left:auto;font-weight:500;letter-spacing:0;color:#8FA6B1}
+.al-dot{width:9px;height:9px;border-radius:50%}
+.al-dot.r{background:#FF9B8E}.al-dot.a{background:#F2C46B}.al-dot.b{background:#8FC7E0}
+.al-t{font-size:17px;line-height:1.45;color:#EAF2F5}
+.al-t b{color:#fff}
+.al-msg{margin-top:auto;background:#D9F2D0;color:#1C2733;border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:15px;line-height:1.4}
+.al-msg small{display:block;font-size:11.5px;font-weight:700;color:#4E6B55;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.demo-note{font-size:13px;color:var(--muted);margin-top:12px}
+@media (max-width:900px){.alerts{grid-template-columns:1fr}}
+/* ===== integraciones: próximamente ===== */
+.soon{font-style:normal;font-size:11px;font-weight:700;color:var(--navy);background:var(--accent-2);border-radius:999px;padding:2px 7px;margin-left:4px;vertical-align:1px}
+/* ===== precio principal ===== */
+.pmain{margin-top:34px;background:var(--navy);color:#fff;border-radius:28px;padding:32px;display:grid;grid-template-columns:.9fr 1.1fr;gap:32px;align-items:center}
+.pmain h3{font-size:clamp(32px,3.4vw,44px);color:#fff;margin-top:12px}
+.pmain .for{color:#C9D6DF;font-size:17px;margin-top:8px}
+.pmain .price{margin:18px 0 22px}
+.pmain .price small,.pmain .price .ab2{color:#C9D6DF}
+.pmain .launch{background:rgba(169,196,207,.2);color:#DCEAF0}
+.pm-r{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;font-size:16px}
+.pm-r li{display:flex;gap:10px;color:#E1EBF0}
+.pm-r li::before{content:"✓";color:var(--blue);font-weight:700}
+.also-t{font-family:var(--f-display);font-size:26px;margin:38px 0 14px}
+.also{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.also article{background:var(--card);border-radius:20px;padding:20px 22px;display:flex;justify-content:space-between;gap:18px;align-items:center}
+.also b{display:block;font-family:var(--f-display);font-weight:500;font-size:22px;margin-bottom:4px}
+.also span{color:var(--muted);font-size:15.5px}
+.also-r{display:grid;gap:6px;text-align:right;flex:none}
+.also-r em{font-style:normal;font-weight:700}
+.also-r a{font-weight:700;color:var(--navy);text-decoration:none;font-size:15px}
+@media (max-width:900px){.pmain{grid-template-columns:1fr;padding:24px}.pm-r{grid-template-columns:1fr}.also{grid-template-columns:1fr}.also article{flex-direction:column;align-items:flex-start}.also-r{text-align:left}}
+
 /* ===== caso Brorti ===== */
 .caso{display:grid;grid-template-columns:1fr 1.15fr;gap:28px;margin-top:36px;align-items:start}
 .caso-story{background:var(--navy);color:#fff;border-radius:24px;padding:30px}
@@ -363,12 +405,15 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <svg viewBox="0 0 30 30" aria-hidden="true"><g stroke="#6F9AAB" stroke-width="1.4"><path d="M15 4L25.5 11.6 21.5 24 8.5 24 4.5 11.6Z" fill="none"/><path d="M15 4L21.5 24M15 4L8.5 24M4.5 11.6H25.5M4.5 11.6L21.5 24M25.5 11.6L8.5 24"/></g><circle cx="15" cy="15" r="5.5" fill="#1F2B3A"/><g fill="#1F2B3A"><circle cx="15" cy="4" r="2.6"/><circle cx="25.5" cy="11.6" r="2.6"/><circle cx="21.5" cy="24" r="2.6"/><circle cx="8.5" cy="24" r="2.6"/><circle cx="4.5" cy="11.6" r="2.6"/></g></svg>
       Me Encargo
     </a>
-    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#clientes">Clientes</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
+    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#alertas">Alertas</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
     <a class="btn" href="#contacto">Hablemos</a>
   </header>
 
   <div class="intro" id="inicio">
-    <h1>Todo tu negocio, conectado en un solo sistema.</h1>
+    <span class="kicker">Sistema de pedidos para distribuidoras y mayoristas</span>
+    <h1>Tus clientes piden por WhatsApp. El sistema hace el resto.</h1>
+    <p class="hero-lead">Entiende pedidos por texto o audio, revisa el stock, arma la hoja de depósito y lleva la cuenta corriente de cada cliente. Y te avisa a quién llamar antes de perderlo.</p>
+    <div class="hero-btns"><a class="btn" href="#contacto">Quiero verlo con mis productos</a><a class="btn ghost2" href="#como">Cómo funciona</a></div>
   </div>
 
   <section class="system" id="sistema" aria-label="El sistema Me Encargo: todo conectado con todo">
@@ -379,61 +424,33 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 
 <main class="wrap">
   <section class="more" id="como" aria-labelledby="t-como" style="padding-top:110px">
-    <h2 id="t-como">Qué hacemos y cómo se usa.</h2>
-    <p class="lead">Armamos sistemas que trabajan solos para tu negocio. Vos seguís atendiendo; el sistema anota, avisa, ordena y te arma las planillas.</p>
+    <h2 id="t-como">Cómo funciona.</h2>
+    <p class="lead">Tus clientes piden como siempre. El pedido llega armado, con stock revisado y listo para preparar. Nadie copia nada a mano.</p>
+    <div class="usos">
+      <div class="upanel on">
+        <div class="ucols">
+          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Pide por WhatsApp, con texto o audio, o desde su portal web.</li><li>Repite su último pedido con un toque.</li><li>Ve el estado de su pedido y su cuenta.</li><li>Informa sus pagos subiendo el comprobante.</li></ol></div>
+          <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Entiende el pedido y lo arma con tus productos y precios.</li><li>Revisa el stock y avisa si falta algo antes de confirmar.</li><li>Genera la hoja de armado para el depósito.</li><li>Actualiza la cuenta corriente y controla el límite de crédito.</li></ol></div>
+          <div class="ucol"><h4><i>👤</i>Vos y tu equipo</h4><ol><li>El depósito prepara según la hoja de armado.</li><li>El chofer entrega y sube la foto del remito firmado.</li><li>Ves pedidos, deudas y entregas en un solo lugar.</li><li>Cada área recibe sus avisos: ventas, depósito y administración.</li></ol></div>
+        </div>
+      </div>
+    </div>
     <div class="que">
-      <div><em>1</em><b>Lo armamos</b><span>Nos contás cómo trabajás y lo configuramos con tus productos, precios, horarios y tu marca.</span></div>
-      <div><em>2</em><b>Lo usás</b><span>Tus clientes reservan o piden solos. Vos mirás todo desde tu celular, en un panel simple.</span></div>
+      <div><em>1</em><b>Lo armamos</b><span>Cargamos tus productos, precios, clientes, zonas y días de reparto. Lo probás con pedidos reales.</span></div>
+      <div><em>2</em><b>Lo usás</b><span>Conectamos tu número de WhatsApp Business. Tus clientes no tienen que bajarse nada.</span></div>
       <div><em>3</em><b>Lo mantenemos</b><span>Cambios, soporte y mejoras todos los meses. No tenés que saber nada de tecnología.</span></div>
     </div>
-    <div class="usos">
-      <div class="utabs" role="tablist" aria-label="Sistemas">
-        <button class="utab" role="tab" aria-selected="true" aria-controls="u-turnos" id="ut-turnos"><svg viewBox="0 0 24 24"><path d="M5 7h14v12H5z M5 10.5h14 M9 5v4 M15 5v4 M9 14l2 2 4-4"/></svg>Turnos</button>
-        <button class="utab" role="tab" aria-selected="false" aria-controls="u-pedidos" id="ut-pedidos"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 11h-13z M8 7a4 4 0 0 1 8 0"/></svg>Pedidos</button>
-        <button class="utab" role="tab" aria-selected="false" aria-controls="u-facturas" id="ut-facturas"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6"/></svg>Facturas con IA</button>
-        <button class="utab" role="tab" aria-selected="false" aria-controls="u-web" id="ut-web"><svg viewBox="0 0 24 24"><path d="M4 6.5h16v11H4z M4 9.5h16"/></svg>Web</button>
-      </div>
+  </section>
 
-      <div class="upanel on" role="tabpanel" id="u-turnos" aria-labelledby="ut-turnos">
-        <div class="uhead"><div><h3>Turnos que se reservan solos</h3><p>Tus clientes sacan turno a cualquier hora y vos ves la agenda al día, sin contestar mensajes.</p></div><span class="tag">Peluquerías · estética · consultorios · talleres</span></div>
-        <div class="ucols">
-          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Entra a tu link desde Instagram, Google o WhatsApp.</li><li>Elige servicio, profesional, día y horario libre.</li><li>Recibe la confirmación y un recordatorio el día antes.</li><li>Si no puede ir, cancela solo desde el link.</li></ol></div>
-          <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Muestra solo los horarios libres reales.</li><li>Nunca deja que dos turnos se pisen.</li><li>Si alguien cancela, libera el horario al instante.</li><li>Te avisa de cada reserva y cancelación.</li></ol></div>
-          <div class="ucol"><h4><i>👤</i>Vos</h4><ol><li>Ves la agenda del día por profesional, en vivo.</li><li>Cargás los turnos que te piden por teléfono.</li><li>Marcás atendido o "no vino".</li><li>Cambiás precios, horarios y feriados cuando quieras.</li></ol></div>
-        </div>
-        <div class="ufoot"><p><b>Probalo ahora:</b> sacá un turno de prueba y miralo aparecer en el panel.</p><div class="btns"><a class="btn" href="https://me-encargo-turnos.vercel.app" target="_blank" rel="noopener">Reservar un turno de prueba</a><a class="btn ghost2" href="https://me-encargo-turnos.vercel.app/panel.html" target="_blank" rel="noopener">Ver el panel del dueño</a></div></div>
-      </div>
-
-      <div class="upanel" role="tabpanel" id="u-pedidos" aria-labelledby="ut-pedidos">
-        <div class="uhead"><div><h3>Pedidos que entran ordenados</h3><p>Tus clientes piden como siempre y el pedido llega armado, con stock revisado y listo para preparar.</p></div><span class="tag">Distribuidoras · mayoristas · proveedores</span></div>
-        <div class="ucols">
-          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Pide por WhatsApp, con texto o audio, o desde su portal.</li><li>Puede repetir su último pedido con un toque.</li><li>Ve el estado de su pedido y su cuenta.</li><li>Informa sus pagos subiendo el comprobante.</li></ol></div>
-          <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Arma el pedido con tus productos y precios.</li><li>Revisa el stock y avisa si falta algo antes de confirmar.</li><li>Genera la hoja de armado para el depósito.</li><li>Actualiza la cuenta corriente y la planilla del día.</li></ol></div>
-          <div class="ucol"><h4><i>👤</i>Vos y tu equipo</h4><ol><li>El depósito prepara según la hoja de armado.</li><li>El chofer entrega y sube la foto del remito firmado.</li><li>Ves pedidos, deudas y entregas en un solo lugar.</li><li>Recibís el Excel del día sin armar nada.</li></ol></div>
-        </div>
-        <div class="ufoot"><p><b>¿Tenés una distribuidora?</b> Te lo mostramos funcionando con tus productos en una charla.</p><div class="btns"><a class="btn" href="#contacto">Quiero verlo</a></div></div>
-      </div>
-
-      <div class="upanel" role="tabpanel" id="u-facturas" aria-labelledby="ut-facturas">
-        <div class="uhead"><div><h3>Facturas de compra a Excel, con una foto</h3><p>Le sacás foto a cada factura del día y la planilla de compras se arma sola.</p></div><span class="tag">Restaurantes · bares · comercios</span></div>
-        <div class="ucols">
-          <div class="ucol"><h4><i>📸</i>Vos</h4><ol><li>Sacás foto a las facturas desde el celular, una o varias juntas.</li><li>También podés subir PDF.</li></ol></div>
-          <div class="ucol sys"><h4><i>🤖</i>La IA, sola</h4><ol><li>Lee proveedor, fecha, productos, precios, IVA y total.</li><li>Ordena cada gasto por categoría.</li><li>Detecta facturas repetidas.</li><li>Te avisa si un proveedor subió un precio.</li></ol></div>
-          <div class="ucol"><h4><i>📊</i>Vos recibís</h4><ol><li>Cuánto gastaste, por categoría y por proveedor.</li><li>Las facturas dudosas marcadas para revisar, con la foto al lado.</li><li>El Excel listo para tu contador.</li></ol></div>
-        </div>
-        <div class="ufoot"><p><b>Se suma a cualquier paquete.</b> Ideal para controlar costos y aumentos de proveedores.</p><div class="btns"><a class="btn" href="#contacto">Quiero probarlo</a></div></div>
-      </div>
-
-      <div class="upanel" role="tabpanel" id="u-web" aria-labelledby="ut-web">
-        <div class="uhead"><div><h3>Una web que te trae clientes</h3><p>Con tu marca, fotos reales y todo lo que tu cliente necesita para elegirte y escribirte.</p></div><span class="tag">Cualquier negocio</span></div>
-        <div class="ucols">
-          <div class="ucol"><h4><i>👤</i>Vos</h4><ol><li>Nos contás tu negocio y nos pasás fotos o tu Instagram.</li><li>Revisás la propuesta y pedís cambios.</li></ol></div>
-          <div class="ucol sys"><h4><i>⚙️</i>Nosotros</h4><ol><li>La diseñamos y la publicamos con tu dominio.</li><li>La dejamos lista para Google y Google Maps.</li><li>Conectamos WhatsApp, Instagram, Rappi o PedidosYa.</li><li>Actualizamos precios y horarios cuando nos pidas.</li></ol></div>
-          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Te encuentra en Google.</li><li>Ve tu menú o servicios, horarios y si estás abierto ahora.</li><li>Te escribe o te pide con un toque.</li></ol></div>
-        </div>
-        <div class="ufoot"><p><b>Se puede sumar después</b> turnos, pedidos o facturas con IA, sobre la misma web.</p><div class="btns"><a class="btn" href="#contacto">Quiero mi web</a></div></div>
-      </div>
+  <section class="more" id="alertas" aria-labelledby="t-al">
+    <h2 id="t-al">Te avisa a quién llamar antes de perderlo.</h2>
+    <p class="lead">Todas las mañanas el sistema revisa cada cliente y le avisa a tu equipo de ventas quién dejó de pedir, quién compra menos y qué producto dejó de llevar. Con un mensaje listo para mandarle.</p>
+    <div class="alerts">
+      <article class="al"><div class="al-h"><span class="al-dot r"></span>Dejó de pedir<small>08:30</small></div><p class="al-t"><b>Almacén Don José</b> no pide hace 16 días. Suele pedir cada 7.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola José! Hace unos días que no te vemos. ¿Te armo el pedido de siempre?</div></article>
+      <article class="al"><div class="al-h"><span class="al-dot a"></span>Compra menos<small>08:30</small></div><p class="al-t"><b>Verdulería Ana</b> bajó su pedido promedio un 35% este mes.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola Ana! ¿Cómo venís? Si necesitás algo más para esta semana, te lo sumo al próximo pedido.</div></article>
+      <article class="al"><div class="al-h"><span class="al-dot b"></span>Dejó un producto<small>08:30</small></div><p class="al-t"><b>La Esquina</b> llevaba limón en cada pedido y dejó de pedirlo.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola! Vi que no venís llevando limón. ¿Te sumo en el próximo pedido?</div></article>
     </div>
+    <p class="demo-note">Ejemplos ilustrativos. Las alertas se calculan con el historial real de pedidos de cada cliente.</p>
   </section>
 
   <section class="more" id="clientes" aria-labelledby="t-cl">
@@ -450,26 +467,40 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div class="row r2" id="flow2"></div>
     </div>
     <div class="integ">
-      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 18.5l1.2-3.4A7 7 0 1 1 9 17.6z"/></svg></span><span class="k">Mensajes</span><div class="tools"><span>WhatsApp Business</span><span>Instagram</span></div><p>Tus clientes escriben donde ya te escriben.</p></div>
-      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z M5 10h14 M5 14.5h14 M10 5v14"/></svg></span><span class="k">Planillas</span><div class="tools"><span>Excel</span><span>Google Sheets</span></div><p>Pedidos, turnos, cobros y compras en tu planilla, al día.</p></div>
-      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16v10H4z M4 7l8 6 8-6"/></svg></span><span class="k">Mail y agenda</span><div class="tools"><span>Gmail</span><span>Outlook</span><span>Google Calendar</span></div><p>Avisos, resúmenes del día y turnos en tu calendario.</p></div>
-      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 7h18v10H3z M3 11h18 M7 15h3"/></svg></span><span class="k">Cobros y ventas</span><div class="tools"><span>Mercado Pago</span><span>Transferencias</span><span>Rappi</span><span>PedidosYa</span></div><p>Señas, pagos informados y links a tus canales de venta.</p></div>
+      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 18.5l1.2-3.4A7 7 0 1 1 9 17.6z"/></svg></span><span class="k">Pedidos</span><div class="tools"><span>WhatsApp Business</span><span>Portal web</span></div><p>Tus clientes piden por donde ya te escriben.</p></div>
+      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6"/></svg></span><span class="k">Gestión y facturación</span><div class="tools"><span>Contabilium <i class="soon">próximamente</i></span><span>Tu sistema de gestión</span></div><p>Productos, precios y stock desde tu sistema; los pedidos confirmados vuelven para facturar.</p></div>
+      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 11h-13z M8 7a4 4 0 0 1 8 0"/></svg></span><span class="k">Tienda online</span><div class="tools"><span>Tiendanube <i class="soon">próximamente</i></span></div><p>Los pedidos de tu tienda entran al mismo sistema, con el mismo stock.</p></div>
+      <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z M5 10h14 M5 14.5h14 M10 5v14"/></svg></span><span class="k">Planillas y cobros</span><div class="tools"><span>Excel</span><span>Google Sheets</span><span>Mercado Pago</span><span>Transferencias</span></div><p>Exportás todo cuando quieras y registrás pagos con el comprobante.</p></div>
     </div>
-    <p class="integ-note"><b>¿Usás un sistema de gestión o de facturación?</b> Si exporta datos o tiene conexión, lo sumamos. Lo revisamos en la primera charla, sin costo.</p>
+    <p class="integ-note"><b>¿Usás otro sistema de gestión o de facturación?</b> Si exporta datos o tiene conexión, lo sumamos. Lo revisamos en la primera charla, sin costo.</p>
   </section>
 
   <section class="more" id="paquetes" aria-labelledby="t-p">
     <h2 id="t-p">Precios claros, para arrancar.</h2>
-    <p class="lead">Un pago único para armarlo y un abono mensual que cubre servidores, mantenimiento, soporte y mejoras. Precios de lanzamiento en dólares, cobrados en pesos.</p>
-    <div class="packs">
-      <article class="pack"><span class="launch">Precio de lanzamiento</span><h3>Web</h3><p class="for">Para que te encuentren.</p><div class="price"><small>desde</small><b>US$ 200</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="web,whatsapp,mail"></div><ul><li>Web con tu marca y tu dominio</li><li>Google, mapa y botón de WhatsApp</li><li>Mantenimiento y soporte incluidos</li></ul><a href="#contacto">Quiero mi web →</a></article>
-      <article class="pack mid"><span class="launch">Precio de lanzamiento</span><h3>Turnos</h3><p class="for">Estética, peluquerías, consultorios, talleres y veterinarias.</p><div class="price"><small>desde</small><b>US$ 500</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="web,turnos,excel,mail"></div><ul><li>Tus clientes reservan desde tu web, a cualquier hora</li><li>Si alguien cancela, todo tu sistema se entera solo y el horario queda libre</li><li>Confirmación y recordatorio automáticos por mail, con opción de cancelar</li><li>Agenda, clientes y planilla en tu panel</li></ul><a href="#contacto">Quiero turnos →</a></article>
-      <article class="pack"><span class="launch">Precio de lanzamiento</span><h3>Pedidos</h3><p class="for">Distribuidoras y mayoristas.</p><div class="price"><small>desde</small><b>US$ 1.200</b><span class="ab2">pago único + abono mensual</span></div><div class="mini" data-mini="whatsapp,web,turnos,excel,mail"></div><ul><li>Asistente que toma pedidos por texto o audio</li><li>Portal para que tus clientes pidan y vean su cuenta</li><li>Stock, hoja de armado, entregas y cuenta corriente</li><li>Excel diario automático</li></ul><a href="#contacto">Quiero pedidos →</a></article>
-    </div>
-    <div class="extras">
-      <div class="extra"><b>Facturas a Excel con IA</b><span>Sacás foto a las facturas de compra y se arma la planilla sola.</span></div>
-      <div class="extra"><b>Agentes de IA a medida</b><span>Informes semanales, avisos a clientes que no vuelven y más.</span></div>
-      <div class="extra"><b>Conexión con tu sistema</b><span>Gestión, facturación o planillas que ya usás.</span></div>
+    <p class="lead">Un pago único para armarlo con tus datos y un abono mensual que cubre servidores, mantenimiento, soporte y mejoras. Precios de lanzamiento en dólares, cobrados en pesos.</p>
+    <article class="pmain">
+      <div class="pm-l">
+        <span class="launch">Precio de lanzamiento</span>
+        <h3>Sistema de pedidos</h3>
+        <p class="for">Para distribuidoras, mayoristas y proveedores que venden por WhatsApp.</p>
+        <div class="price"><small>desde</small><b>US$ 1.200</b><span class="ab2">pago único + abono mensual</span></div>
+        <a class="btn must" href="#contacto">Quiero verlo con mis productos</a>
+      </div>
+      <ul class="pm-r">
+        <li>Asistente de WhatsApp con IA que toma pedidos por texto o audio</li>
+        <li>Portal para que tus clientes pidan, repitan y vean su cuenta</li>
+        <li>Control de stock y aviso de faltantes antes de confirmar</li>
+        <li>Hoja de armado para el depósito</li>
+        <li>Entregas registradas con foto del remito</li>
+        <li>Cuenta corriente, límite de crédito y pagos</li>
+        <li>Alertas de clientes: quién dejó de pedir o compra menos</li>
+        <li>Avisos a ventas, depósito y administración</li>
+      </ul>
+    </article>
+    <h3 class="also-t">También armamos</h3>
+    <div class="also">
+      <article><div><b>Turnos online</b><span>Para peluquerías, estética y consultorios: reservas desde la web, agenda en vivo y cancelaciones que liberan el horario solas.</span></div><div class="also-r"><em>desde US$ 500</em><a href="https://me-encargo-turnos.vercel.app" target="_blank" rel="noopener">Ver la demo →</a></div></article>
+      <article><div><b>Web para tu negocio</b><span>Con tu marca y tu dominio, lista para Google y con botón de WhatsApp.</span></div><div class="also-r"><em>desde US$ 200</em><a href="#contacto">Consultar →</a></div></article>
     </div>
     <p class="note">El precio final depende de cuántas cosas conectamos. Te lo pasamos cerrado después de la primera charla, sin compromiso.</p>
   </section>
@@ -478,11 +509,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <section class="close" id="contacto" aria-labelledby="t-c">
   <div class="wrap">
     <div>
-      <h2 id="t-c">¿Conectamos tu negocio?</h2>
-      <p>Charlamos 20 minutos, vemos cómo trabajás y te armamos el sistema con tus datos. Después lo mantenemos cada mes.</p>
+      <h2 id="t-c">¿Ordenamos tus pedidos?</h2>
+      <p>Charlamos 20 minutos, vemos cómo te llegan hoy los pedidos y te mostramos el sistema funcionando con tus productos. Después lo mantenemos cada mes.</p>
       <div class="btns">
         <a class="btn must" href="https://wa.me/5491169088558" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
-        <a class="btn line" href="#sistema">Ver el sistema</a>
+        <a class="btn line" href="#como">Ver cómo funciona</a>
       </div>
     </div>
     <div class="people">
@@ -497,17 +528,18 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <div class="faq">
       <div><h2 id="t-q">Preguntas</h2><p class="lead">Si te queda alguna duda, escribinos.</p></div>
       <div class="qs">
-        <details open><summary>¿Tengo que saber de tecnología?</summary><p>No. Nosotros armamos, conectamos y mantenemos todo. Vos nos contás cómo trabajás y revisás antes de publicar.</p></details>
-        <details><summary>¿Cómo empezamos?</summary><p>Una charla de 20 minutos para entender tu negocio. Después armamos y conectamos todo con tus datos, lo probás y, con tu OK, lo publicamos.</p></details>
-        <details><summary>¿El asistente usa mi mismo número?</summary><p>Sí, trabaja con tu número de WhatsApp Business, a tu nombre. Tus clientes te escriben como siempre.</p></details>
-        <details><summary>¿Qué pasa si no sabe qué responder?</summary><p>Te avisa a vos o a la persona de tu equipo que elijas, y la conversación sigue con una persona.</p></details>
-        <details><summary>¿Se puede conectar con lo que ya uso?</summary><p>Sí. Lo conectamos con tus planillas, tu sistema de facturación o el de gestión que ya usás.</p></details>
-        <details><summary>¿Me puedo dar de baja?</summary><p>Sí, avisando con anticipación. Te llevás tus datos en una planilla y tu dominio sigue siendo tuyo.</p></details>
+        <details open><summary>¿Mis clientes tienen que bajarse algo?</summary><p>No. Siguen escribiéndole a tu WhatsApp como siempre. Si quieren, también pueden pedir desde el portal web.</p></details>
+        <details><summary>¿El asistente usa mi mismo número?</summary><p>Sí, trabaja con tu número de WhatsApp Business, a tu nombre.</p></details>
+        <details><summary>¿Qué pasa si no entiende un pedido?</summary><p>Te avisa a vos o a la persona de tu equipo que elijas, y la conversación sigue con una persona.</p></details>
+        <details><summary>¿Se conecta con Contabilium o Tiendanube?</summary><p>Estamos sumando esas conexiones. Si usás alguno de los dos u otro sistema, lo vemos en la primera charla y lo conectamos para vos.</p></details>
+        <details><summary>¿Tengo que saber de tecnología?</summary><p>No. Nosotros armamos, conectamos y mantenemos todo. Vos nos contás cómo trabajás y lo probás antes de usarlo.</p></details>
+        <details><summary>¿Cuánto cuesta la inteligencia artificial?</summary><p>Se paga por uso y son centavos por pedido. Te lo detallamos en el presupuesto.</p></details>
+        <details><summary>¿Me puedo dar de baja?</summary><p>Sí, avisando con anticipación. Te llevás tus datos en una planilla.</p></details>
       </div>
     </div>
   </section>
 </main>
-<footer><div class="wrap"><span>Me Encargo · Buenos Aires, Argentina</span><span>Web, WhatsApp con IA y administración, todo conectado</span></div></footer>
+<footer><div class="wrap"><span>Me Encargo · Buenos Aires, Argentina</span><span>Sistema de pedidos para distribuidoras: WhatsApp con IA, stock y cuenta corriente</span></div></footer>
 
 <script>
 (function(){
@@ -522,11 +554,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 
   var KEYS=['turnos','web','excel','mail','whatsapp'];
   var INFO={
-    whatsapp:{l:'WhatsApp con IA',t:'WhatsApp con inteligencia artificial',d:'Tus clientes escriben a cualquier hora. El asistente responde, toma el pedido o el turno y lo anota en el sistema.'},
-    web:{l:'Tu web',t:'Tu web',d:'Muestra lo que ofrecés con la disponibilidad real y recibe pedidos y reservas. Se actualiza sola.'},
-    turnos:{l:'Turnos y pedidos',t:'Gestión de turnos y pedidos',d:'Todo lo que entra se ordena solo. Si alguien cancela, la web, la planilla y tu mail se enteran al instante.'},
-    excel:{l:'Planilla Excel',t:'Planilla Excel',d:'Cada turno, pedido y cobro se suma solo a la planilla del día, lista para descargar.'},
-    mail:{l:'Tu mail',t:'Tu mail',d:'A la noche te llega el resumen del día con la planilla adjunta, sin abrir chats ni armar nada.'},
+    whatsapp:{l:'WhatsApp con IA',t:'WhatsApp con inteligencia artificial',d:'Tus clientes piden con texto o audio, a cualquier hora. El asistente entiende el pedido y lo carga en el sistema.'},
+    web:{l:'Portal de clientes',t:'Portal de clientes',d:'Tus clientes piden desde la web, repiten su último pedido, ven su cuenta e informan pagos.'},
+    turnos:{l:'Pedidos y stock',t:'Pedidos y stock',d:'Cada pedido se arma con tus precios, revisa el stock y genera la hoja de armado para el depósito.'},
+    excel:{l:'Cuenta corriente',t:'Cuenta corriente',d:'Cada pedido y cada pago se suman a la cuenta del cliente, con su límite de crédito.'},
+    mail:{l:'Alertas al equipo',t:'Alertas al equipo',d:'Avisos a ventas, depósito y administración: faltantes, clientes que dejaron de pedir y límites de crédito.'},
     core:{t:'Sistema Me Encargo',d:'Un solo sistema en el medio. Cada parte habla con todas las demás, así nadie copia nada dos veces.'}
   };
   var GLYPH={
@@ -628,7 +660,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   if(!reduce)requestAnimationFrame(loop);
 
   // recorrido automático mientras nadie toca
-  var order=['whatsapp','turnos','web','excel','mail','core'], oi=-1, auto=null, resume=null;
+  var order=['whatsapp','turnos','excel','mail','web','core'], oi=-1, auto=null, resume=null;
   function startAuto(){ if(reduce||auto)return; auto=setInterval(function(){oi=(oi+1)%(order.length+1); active=order[oi]||null; paint()},2600) }
   function stopAuto(){clearInterval(auto);auto=null;clearTimeout(resume)}
   function userSet(k){stopAuto(); active=k; paint(); resume=setTimeout(startAuto,7000)}
@@ -642,6 +674,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   render(); startAuto();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){mode=null;render()});
   var rt; window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(render,120)});
+
+  /* ===== alertas: aparecen al llegar ===== */
+  (function(){
+    var als=[].slice.call(document.querySelectorAll('.al')); if(!als.length)return;
+    if(reduce||!('IntersectionObserver' in window)){als.forEach(function(a){a.classList.add('in')});return}
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.3});
+    als.forEach(function(a){io.observe(a)});
+  })();
 
   /* ===== pestañas: cómo se usa cada sistema ===== */
   (function(){
@@ -711,8 +751,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 
   /* ===== integraciones que pasan ===== */
   (function(){
-    var A=['WhatsApp Business','Excel','Google Sheets','Gmail','Mercado Pago','Google Calendar','Instagram'],
-        B=['Outlook','Rappi','PedidosYa','Transferencias','Tu sistema de gestión','Tu facturación','Claude (IA)'];
+    var A=['WhatsApp Business','Portal web','Contabilium','Tiendanube','Excel','Google Sheets','Mercado Pago'],
+        B=['Stock','Hoja de armado','Remitos con foto','Cuenta corriente','Alertas de clientes','Tu sistema de gestión','Claude (IA)'];
     function fill(id,arr){var el=document.getElementById(id); if(!el)return; var s=arr.concat(arr).map(function(x){return '<span><em>●</em>'+x+'</span>'}).join(''); el.innerHTML=s}
     fill('flow1',A.concat(A)); fill('flow2',B.concat(B));
   })();

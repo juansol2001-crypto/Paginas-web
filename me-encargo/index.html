@@ -58,7 +58,7 @@ p{margin:0}
 
 /* intro */
 .intro{padding-block:24px 36px}
-.intro h1{font-size:clamp(32px, 4vw, 54px);max-width:18ch}
+.intro h1{font-size:clamp(30px, 3.6vw, 50px);max-width:none}
 .intro .side{display:grid;gap:18px}
 .intro .side p{font-size:19px;color:var(--muted)}
 .intro .side p.for-all{font-size:16px;color:var(--ink);font-weight:500;border-left:3px solid var(--blue);padding-left:12px}
@@ -292,6 +292,63 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .que em{font-style:normal;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;font-weight:700;margin-bottom:12px}
 @media (max-width:900px){.ucols,.que{grid-template-columns:1fr}.ucol:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-15px;transform:translateX(-50%)}.upanel{padding:18px}}
 
+/* ===== árbol principal ===== */
+.tree{padding:26px 28px 30px}
+.tree::before{display:none}
+.tr{display:grid;grid-template-columns:320px 80px minmax(0,1fr);align-items:center;margin-top:6px}
+.tr-root{display:flex;flex-direction:column;gap:12px;position:relative}
+.tstep{opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
+.tstep.in{opacity:1;transform:none}
+.tn-msg{background:#D9F2D0;color:#1C2733;border-radius:16px 16px 16px 4px;padding:10px 13px;font-size:14.5px;line-height:1.4;font-style:italic}
+.tn-msg small{display:block;font-style:normal;font-size:11.5px;font-weight:700;color:#4E6B55;margin-bottom:4px}
+.tn-msg .aud{margin-bottom:4px}
+.tn-ia{align-self:center;display:inline-flex;align-items:center;gap:8px;background:rgba(169,196,207,.16);color:#E1EDF1;font-weight:700;font-size:14px;padding:8px 14px;border-radius:999px;position:relative}
+.tn-ia svg{width:18px;height:18px;fill:none;stroke:#E1EDF1;stroke-width:1.8;stroke-linejoin:round}
+.tn-ia::before,.tn-ia::after{content:"";position:absolute;left:50%;width:2px;height:12px;background:rgba(169,196,207,.35)}
+.tn-ia::before{top:-12px}.tn-ia::after{bottom:-12px}
+.tn-ped{background:#fff;color:#1C2733;border-radius:16px;padding:14px 16px;display:grid;gap:3px;font-size:14px;box-shadow:0 0 0 0 rgba(169,196,207,.5);transition:box-shadow .6s}
+.tr.core-on .tn-ped{box-shadow:0 0 0 6px rgba(169,196,207,.22),0 14px 34px rgba(0,0,0,.35)}
+.tn-ped b{font-size:16px}.tn-ped span{color:var(--muted)}.tn-ped em{font-style:normal;font-size:12.5px}
+.tn-ped strong{font-size:18px;margin-top:4px}
+.tr-lines{width:100%;height:100%;align-self:stretch;overflow:visible}
+.tr-lines path{fill:none;stroke:#A9C4CF;stroke-width:2;opacity:.75}
+.tr-leaves{display:grid;gap:7px}
+.pl{background:#fff;color:#1C2733;border-radius:12px;overflow:hidden;font-size:12.5px}
+.pl-h{background:#EAF1F3;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:6px 10px;color:var(--navy);display:flex;align-items:center;gap:6px}
+.pl-h::before{content:"";width:12px;height:12px;border-radius:3px;background:linear-gradient(#1F7A4D 0 0) 0 0/100% 3px no-repeat,#2E9E66;opacity:.9}
+.pl table{width:100%;border-collapse:collapse}
+.pl th{text-align:left;font-weight:600;color:var(--muted);padding:4px 10px;border-bottom:1px solid #E6ECEF;font-size:11.5px}
+.pl td{padding:5px 10px;border-bottom:1px solid #F0F3F5;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pl tr:last-child td{border-bottom:0}
+.pl tr.nw td{transition:background 1.2s}
+.pl.in tr.nw td{background:#E9F6EC;animation:rowin .6s ease}
+.pl.in tr.nw.warn td{background:#FDEDEA}
+@keyframes rowin{from{opacity:0;transform:translateX(-8px)}}
+@media (max-width:900px){
+  .tree{padding:20px 14px 24px}
+  .tr{grid-template-columns:minmax(0,1fr)}
+  .tr-root,.tr-leaves,.pl,.tn-chat{min-width:0}
+  .tr-lines{display:none}
+  .tr-root::after{content:"";display:block;width:2px;height:18px;background:rgba(169,196,207,.35);margin:0 auto}
+  .tr-leaves{border-left:2px solid rgba(169,196,207,.35);margin-left:14px;padding-left:16px;gap:10px}
+  .pl{position:relative;overflow:visible}
+  .pl::before{content:"";position:absolute;left:-17px;top:14px;width:16px;height:2px;background:rgba(169,196,207,.35)}
+  .pl table{display:block;overflow-x:auto;border-radius:0 0 12px 12px}
+  .pl-h{border-radius:12px 12px 0 0}
+}
+
+.tn-chat{background:#0B141A;border-radius:18px;padding:10px 10px 12px;display:flex;flex-direction:column;gap:8px}
+.tn-chat-h{font-size:11.5px;font-weight:700;color:#8AA3AD;letter-spacing:.04em;text-transform:uppercase;padding:2px 4px}
+.tn-chat .tn-msg{align-self:flex-start;max-width:92%;background:#fff;border-radius:4px 14px 14px 14px;font-size:13.5px}
+.tn-chat .tn-msg small{color:#6B7C85}
+.tn-bot{align-self:flex-end;max-width:92%;background:#D9F2D0;color:#1C2733;border-radius:14px 4px 14px 14px;padding:8px 11px;font-size:13.5px;line-height:1.4}
+.tn-bot small{display:block;font-size:11.5px;font-weight:700;color:#3E7A4F;margin-bottom:3px}
+.tn-bot.tstep:not(.in){display:none}
+.pl-r{font-size:12px;font-weight:700;color:#1F7A4D;background:#F3FAF5;border-top:1px solid #E1F0E5;padding:5px 10px;opacity:0;transition:opacity .4s}
+.pl-r.in{opacity:1}
+.tr-lines path{transition:stroke .4s}
+.tr-lines path.ok{stroke:#7FD19B;opacity:1}
+
 /* ===== pipeline principal: así viaja un pedido ===== */
 .pipe{padding:26px 28px 30px}
 .pipe::before{display:none}
@@ -356,7 +413,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 
 /* ===== portada pedidos ===== */
 .kicker{display:inline-flex;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);background:var(--accent-2);border-radius:999px;padding:7px 14px;margin-bottom:18px}
-.intro h1{max-width:18ch}
+.intro h1{max-width:none}
+@media (max-width:760px){.d-br{display:none}}
 .hero-lead{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:44em;margin-top:18px}
 .hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
 /* ===== alertas ===== */
@@ -472,32 +530,32 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   </header>
 
   <div class="intro" id="inicio">
-    <h1>Tus clientes piden por WhatsApp. El sistema hace el resto.</h1>
+    <h1>Tus clientes piden por WhatsApp.<br class="d-br"> El sistema hace el resto.</h1>
     <div class="hero-btns"><a class="btn" href="#contacto">Quiero verlo con mis productos</a><a class="btn ghost2" href="#como">Cómo funciona</a></div>
   </div>
 
-  <section class="system pipe" id="sistema" aria-label="Así viaja un pedido por el sistema Me Encargo">
-    <div class="pipe-top"><span class="pipe-tag"><i></i>Así viaja un pedido</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo</span></div>
-    <ol class="stages" id="stages">
-      <li data-k="0"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 18.5l1.2-3.4A7 7 0 1 1 9 17.6z"/></svg></span><b>Llega por WhatsApp</b></li>
-      <li data-k="1"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span><b>La IA lo entiende</b></li>
-      <li data-k="2"><span class="ic"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h4"/></svg></span><b>Se arma el pedido</b></li>
-      <li data-k="3"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5z M3 8l9 5 9-5 M12 13v8"/></svg></span><b>Revisa stock</b></li>
-      <li data-k="4"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z M8 9l2 2 4-4 M8 15h8"/></svg></span><b>Hoja de armado</b></li>
-      <li data-k="5"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3z M14 10h4l3 3v3h-7 M7 18.5a1.5 1.5 0 1 0 0-.01 M17 18.5a1.5 1.5 0 1 0 0-.01"/></svg></span><b>Reparto y remito</b></li>
-      <li data-k="6"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z M4 10h16 M8 15h3"/></svg></span><b>Cuenta corriente</b></li>
-      <li data-k="7"><span class="ic"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20h4"/></svg></span><b>Avisa al equipo</b></li>
-      <span class="runner" id="runner" aria-hidden="true"></span>
-    </ol>
-    <div class="stage-view" aria-live="polite">
-      <div class="sv" data-k="0"><div class="bub c"><span class="aud"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><small>0:07</small></div><div class="bub c t">«Mandame 6 packs de Coca 2,25 y 4 de agua sin gas para mañana»</div></div>
-      <div class="sv" data-k="1"><div class="chips"><span>Coca-Cola 2,25 L</span><span>6 packs</span><span>Agua sin gas</span><span>4 packs</span><span>Entrega: mañana</span></div><p class="sv-note">Entiende texto o audio, como lo diga el cliente.</p></div>
-      <div class="sv" data-k="2"><div class="doc2"><div class="dt"><b>Pedido #3187</b><span>Kiosco Lucía</span></div><div class="dl"><span>Coca-Cola 2,25 L × 6</span><span>$ 57.600</span></div><div class="dl"><span>Agua sin gas × 4</span><span>$ 16.800</span></div><div class="dtot"><span>Total</span><span>$ 74.400</span></div></div></div>
-      <div class="sv" data-k="3"><div class="rw ok"><span>Coca-Cola 2,25 L · pide 6</span><b>Hay 40 ✓</b></div><div class="rw bad"><span>Agua sin gas · pide 4</span><b>Hay 2</b></div><div class="bub b">Me quedan 2 de agua. ¿Te mando 2 mañana y 2 el viernes?</div></div>
-      <div class="sv" data-k="4"><div class="rw"><span><i class="tk"></i>Coca-Cola × 6</span><b>Estante A3</b></div><div class="rw"><span><i class="tk"></i>Agua sin gas × 2</span><b>Estante B1</b></div><div class="rw"><span><i class="tk"></i>Stock descontado</span><b>Listo para cargar</b></div></div>
-      <div class="sv" data-k="5"><div class="doc2"><div class="dt"><b>Remito R-2041</b><span class="okb">✓ Entregado</span></div><div class="dl"><span>Chofer</span><span>Martín · Zona Sur</span></div><div class="dl"><span>Foto del remito firmado</span><span>📷 subida</span></div></div></div>
-      <div class="sv" data-k="6"><div class="doc2"><div class="dt"><b>Cuenta · Kiosco Lucía</b><span class="okb">Dentro del límite</span></div><div class="dl"><span>Saldo anterior</span><span>$ 120.000</span></div><div class="dl"><span>Este pedido</span><span>+ $ 66.000</span></div><div class="dtot"><span>Saldo</span><span>$ 186.000</span></div></div></div>
-      <div class="sv" data-k="7"><div class="al2"><b>Depósito</b>Agua sin gas quedó en 0. Reponer.</div><div class="al2"><b>Ventas</b>Pedido #3187 tiene 2 pendientes para el viernes.</div></div>
+  <section class="system tree" id="sistema" aria-label="Así viaja un pedido por el sistema Me Encargo">
+    <div class="pipe-top"><span class="pipe-tag"><i></i>Un pedido, todas las planillas al día</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo</span></div>
+    <div class="tr" id="tr">
+      <div class="tr-root">
+        <div class="tn-chat">
+          <div class="tn-chat-h">WhatsApp · Distribuidora</div>
+          <div class="tn-msg tstep" data-at="0.3"><small>Kiosco Lucía</small><span class="aud"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>«Mandame 6 packs de Coca 2,25 y 4 de agua sin gas para mañana»</div>
+          <div class="tn-bot tstep" data-at="1.6"><small>Me Encargo · bot</small>¡Hola Lucía! Anoté: 6 Coca 2,25 y 4 agua sin gas. Mañana te llevamos 2 de agua y las otras 2 el viernes. Total $&nbsp;66.000 👍</div>
+          <div class="tn-bot tstep" data-at="9.2"><small>Me Encargo · bot</small>Tu pedido #3187 ya salió con Martín 🚚</div>
+        </div>
+        <div class="tn-ia tstep" data-at="1.0"><svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>La IA lo entiende y lo reparte</div>
+        <div class="tn-ped tstep" data-at="2.3" id="trCore"><b>Pedido #3187</b><span>Coca-Cola 2,25 L × 6</span><span>Agua sin gas × 2 <em>(2 para el viernes)</em></span><strong>$ 66.000</strong></div>
+      </div>
+      <svg class="tr-lines" id="trLines" aria-hidden="true"></svg>
+      <div class="tr-leaves">
+        <div class="pl tstep" data-at="3.0"><div class="pl-h">Ventas · Pedidos del día</div><table><tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th></tr><tr><td>3186</td><td>Almacén Sur</td><td>$ 41.200</td><td>En reparto</td></tr><tr class="nw"><td>3187</td><td>Kiosco Lucía</td><td>$ 66.000</td><td>Confirmado</td></tr></table><div class="pl-r" data-r="4.1">✓ Ventas: pedido registrado</div></div>
+        <div class="pl tstep" data-at="3.8"><div class="pl-h">Depósito · Stock</div><table><tr><th>Producto</th><th>Antes</th><th>Ahora</th></tr><tr class="nw"><td>Coca-Cola 2,25 L</td><td>40</td><td>34</td></tr><tr class="nw warn"><td>Agua sin gas</td><td>2</td><td>0 · reponer</td></tr></table><div class="pl-r" data-r="4.9">✓ Stock: descontado · falta agua</div></div>
+        <div class="pl tstep" data-at="4.6"><div class="pl-h">Depósito · Hoja de armado</div><table><tr><th>Producto</th><th>Cant.</th><th>Ubicación</th><th></th></tr><tr class="nw"><td>Coca-Cola 2,25 L</td><td>6</td><td>A3</td><td>✓</td></tr><tr class="nw"><td>Agua sin gas</td><td>2</td><td>B1</td><td>✓</td></tr></table><div class="pl-r" data-r="5.7">✓ Depósito: armado por Pablo 10:42</div></div>
+        <div class="pl tstep" data-at="5.4"><div class="pl-h">Reparto</div><table><tr><th>Cliente</th><th>Zona</th><th>Chofer</th><th>Remito</th></tr><tr class="nw"><td>Kiosco Lucía</td><td>Sur</td><td>Martín</td><td>R-2041 · foto ✓</td></tr></table><div class="pl-r" data-r="6.5">✓ Reparto: Martín sale mañana 9:00</div></div>
+        <div class="pl tstep" data-at="6.2"><div class="pl-h">Administración · Cuenta corriente</div><table><tr><th>Cliente</th><th>Anterior</th><th>Pedido</th><th>Saldo</th></tr><tr class="nw"><td>Kiosco Lucía</td><td>$ 120.000</td><td>+ $ 66.000</td><td>$ 186.000 ✓</td></tr></table><div class="pl-r" data-r="7.3">✓ Administración: saldo actualizado</div></div>
+        <div class="pl tstep" data-at="7.0"><div class="pl-h">Avisos al equipo</div><table><tr class="nw warn"><td>Depósito</td><td>Reponer agua sin gas</td></tr><tr class="nw"><td>Ventas</td><td>2 packs pendientes para el viernes</td></tr></table><div class="pl-r" data-r="8.1">✓ Compras: pedido de agua generado</div></div>
+      </div>
     </div>
   </section>
 </div>
@@ -753,27 +811,32 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   var rt; window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(render,120)});
   }
 
-  /* ===== pipeline: un pedido recorre el sistema ===== */
+  /* ===== árbol: un pedido se abre hacia todas las planillas ===== */
   (function(){
-    var ol=document.getElementById('stages'); if(!ol)return;
-    var li=[].slice.call(ol.querySelectorAll('li')), sv=[].slice.call(document.querySelectorAll('.stage-view .sv')), run=document.getElementById('runner');
-    var k=0, timer=null, hold=null, vis=true;
-    li.forEach(function(x,i){x.tabIndex=0;x.setAttribute('role','button');x.setAttribute('aria-label',x.textContent.trim());
-      x.onclick=function(){go(i,true)}; x.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go(i,true)}}});
-    function go(i,user){
-      k=i;
-      li.forEach(function(x,j){x.classList.toggle('on',j===i);x.classList.toggle('done',j<i)});
-      sv.forEach(function(x){x.classList.toggle('on',+x.dataset.k===i)});
-      var c=li[i].querySelector('.ic'), r=ol.getBoundingClientRect(), b=c.getBoundingClientRect();
-      if(run){run.style.left=(b.left-r.left+b.width/2-8)+'px';}
-      if(window.innerWidth<=760&&!user){ol.scrollTo({left:li[i].offsetLeft-ol.clientWidth/2+37,behavior:'smooth'})}
-      if(user){stop();clearTimeout(hold);hold=setTimeout(start,9000)}
+    var tr=document.getElementById('tr'); if(!tr)return;
+    var steps=[].slice.call(tr.querySelectorAll('.tstep')), leaves=[].slice.call(tr.querySelectorAll('.pl')),
+        svgL=document.getElementById('trLines'), core=document.getElementById('trCore'), paths=[], t=0, last=performance.now(), vis=true, LEN=13;
+    function draw(){
+      var W=svgL.clientWidth, R=svgL.getBoundingClientRect(); if(!W){paths=[];return}
+      svgL.setAttribute('viewBox','0 0 '+W+' '+svgL.clientHeight);
+      var c=core.getBoundingClientRect(), y0=c.top+c.height/2-R.top, h='';
+      leaves.forEach(function(l){var b=l.getBoundingClientRect(), y=b.top+b.height/2-R.top;
+        h+='<path d="M0 '+y0+' C '+(W*.55)+' '+y0+', '+(W*.45)+' '+y+', '+W+' '+y+'"/>'});
+      svgL.innerHTML=h; paths=[].slice.call(svgL.querySelectorAll('path'));
+      paths.forEach(function(p){var L=p.getTotalLength();p.style.strokeDasharray=L;p.dataset.l=L});
     }
-    function start(){if(reduce||timer)return;timer=setInterval(function(){if(vis)go((k+1)%li.length)},2600)}
-    function stop(){clearInterval(timer);timer=null}
-    if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(ol);
-    window.addEventListener('resize',function(){go(k)});
-    go(0); start();
+    function render(){
+      steps.forEach(function(s){s.classList.toggle('in',t>=+s.dataset.at)});
+      paths.forEach(function(p,i){var at=+leaves[i].dataset.at-.6, k=Math.max(0,Math.min(1,(t-at)/.6));p.style.strokeDashoffset=(1-k)*p.dataset.l});
+      tr.classList.toggle('core-on',t>=2.3);
+      leaves.forEach(function(l,i){var r=l.querySelector('.pl-r'),on=r&&t>=+r.dataset.r;if(r)r.classList.toggle('in',on);if(paths[i])paths[i].classList.toggle('ok',on)});
+    }
+    function loop(now){var dt=Math.min(.1,(now-last)/1000);last=now;if(vis){t+=dt;if(t>LEN)t=0;render()}requestAnimationFrame(loop)}
+    if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(tr);
+    var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){draw();render()},120)});
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){draw();render()});
+    draw();
+    if(reduce){t=10;render()}else requestAnimationFrame(loop);
   })();
 
   /* ===== alertas: aparecen al llegar ===== */

@@ -426,6 +426,14 @@ td.sw-b{color:#1F7A4D;font-weight:700}
 .hero-lead{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:44em;margin-top:18px}
 .hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
 /* ===== alertas ===== */
+.ucall{margin-top:14px;display:grid;grid-template-columns:1fr 1.25fr;gap:18px;align-items:center;background:var(--navy);color:#fff;border-radius:20px;padding:20px}
+.ucall h4{margin:0 0 8px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px;font-family:var(--f-text)}
+.ucall h4 i{font-style:normal;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:15px}
+.ucall p{margin:0;color:#DCE6EB;font-size:16px;line-height:1.45}
+.uc-ex{background:rgba(255,255,255,.06);border-radius:16px;padding:14px;display:grid;gap:8px}
+.uc-ex .al-t{margin:0;font-size:15.5px}
+.uc-ex .al-msg{font-size:14.5px}
+@media (max-width:900px){.ucall{grid-template-columns:1fr}}
 .alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}
 .al{background:var(--navy);color:#fff;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
 .al.in{opacity:1;transform:none}
@@ -534,7 +542,7 @@ td.sw-b{color:#1F7A4D;font-weight:700}
       <svg viewBox="0 0 30 30" aria-hidden="true"><g stroke="#6F9AAB" stroke-width="1.4"><path d="M15 4L25.5 11.6 21.5 24 8.5 24 4.5 11.6Z" fill="none"/><path d="M15 4L21.5 24M15 4L8.5 24M4.5 11.6H25.5M4.5 11.6L21.5 24M25.5 11.6L8.5 24"/></g><circle cx="15" cy="15" r="5.5" fill="#1F2B3A"/><g fill="#1F2B3A"><circle cx="15" cy="4" r="2.6"/><circle cx="25.5" cy="11.6" r="2.6"/><circle cx="21.5" cy="24" r="2.6"/><circle cx="8.5" cy="24" r="2.6"/><circle cx="4.5" cy="11.6" r="2.6"/></g></svg>
       Me Encargo
     </a>
-    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#alertas">Alertas</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Productos</a><a href="#preguntas">Preguntas</a></nav>
+    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Productos</a><a href="#preguntas">Preguntas</a></nav>
     <a class="btn" href="#contacto">Hablemos</a>
   </header>
 
@@ -581,6 +589,10 @@ td.sw-b{color:#1F7A4D;font-weight:700}
           <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Entiende el pedido y lo arma con tus productos y precios.</li><li>Revisa el stock y avisa si falta algo antes de confirmar.</li><li>Genera la hoja de armado para el depósito.</li><li>Actualiza la cuenta corriente y controla el límite de crédito.</li></ol></div>
           <div class="ucol"><h4><i>👤</i>Vos y tu equipo</h4><ol><li>El depósito prepara según la hoja de armado.</li><li>El chofer entrega y sube la foto del remito firmado.</li><li>Ves pedidos, deudas y entregas en un solo lugar.</li><li>Cada área recibe sus avisos: ventas, depósito y administración.</li></ol></div>
         </div>
+        <div class="ucall">
+          <div class="uc-l"><h4><i>🔔</i>Te avisa a quién llamar</h4><p>Cada mañana: quién dejó de pedir, quién compra menos y qué producto dejó de llevar. Con el mensaje listo para mandar.</p></div>
+          <div class="uc-ex"><div class="al-h"><span class="al-dot r"></span>Dejó de pedir<small>08:30</small></div><p class="al-t"><b>Almacén Don José</b> no pide hace 16 días. Suele pedir cada 7.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola José! Hace unos días que no te vemos. ¿Te armo el pedido de siempre?</div></div>
+        </div>
       </div>
     </div>
     <div class="que">
@@ -590,15 +602,6 @@ td.sw-b{color:#1F7A4D;font-weight:700}
     </div>
   </section>
 
-  <section class="more" id="alertas" aria-labelledby="t-al">
-    <h2 id="t-al">Te avisa a quién llamar.</h2>
-    <div class="alerts">
-      <article class="al"><div class="al-h"><span class="al-dot r"></span>Dejó de pedir<small>08:30</small></div><p class="al-t"><b>Almacén Don José</b> no pide hace 16 días. Suele pedir cada 7.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola José! Hace unos días que no te vemos. ¿Te armo el pedido de siempre?</div></article>
-      <article class="al"><div class="al-h"><span class="al-dot a"></span>Compra menos<small>08:30</small></div><p class="al-t"><b>Verdulería Ana</b> bajó su pedido promedio un 35% este mes.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola Ana! ¿Cómo venís? Si necesitás algo más para esta semana, te lo sumo al próximo pedido.</div></article>
-      <article class="al"><div class="al-h"><span class="al-dot b"></span>Dejó un producto<small>08:30</small></div><p class="al-t"><b>La Esquina</b> llevaba limón en cada pedido y dejó de pedirlo.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola! Vi que no venís llevando limón. ¿Te sumo en el próximo pedido?</div></article>
-    </div>
-    <p class="demo-note">Ejemplos ilustrativos.</p>
-  </section>
 
   <section class="more" id="clientes" aria-labelledby="t-cl">
     <h2 id="t-cl">Clientes</h2>

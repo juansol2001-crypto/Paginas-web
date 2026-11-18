@@ -253,6 +253,45 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 @media (max-width:900px){.demo-grid{grid-template-columns:1fr}.phone{height:400px}.sysp{height:430px}.demo{padding:14px;border-radius:22px}.dctl{margin-left:0}}
 @media (max-width:520px){.dstep span{display:none}.dstep{padding:8px 12px}.phone{height:330px}.sysp{height:410px;padding:16px}.scr{left:16px;right:16px}.scr h4{font-size:22px}.rowl{font-size:14px;padding:9px 11px}}
 
+/* ===== cómo se usa cada sistema ===== */
+.usos{margin-top:34px}
+.utabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.utab{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;background:var(--card);font-weight:700;font-size:16px;min-height:46px;box-shadow:inset 0 0 0 1.5px var(--sand);transition:background .2s,color .2s}
+.utab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.utab[aria-selected="true"]{background:var(--navy);color:#fff;box-shadow:none}
+.utab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.upanel{background:var(--card);border-radius:26px;padding:28px;display:none}
+.upanel.on{display:block;animation:uin .35s ease}
+@keyframes uin{from{opacity:0;transform:translateY(8px)}}
+.uhead{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;flex-wrap:wrap;margin-bottom:22px}
+.uhead h3{font-size:clamp(28px,3vw,38px)}
+.uhead p{color:var(--muted);font-size:17px;margin-top:8px;max-width:46ch}
+.uhead .tag{font-size:14px;font-weight:700;background:var(--accent-2);color:var(--navy);padding:6px 12px;border-radius:999px}
+.ucols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ucol{border-radius:20px;padding:20px;background:var(--bg);position:relative}
+.ucol.sys{background:var(--navy);color:#fff}
+.ucol h4{margin:0 0 12px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px;font-family:var(--f-text)}
+.ucol h4 i{font-style:normal;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#fff;font-size:15px}
+.ucol.sys h4 i{background:rgba(255,255,255,.14)}
+.ucol ol{margin:0;padding:0;list-style:none;counter-reset:u;display:grid;gap:10px}
+.ucol li{counter-increment:u;display:grid;grid-template-columns:26px 1fr;gap:8px;font-size:16px;line-height:1.45}
+.ucol li::before{content:counter(u);width:24px;height:24px;border-radius:50%;background:#fff;color:var(--navy);font-size:12.5px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+.ucol.sys li::before{background:var(--blue);color:var(--ink)}
+.ucol.sys li{color:#DCE6EB}
+.ucol:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:700;color:var(--accent);z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.ufoot{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid #E3E9EC}
+.ufoot p{font-size:16px;color:var(--muted)}
+.ufoot p b{color:var(--ink)}
+.ufoot .btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn.ghost2{background:transparent;color:var(--navy);box-shadow:inset 0 0 0 2px var(--navy)}
+.btn.ghost2:hover{background:var(--accent-2)}
+.que{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+.que div{background:var(--card);border-radius:20px;padding:22px}
+.que b{display:block;font-family:var(--f-display);font-weight:500;font-size:24px;margin-bottom:6px}
+.que span{color:var(--muted);font-size:16px}
+.que em{font-style:normal;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;font-weight:700;margin-bottom:12px}
+@media (max-width:900px){.ucols,.que{grid-template-columns:1fr}.ucol:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-15px;transform:translateX(-50%)}.upanel{padding:18px}}
+
 /* ===== caso Brorti ===== */
 .caso{display:grid;grid-template-columns:1fr 1.15fr;gap:28px;margin-top:36px;align-items:start}
 .caso-story{background:var(--navy);color:#fff;border-radius:24px;padding:30px}
@@ -324,7 +363,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <svg viewBox="0 0 30 30" aria-hidden="true"><g stroke="#6F9AAB" stroke-width="1.4"><path d="M15 4L25.5 11.6 21.5 24 8.5 24 4.5 11.6Z" fill="none"/><path d="M15 4L21.5 24M15 4L8.5 24M4.5 11.6H25.5M4.5 11.6L21.5 24M25.5 11.6L8.5 24"/></g><circle cx="15" cy="15" r="5.5" fill="#1F2B3A"/><g fill="#1F2B3A"><circle cx="15" cy="4" r="2.6"/><circle cx="25.5" cy="11.6" r="2.6"/><circle cx="21.5" cy="24" r="2.6"/><circle cx="8.5" cy="24" r="2.6"/><circle cx="4.5" cy="11.6" r="2.6"/></g></svg>
       Me Encargo
     </a>
-    <nav class="nav" aria-label="Secciones"><a href="#sistema">El sistema</a><a href="#clientes">Clientes</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
+    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#clientes">Clientes</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
     <a class="btn" href="#contacto">Hablemos</a>
   </header>
 
@@ -339,6 +378,64 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 </div>
 
 <main class="wrap">
+  <section class="more" id="como" aria-labelledby="t-como" style="padding-top:110px">
+    <h2 id="t-como">Qué hacemos y cómo se usa.</h2>
+    <p class="lead">Armamos sistemas que trabajan solos para tu negocio. Vos seguís atendiendo; el sistema anota, avisa, ordena y te arma las planillas.</p>
+    <div class="que">
+      <div><em>1</em><b>Lo armamos</b><span>Nos contás cómo trabajás y lo configuramos con tus productos, precios, horarios y tu marca.</span></div>
+      <div><em>2</em><b>Lo usás</b><span>Tus clientes reservan o piden solos. Vos mirás todo desde tu celular, en un panel simple.</span></div>
+      <div><em>3</em><b>Lo mantenemos</b><span>Cambios, soporte y mejoras todos los meses. No tenés que saber nada de tecnología.</span></div>
+    </div>
+    <div class="usos">
+      <div class="utabs" role="tablist" aria-label="Sistemas">
+        <button class="utab" role="tab" aria-selected="true" aria-controls="u-turnos" id="ut-turnos"><svg viewBox="0 0 24 24"><path d="M5 7h14v12H5z M5 10.5h14 M9 5v4 M15 5v4 M9 14l2 2 4-4"/></svg>Turnos</button>
+        <button class="utab" role="tab" aria-selected="false" aria-controls="u-pedidos" id="ut-pedidos"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 11h-13z M8 7a4 4 0 0 1 8 0"/></svg>Pedidos</button>
+        <button class="utab" role="tab" aria-selected="false" aria-controls="u-facturas" id="ut-facturas"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6"/></svg>Facturas con IA</button>
+        <button class="utab" role="tab" aria-selected="false" aria-controls="u-web" id="ut-web"><svg viewBox="0 0 24 24"><path d="M4 6.5h16v11H4z M4 9.5h16"/></svg>Web</button>
+      </div>
+
+      <div class="upanel on" role="tabpanel" id="u-turnos" aria-labelledby="ut-turnos">
+        <div class="uhead"><div><h3>Turnos que se reservan solos</h3><p>Tus clientes sacan turno a cualquier hora y vos ves la agenda al día, sin contestar mensajes.</p></div><span class="tag">Peluquerías · estética · consultorios · talleres</span></div>
+        <div class="ucols">
+          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Entra a tu link desde Instagram, Google o WhatsApp.</li><li>Elige servicio, profesional, día y horario libre.</li><li>Recibe la confirmación y un recordatorio el día antes.</li><li>Si no puede ir, cancela solo desde el link.</li></ol></div>
+          <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Muestra solo los horarios libres reales.</li><li>Nunca deja que dos turnos se pisen.</li><li>Si alguien cancela, libera el horario al instante.</li><li>Te avisa de cada reserva y cancelación.</li></ol></div>
+          <div class="ucol"><h4><i>👤</i>Vos</h4><ol><li>Ves la agenda del día por profesional, en vivo.</li><li>Cargás los turnos que te piden por teléfono.</li><li>Marcás atendido o "no vino".</li><li>Cambiás precios, horarios y feriados cuando quieras.</li></ol></div>
+        </div>
+        <div class="ufoot"><p><b>Probalo ahora:</b> sacá un turno de prueba y miralo aparecer en el panel.</p><div class="btns"><a class="btn" href="https://me-encargo-turnos.vercel.app" target="_blank" rel="noopener">Reservar un turno de prueba</a><a class="btn ghost2" href="https://me-encargo-turnos.vercel.app/panel.html" target="_blank" rel="noopener">Ver el panel del dueño</a></div></div>
+      </div>
+
+      <div class="upanel" role="tabpanel" id="u-pedidos" aria-labelledby="ut-pedidos">
+        <div class="uhead"><div><h3>Pedidos que entran ordenados</h3><p>Tus clientes piden como siempre y el pedido llega armado, con stock revisado y listo para preparar.</p></div><span class="tag">Distribuidoras · mayoristas · proveedores</span></div>
+        <div class="ucols">
+          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Pide por WhatsApp, con texto o audio, o desde su portal.</li><li>Puede repetir su último pedido con un toque.</li><li>Ve el estado de su pedido y su cuenta.</li><li>Informa sus pagos subiendo el comprobante.</li></ol></div>
+          <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Arma el pedido con tus productos y precios.</li><li>Revisa el stock y avisa si falta algo antes de confirmar.</li><li>Genera la hoja de armado para el depósito.</li><li>Actualiza la cuenta corriente y la planilla del día.</li></ol></div>
+          <div class="ucol"><h4><i>👤</i>Vos y tu equipo</h4><ol><li>El depósito prepara según la hoja de armado.</li><li>El chofer entrega y sube la foto del remito firmado.</li><li>Ves pedidos, deudas y entregas en un solo lugar.</li><li>Recibís el Excel del día sin armar nada.</li></ol></div>
+        </div>
+        <div class="ufoot"><p><b>¿Tenés una distribuidora?</b> Te lo mostramos funcionando con tus productos en una charla.</p><div class="btns"><a class="btn" href="#contacto">Quiero verlo</a></div></div>
+      </div>
+
+      <div class="upanel" role="tabpanel" id="u-facturas" aria-labelledby="ut-facturas">
+        <div class="uhead"><div><h3>Facturas de compra a Excel, con una foto</h3><p>Le sacás foto a cada factura del día y la planilla de compras se arma sola.</p></div><span class="tag">Restaurantes · bares · comercios</span></div>
+        <div class="ucols">
+          <div class="ucol"><h4><i>📸</i>Vos</h4><ol><li>Sacás foto a las facturas desde el celular, una o varias juntas.</li><li>También podés subir PDF.</li></ol></div>
+          <div class="ucol sys"><h4><i>🤖</i>La IA, sola</h4><ol><li>Lee proveedor, fecha, productos, precios, IVA y total.</li><li>Ordena cada gasto por categoría.</li><li>Detecta facturas repetidas.</li><li>Te avisa si un proveedor subió un precio.</li></ol></div>
+          <div class="ucol"><h4><i>📊</i>Vos recibís</h4><ol><li>Cuánto gastaste, por categoría y por proveedor.</li><li>Las facturas dudosas marcadas para revisar, con la foto al lado.</li><li>El Excel listo para tu contador.</li></ol></div>
+        </div>
+        <div class="ufoot"><p><b>Se suma a cualquier paquete.</b> Ideal para controlar costos y aumentos de proveedores.</p><div class="btns"><a class="btn" href="#contacto">Quiero probarlo</a></div></div>
+      </div>
+
+      <div class="upanel" role="tabpanel" id="u-web" aria-labelledby="ut-web">
+        <div class="uhead"><div><h3>Una web que te trae clientes</h3><p>Con tu marca, fotos reales y todo lo que tu cliente necesita para elegirte y escribirte.</p></div><span class="tag">Cualquier negocio</span></div>
+        <div class="ucols">
+          <div class="ucol"><h4><i>👤</i>Vos</h4><ol><li>Nos contás tu negocio y nos pasás fotos o tu Instagram.</li><li>Revisás la propuesta y pedís cambios.</li></ol></div>
+          <div class="ucol sys"><h4><i>⚙️</i>Nosotros</h4><ol><li>La diseñamos y la publicamos con tu dominio.</li><li>La dejamos lista para Google y Google Maps.</li><li>Conectamos WhatsApp, Instagram, Rappi o PedidosYa.</li><li>Actualizamos precios y horarios cuando nos pidas.</li></ol></div>
+          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Te encuentra en Google.</li><li>Ve tu menú o servicios, horarios y si estás abierto ahora.</li><li>Te escribe o te pide con un toque.</li></ol></div>
+        </div>
+        <div class="ufoot"><p><b>Se puede sumar después</b> turnos, pedidos o facturas con IA, sobre la misma web.</p><div class="btns"><a class="btn" href="#contacto">Quiero mi web</a></div></div>
+      </div>
+    </div>
+  </section>
+
   <section class="more" id="clientes" aria-labelledby="t-cl">
     <h2 id="t-cl">Clientes</h2>
     <p class="lead">Cada negocio con su web y su sistema conectado. Tocá una web para visitarla o arrastralas para verlas.</p>
@@ -545,6 +642,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   render(); startAuto();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){mode=null;render()});
   var rt; window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(render,120)});
+
+  /* ===== pestañas: cómo se usa cada sistema ===== */
+  (function(){
+    var tabs=[].slice.call(document.querySelectorAll('.utab'));
+    function sel(t){tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).classList.toggle('on',on)})}
+    tabs.forEach(function(t,i){t.onclick=function(){sel(t)};t.onkeydown=function(e){var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(d){e.preventDefault();var n=tabs[(i+d+tabs.length)%tabs.length];sel(n);n.focus()}}});
+    if(tabs[0])sel(tabs[0]);
+  })();
 
   /* ===== DEMO de un pedido: 15 s en loop ===== */
   (function(){

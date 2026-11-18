@@ -58,7 +58,7 @@ p{margin:0}
 
 /* intro */
 .intro{padding-block:24px 36px}
-.intro h1{font-size:clamp(40px, 5.6vw, 76px);max-width:15ch}
+.intro h1{font-size:clamp(32px, 4vw, 54px);max-width:18ch}
 .intro .side{display:grid;gap:18px}
 .intro .side p{font-size:19px;color:var(--muted)}
 .intro .side p.for-all{font-size:16px;color:var(--ink);font-weight:500;border-left:3px solid var(--blue);padding-left:12px}
@@ -292,9 +292,71 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .que em{font-style:normal;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;font-weight:700;margin-bottom:12px}
 @media (max-width:900px){.ucols,.que{grid-template-columns:1fr}.ucol:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-15px;transform:translateX(-50%)}.upanel{padding:18px}}
 
+/* ===== pipeline principal: así viaja un pedido ===== */
+.pipe{padding:26px 28px 30px}
+.pipe::before{display:none}
+.pipe-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+.pipe-tag{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;color:#fff}
+.pipe-tag i{width:8px;height:8px;border-radius:50%;background:#8FD3A8;animation:lv 1.6s infinite}
+@keyframes lv{50%{opacity:.3}}
+.pipe-case{font-size:13.5px;color:#9FB4BF}
+.stages{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(8,1fr);gap:8px;position:relative}
+.stages::before{content:"";position:absolute;left:6%;right:6%;top:27px;height:2px;background:rgba(169,196,207,.18)}
+.stages li{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;cursor:pointer;z-index:1}
+.stages .ic{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;background:#1B2636;box-shadow:inset 0 0 0 1.5px rgba(169,196,207,.3);transition:background .35s,box-shadow .35s,transform .35s}
+.stages .ic svg{width:24px;height:24px;fill:none;stroke:#B8CCD5;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .35s}
+.stages b{font-size:13.5px;line-height:1.25;color:#9FB4BF;font-weight:600;transition:color .35s;max-width:11ch}
+.stages li.done .ic{background:#2A3B50;box-shadow:inset 0 0 0 1.5px rgba(169,196,207,.55)}
+.stages li.done .ic svg{stroke:#DCEAF0}
+.stages li.on .ic{background:#E1EDF1;box-shadow:0 0 0 6px rgba(169,196,207,.18),0 10px 30px rgba(0,0,0,.35);transform:translateY(-3px)}
+.stages li.on .ic svg{stroke:#1F2B3A}
+.stages li.on b{color:#fff}
+.stages li:focus-visible .ic{outline:3px solid var(--blue);outline-offset:3px}
+.runner{position:absolute;top:20px;left:0;width:16px;height:16px;border-radius:50%;background:#A9C4CF;box-shadow:0 0 0 6px rgba(169,196,207,.25),0 0 22px #A9C4CF;transition:left .8s cubic-bezier(.6,0,.3,1);z-index:0;pointer-events:none}
+.stage-view{position:relative;margin:30px auto 0;max-width:620px;min-height:190px}
+.sv{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:stretch;justify-content:center;opacity:0;transform:translateY(12px);transition:opacity .45s,transform .45s;pointer-events:none}
+.sv.on{opacity:1;transform:none;pointer-events:auto}
+.bub{max-width:80%;padding:10px 14px;border-radius:16px;font-size:16px;line-height:1.4}
+.bub.c{align-self:flex-end;background:#D9F2D0;color:#1C2733;border-bottom-right-radius:4px;display:flex;align-items:center;gap:10px}
+.bub.c.t{display:block;font-style:italic}
+.bub.b{align-self:flex-start;background:#fff;color:#1C2733;border-bottom-left-radius:4px}
+.bub small{font-size:12px;color:#4E6B55}
+.aud{display:flex;gap:3px;align-items:center;height:24px}
+.aud i{width:3px;height:40%;border-radius:2px;background:#5E8A6B;animation:wv .9s ease-in-out infinite}
+.aud i:nth-child(2n){animation-delay:.15s}.aud i:nth-child(3n){animation-delay:.3s}
+@keyframes wv{50%{height:100%}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chips span{background:#E1EDF1;color:#1C2733;font-weight:700;font-size:15px;padding:8px 14px;border-radius:999px}
+.sv-note{text-align:center;color:#9FB4BF;font-size:14px}
+.doc2{background:#fff;color:#1C2733;border-radius:16px;padding:16px 18px;font-size:15px}
+.doc2 .dt{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;align-items:center}
+.doc2 .dt span{color:var(--muted);font-size:14px}
+.doc2 .dl{display:flex;justify-content:space-between;gap:10px;padding:4px 0;color:var(--muted)}
+.doc2 .dtot{display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #E3E9EC;margin-top:6px;padding-top:8px;font-size:17px}
+.okb{color:#2E7D4F!important;font-weight:700}
+.rw{display:flex;justify-content:space-between;gap:10px;align-items:center;background:rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;font-size:15px;color:#EAF2F5}
+.rw span{display:flex;gap:10px;align-items:center}
+.rw.ok b{color:#8FD3A8}.rw.bad{background:rgba(255,120,100,.14);box-shadow:inset 0 0 0 1.5px rgba(255,155,142,.5)}.rw.bad b{color:#FF9B8E}
+.tk{width:20px;height:20px;border-radius:6px;background:#8FD3A8;display:inline-grid;place-items:center}
+.tk::after{content:"";width:8px;height:4px;border:2.5px solid #12301E;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.al2{background:rgba(255,255,255,.07);border-left:3px solid #F2C46B;border-radius:12px;padding:12px 14px;color:#EAF2F5;font-size:15px}
+.al2 b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#F2C46B;margin-bottom:2px}
+@media (max-width:760px){
+  .pipe{padding:20px 14px 24px}
+  .stages{display:flex;overflow-x:auto;gap:4px;padding:4px 2px 8px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .stages::-webkit-scrollbar{display:none}
+  .stages li{flex:0 0 74px;scroll-snap-align:center}
+  .stages::before,.runner{display:none}
+  .stages .ic{width:48px;height:48px;border-radius:15px}
+  .stages b{font-size:11.5px}
+  .stage-view{min-height:220px;margin-top:20px}
+  .bub{max-width:92%;font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){.aud i,.pipe-tag i{animation:none}}
+
 /* ===== portada pedidos ===== */
 .kicker{display:inline-flex;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);background:var(--accent-2);border-radius:999px;padding:7px 14px;margin-bottom:18px}
-.intro h1{max-width:17ch}
+.intro h1{max-width:18ch}
 .hero-lead{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:44em;margin-top:18px}
 .hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
 /* ===== alertas ===== */
@@ -405,27 +467,44 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <svg viewBox="0 0 30 30" aria-hidden="true"><g stroke="#6F9AAB" stroke-width="1.4"><path d="M15 4L25.5 11.6 21.5 24 8.5 24 4.5 11.6Z" fill="none"/><path d="M15 4L21.5 24M15 4L8.5 24M4.5 11.6H25.5M4.5 11.6L21.5 24M25.5 11.6L8.5 24"/></g><circle cx="15" cy="15" r="5.5" fill="#1F2B3A"/><g fill="#1F2B3A"><circle cx="15" cy="4" r="2.6"/><circle cx="25.5" cy="11.6" r="2.6"/><circle cx="21.5" cy="24" r="2.6"/><circle cx="8.5" cy="24" r="2.6"/><circle cx="4.5" cy="11.6" r="2.6"/></g></svg>
       Me Encargo
     </a>
-    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#alertas">Alertas</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Precios</a><a href="#preguntas">Preguntas</a></nav>
+    <nav class="nav" aria-label="Secciones"><a href="#como">Cómo funciona</a><a href="#alertas">Alertas</a><a href="#integraciones">Integraciones</a><a href="#paquetes">Productos</a><a href="#preguntas">Preguntas</a></nav>
     <a class="btn" href="#contacto">Hablemos</a>
   </header>
 
   <div class="intro" id="inicio">
-    <span class="kicker">Sistema de pedidos para distribuidoras y mayoristas</span>
     <h1>Tus clientes piden por WhatsApp. El sistema hace el resto.</h1>
-    <p class="hero-lead">Entiende pedidos por texto o audio, revisa el stock, arma la hoja de depósito y lleva la cuenta corriente de cada cliente. Y te avisa a quién llamar antes de perderlo.</p>
     <div class="hero-btns"><a class="btn" href="#contacto">Quiero verlo con mis productos</a><a class="btn ghost2" href="#como">Cómo funciona</a></div>
   </div>
 
-  <section class="system" id="sistema" aria-label="El sistema Me Encargo: todo conectado con todo">
-    <svg id="net" aria-hidden="false"></svg>
-    <div class="sys-cap" aria-live="polite"><b id="capT">Todo conectado con todo</b><span id="capD">Lo que pasa en una parte se actualiza en todas. Tocá cualquier parte para ver cómo se conecta.</span></div>
+  <section class="system pipe" id="sistema" aria-label="Así viaja un pedido por el sistema Me Encargo">
+    <div class="pipe-top"><span class="pipe-tag"><i></i>Así viaja un pedido</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo</span></div>
+    <ol class="stages" id="stages">
+      <li data-k="0"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 18.5l1.2-3.4A7 7 0 1 1 9 17.6z"/></svg></span><b>Llega por WhatsApp</b></li>
+      <li data-k="1"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span><b>La IA lo entiende</b></li>
+      <li data-k="2"><span class="ic"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h4"/></svg></span><b>Se arma el pedido</b></li>
+      <li data-k="3"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5z M3 8l9 5 9-5 M12 13v8"/></svg></span><b>Revisa stock</b></li>
+      <li data-k="4"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z M8 9l2 2 4-4 M8 15h8"/></svg></span><b>Hoja de armado</b></li>
+      <li data-k="5"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3z M14 10h4l3 3v3h-7 M7 18.5a1.5 1.5 0 1 0 0-.01 M17 18.5a1.5 1.5 0 1 0 0-.01"/></svg></span><b>Reparto y remito</b></li>
+      <li data-k="6"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z M4 10h16 M8 15h3"/></svg></span><b>Cuenta corriente</b></li>
+      <li data-k="7"><span class="ic"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20h4"/></svg></span><b>Avisa al equipo</b></li>
+      <span class="runner" id="runner" aria-hidden="true"></span>
+    </ol>
+    <div class="stage-view" aria-live="polite">
+      <div class="sv" data-k="0"><div class="bub c"><span class="aud"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><small>0:07</small></div><div class="bub c t">«Mandame 6 packs de Coca 2,25 y 4 de agua sin gas para mañana»</div></div>
+      <div class="sv" data-k="1"><div class="chips"><span>Coca-Cola 2,25 L</span><span>6 packs</span><span>Agua sin gas</span><span>4 packs</span><span>Entrega: mañana</span></div><p class="sv-note">Entiende texto o audio, como lo diga el cliente.</p></div>
+      <div class="sv" data-k="2"><div class="doc2"><div class="dt"><b>Pedido #3187</b><span>Kiosco Lucía</span></div><div class="dl"><span>Coca-Cola 2,25 L × 6</span><span>$ 57.600</span></div><div class="dl"><span>Agua sin gas × 4</span><span>$ 16.800</span></div><div class="dtot"><span>Total</span><span>$ 74.400</span></div></div></div>
+      <div class="sv" data-k="3"><div class="rw ok"><span>Coca-Cola 2,25 L · pide 6</span><b>Hay 40 ✓</b></div><div class="rw bad"><span>Agua sin gas · pide 4</span><b>Hay 2</b></div><div class="bub b">Me quedan 2 de agua. ¿Te mando 2 mañana y 2 el viernes?</div></div>
+      <div class="sv" data-k="4"><div class="rw"><span><i class="tk"></i>Coca-Cola × 6</span><b>Estante A3</b></div><div class="rw"><span><i class="tk"></i>Agua sin gas × 2</span><b>Estante B1</b></div><div class="rw"><span><i class="tk"></i>Stock descontado</span><b>Listo para cargar</b></div></div>
+      <div class="sv" data-k="5"><div class="doc2"><div class="dt"><b>Remito R-2041</b><span class="okb">✓ Entregado</span></div><div class="dl"><span>Chofer</span><span>Martín · Zona Sur</span></div><div class="dl"><span>Foto del remito firmado</span><span>📷 subida</span></div></div></div>
+      <div class="sv" data-k="6"><div class="doc2"><div class="dt"><b>Cuenta · Kiosco Lucía</b><span class="okb">Dentro del límite</span></div><div class="dl"><span>Saldo anterior</span><span>$ 120.000</span></div><div class="dl"><span>Este pedido</span><span>+ $ 66.000</span></div><div class="dtot"><span>Saldo</span><span>$ 186.000</span></div></div></div>
+      <div class="sv" data-k="7"><div class="al2"><b>Depósito</b>Agua sin gas quedó en 0. Reponer.</div><div class="al2"><b>Ventas</b>Pedido #3187 tiene 2 pendientes para el viernes.</div></div>
+    </div>
   </section>
 </div>
 
 <main class="wrap">
   <section class="more" id="como" aria-labelledby="t-como" style="padding-top:110px">
     <h2 id="t-como">Cómo funciona.</h2>
-    <p class="lead">Tus clientes piden como siempre. El pedido llega armado, con stock revisado y listo para preparar. Nadie copia nada a mano.</p>
     <div class="usos">
       <div class="upanel on">
         <div class="ucols">
@@ -443,25 +522,23 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   </section>
 
   <section class="more" id="alertas" aria-labelledby="t-al">
-    <h2 id="t-al">Te avisa a quién llamar antes de perderlo.</h2>
-    <p class="lead">Todas las mañanas el sistema revisa cada cliente y le avisa a tu equipo de ventas quién dejó de pedir, quién compra menos y qué producto dejó de llevar. Con un mensaje listo para mandarle.</p>
+    <h2 id="t-al">Te avisa a quién llamar.</h2>
     <div class="alerts">
       <article class="al"><div class="al-h"><span class="al-dot r"></span>Dejó de pedir<small>08:30</small></div><p class="al-t"><b>Almacén Don José</b> no pide hace 16 días. Suele pedir cada 7.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola José! Hace unos días que no te vemos. ¿Te armo el pedido de siempre?</div></article>
       <article class="al"><div class="al-h"><span class="al-dot a"></span>Compra menos<small>08:30</small></div><p class="al-t"><b>Verdulería Ana</b> bajó su pedido promedio un 35% este mes.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola Ana! ¿Cómo venís? Si necesitás algo más para esta semana, te lo sumo al próximo pedido.</div></article>
       <article class="al"><div class="al-h"><span class="al-dot b"></span>Dejó un producto<small>08:30</small></div><p class="al-t"><b>La Esquina</b> llevaba limón en cada pedido y dejó de pedirlo.</p><div class="al-msg"><small>Mensaje sugerido</small>¡Hola! Vi que no venís llevando limón. ¿Te sumo en el próximo pedido?</div></article>
     </div>
-    <p class="demo-note">Ejemplos ilustrativos. Las alertas se calculan con el historial real de pedidos de cada cliente.</p>
+    <p class="demo-note">Ejemplos ilustrativos.</p>
   </section>
 
   <section class="more" id="clientes" aria-labelledby="t-cl">
     <h2 id="t-cl">Clientes</h2>
-    <p class="lead">Cada negocio con su web y su sistema conectado. Tocá una web para visitarla o arrastralas para verlas.</p>
+    <p class="lead">Tocá una web para visitarla.</p>
     <div class="cases" id="cases"></div>
   </section>
 
   <section class="more" id="integraciones" aria-labelledby="t-i">
     <h2 id="t-i">Se conecta con lo que ya usás.</h2>
-    <p class="lead">No tenés que cambiar tu forma de trabajar. El sistema se conecta con tus herramientas y les pasa los datos solo.</p>
     <div class="flow" aria-hidden="true">
       <div class="row" id="flow1"></div>
       <div class="row r2" id="flow2"></div>
@@ -472,12 +549,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 11h-13z M8 7a4 4 0 0 1 8 0"/></svg></span><span class="k">Tienda online</span><div class="tools"><span>Tiendanube <i class="soon">próximamente</i></span></div><p>Los pedidos de tu tienda entran al mismo sistema, con el mismo stock.</p></div>
       <div class="ig"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z M5 10h14 M5 14.5h14 M10 5v14"/></svg></span><span class="k">Planillas y cobros</span><div class="tools"><span>Excel</span><span>Google Sheets</span><span>Mercado Pago</span><span>Transferencias</span></div><p>Exportás todo cuando quieras y registrás pagos con el comprobante.</p></div>
     </div>
-    <p class="integ-note"><b>¿Usás otro sistema de gestión o de facturación?</b> Si exporta datos o tiene conexión, lo sumamos. Lo revisamos en la primera charla, sin costo.</p>
+    <p class="integ-note"><b>¿Usás otro sistema?</b> Lo revisamos y lo conectamos.</p>
   </section>
 
   <section class="more" id="paquetes" aria-labelledby="t-p">
-    <h2 id="t-p">Precios claros, para arrancar.</h2>
-    <p class="lead">Un pago único para armarlo con tus datos y un abono mensual que cubre servidores, mantenimiento, soporte y mejoras. Precios de lanzamiento en dólares, cobrados en pesos.</p>
+    <h2 id="t-p">Productos</h2>
     <article class="pmain">
       <div class="pm-l">
         <span class="launch">Precio de lanzamiento</span>
@@ -502,7 +578,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <article><div><b>Turnos online</b><span>Para peluquerías, estética y consultorios: reservas desde la web, agenda en vivo y cancelaciones que liberan el horario solas.</span></div><div class="also-r"><em>desde US$ 500</em><a href="https://me-encargo-turnos.vercel.app" target="_blank" rel="noopener">Ver la demo →</a></div></article>
       <article><div><b>Web para tu negocio</b><span>Con tu marca y tu dominio, lista para Google y con botón de WhatsApp.</span></div><div class="also-r"><em>desde US$ 200</em><a href="#contacto">Consultar →</a></div></article>
     </div>
-    <p class="note">El precio final depende de cuántas cosas conectamos. Te lo pasamos cerrado después de la primera charla, sin compromiso.</p>
+    
   </section>
 </main>
 
@@ -510,7 +586,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <div>
       <h2 id="t-c">¿Ordenamos tus pedidos?</h2>
-      <p>Charlamos 20 minutos, vemos cómo te llegan hoy los pedidos y te mostramos el sistema funcionando con tus productos. Después lo mantenemos cada mes.</p>
+      <p>20 minutos y te lo mostramos funcionando con tus productos.</p>
       <div class="btns">
         <a class="btn must" href="https://wa.me/5491169088558" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
         <a class="btn line" href="#como">Ver cómo funciona</a>
@@ -572,6 +648,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     wide:{W:1100,H:600,c:[550,300],r:66,nw:258,nh:66,fs:18,stack:false,pos:{turnos:[550,78],web:[905,218],excel:[790,505],mail:[310,505],whatsapp:[195,218]}},
     narrow:{W:380,H:560,c:[190,292],r:50,nw:150,nh:80,fs:13.5,stack:true,pos:{turnos:[190,58],web:[300,190],excel:[275,482],mail:[105,482],whatsapp:[80,190]}}
   };
+  if(document.getElementById('net')){
   var svg=document.getElementById('net'), capT=document.getElementById('capT'), capD=document.getElementById('capD');
   var mode=null, L, edges=[], parts=[], nodesEl={}, coreEl, active=null;
 
@@ -674,6 +751,30 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   render(); startAuto();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){mode=null;render()});
   var rt; window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(render,120)});
+  }
+
+  /* ===== pipeline: un pedido recorre el sistema ===== */
+  (function(){
+    var ol=document.getElementById('stages'); if(!ol)return;
+    var li=[].slice.call(ol.querySelectorAll('li')), sv=[].slice.call(document.querySelectorAll('.stage-view .sv')), run=document.getElementById('runner');
+    var k=0, timer=null, hold=null, vis=true;
+    li.forEach(function(x,i){x.tabIndex=0;x.setAttribute('role','button');x.setAttribute('aria-label',x.textContent.trim());
+      x.onclick=function(){go(i,true)}; x.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go(i,true)}}});
+    function go(i,user){
+      k=i;
+      li.forEach(function(x,j){x.classList.toggle('on',j===i);x.classList.toggle('done',j<i)});
+      sv.forEach(function(x){x.classList.toggle('on',+x.dataset.k===i)});
+      var c=li[i].querySelector('.ic'), r=ol.getBoundingClientRect(), b=c.getBoundingClientRect();
+      if(run){run.style.left=(b.left-r.left+b.width/2-8)+'px';}
+      if(window.innerWidth<=760&&!user){ol.scrollTo({left:li[i].offsetLeft-ol.clientWidth/2+37,behavior:'smooth'})}
+      if(user){stop();clearTimeout(hold);hold=setTimeout(start,9000)}
+    }
+    function start(){if(reduce||timer)return;timer=setInterval(function(){if(vis)go((k+1)%li.length)},2600)}
+    function stop(){clearInterval(timer);timer=null}
+    if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(ol);
+    window.addEventListener('resize',function(){go(k)});
+    go(0); start();
+  })();
 
   /* ===== alertas: aparecen al llegar ===== */
   (function(){

@@ -343,24 +343,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .tn-chat .tn-msg small{color:#6B7C85}
 .tn-bot{align-self:flex-end;max-width:92%;background:#D9F2D0;color:#1C2733;border-radius:14px 4px 14px 14px;padding:8px 11px;font-size:13.5px;line-height:1.4}
 .tn-bot small{display:block;font-size:11.5px;font-weight:700;color:#3E7A4F;margin-bottom:3px}
+.tn-bot.tstep:not(.in){display:none}
 .pl-r{font-size:12px;font-weight:700;color:#1F7A4D;background:#F3FAF5;border-top:1px solid #E1F0E5;padding:5px 10px;opacity:0;transition:opacity .4s}
 .pl-r.in{opacity:1}
-.anchor{display:block;position:relative;top:-90px}
-.tn-call{background:#FFF6E0;color:#1C2733;border-radius:14px;padding:10px 13px;font-size:13.5px;line-height:1.4}
-.tn-call small{display:block;font-size:11.5px;font-weight:700;color:#9A6A00;margin-bottom:3px}
-.tn-call em{font-style:normal;font-weight:700;color:#9A6A00;white-space:nowrap}
-.tr-steps{list-style:none;margin:26px 0 0;padding:20px 0 0;border-top:1px solid rgba(169,196,207,.18);display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-.tr-steps button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;height:100%;width:100%;padding:12px;border-radius:14px;background:rgba(255,255,255,.04);color:#9FB4BF;transition:background .4s,color .4s,box-shadow .4s}
-.tr-steps button:hover{background:rgba(255,255,255,.08)}
-.tr-steps button:focus-visible{outline:2px solid #A9C4CF;outline-offset:2px}
-.tr-steps em{font-style:normal;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(169,196,207,.18);color:#E1EDF1;font-size:12.5px;font-weight:700;margin-bottom:8px;transition:background .4s,color .4s}
-.tr-steps b{display:block;color:#E1EDF1;font-size:14.5px;line-height:1.25;margin-bottom:4px}
-.tr-steps span{display:block;font-size:13px;line-height:1.4}
-.tr-steps li.done em{background:#2E9E66;color:#fff}
-.tr-steps li.on button{background:rgba(127,209,155,.14);color:#CFE3D6;box-shadow:inset 0 0 0 1px rgba(127,209,155,.45)}
-.tr-steps li.on em{background:#7FD19B;color:#0B141A}
-@media (max-width:1100px){.tr-steps{grid-template-columns:repeat(3,1fr)}}
-@media (max-width:600px){.tr-steps{grid-template-columns:1fr 1fr}}
 .tr-replay{margin-left:12px;font:inherit;font-size:13px;font-weight:700;color:#0B141A;background:#D9F2D0;border:0;border-radius:999px;padding:6px 14px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s}
 .tr-replay.on{opacity:1;pointer-events:auto}
 .tr-replay:hover{background:#C4EAB6}
@@ -558,9 +543,8 @@ td.sw-b{color:#1F7A4D;font-weight:700}
     <div class="hero-btns"><a class="btn" href="#contacto">Quiero verlo con mis productos</a><a class="btn ghost2" href="#como">Cómo funciona</a></div>
   </div>
 
-  <span id="como" class="anchor"></span>
   <section class="system tree" id="sistema" aria-label="Así viaja un pedido por el sistema Me Encargo">
-    <div class="pipe-top"><span class="pipe-tag"><i></i>Cómo funciona: un pedido, todas las planillas al día</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo<button type="button" class="tr-replay" id="trReplay">↻ Ver de nuevo</button></span></div>
+    <div class="pipe-top"><span class="pipe-tag"><i></i>Un pedido, todas las planillas al día</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo<button type="button" class="tr-replay" id="trReplay">↻ Ver de nuevo</button></span></div>
     <div class="tr" id="tr">
       <div class="tr-root">
         <div class="tn-chat">
@@ -573,7 +557,6 @@ td.sw-b{color:#1F7A4D;font-weight:700}
         </div>
         <div class="tn-ia tstep" data-at="1.0"><svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>La IA lo entiende y lo reparte</div>
         <div class="tn-ped tstep" data-at="2.3" id="trCore"><b>Pedido #3187</b><span>Coca-Cola 2,25 L × 6</span><span>Agua sin gas × 2 <em>(2 para el viernes)</em></span><strong>$ 66.000</strong><i class="tn-st" data-sw="10.2" data-a="En camino" data-b="✓ Entregado"></i></div>
-        <div class="tn-call tstep" data-at="11.2"><small>🔔 Aviso de la mañana</small><b>Almacén Don José</b> no pide hace 16 días. Suele pedir cada 7. <em>Llamalo hoy →</em></div>
       </div>
       <svg class="tr-lines" id="trLines" aria-hidden="true"></svg>
       <div class="tr-leaves">
@@ -585,13 +568,21 @@ td.sw-b{color:#1F7A4D;font-weight:700}
         <div class="pl tstep" data-at="7.0"><div class="pl-h">Avisos al equipo</div><table><tr class="nw warn"><td>Depósito</td><td>Reponer agua sin gas</td></tr><tr class="nw"><td>Ventas</td><td>2 packs pendientes para el viernes</td></tr></table><div class="pl-r" data-r="8.1">✓ Compras: pedido de agua generado</div></div>
       </div>
     </div>
-    <ol class="tr-steps" id="trSteps" aria-label="Cómo funciona, paso a paso"><li data-from="0"><button type="button"><em>1</em><b>Tu cliente pide</b><span>Por WhatsApp, con texto o audio, o desde su portal web.</span></button></li><li data-from="1.0"><button type="button"><em>2</em><b>La IA lo entiende y responde</b><span>Arma el pedido con tus productos, precios y stock, y le confirma al cliente.</span></button></li><li data-from="2.9"><button type="button"><em>3</em><b>Se reparte a cada sector</b><span>Ventas, stock, depósito, reparto y administración reciben su parte.</span></button></li><li data-from="4.0"><button type="button"><em>4</em><b>Cada sector responde</b><span>El depósito arma, el chofer sale, la cuenta corriente se actualiza.</span></button></li><li data-from="8.6"><button type="button"><em>5</em><b>Entrega y cierre</b><span>El chofer sube la foto del remito y el cliente recibe el aviso.</span></button></li><li data-from="11.2"><button type="button"><em>6</em><b>Te avisa a quién llamar</b><span>Cada mañana, qué clientes dejaron de pedir o compran menos.</span></button></li></ol>
   </section>
 </div>
 
 <main class="wrap">
-  <section class="more" id="arranque" aria-labelledby="t-como" style="padding-top:110px">
-    <h2 id="t-como">Cómo arrancamos.</h2>
+  <section class="more" id="como" aria-labelledby="t-como" style="padding-top:110px">
+    <h2 id="t-como">Cómo funciona.</h2>
+    <div class="usos">
+      <div class="upanel on">
+        <div class="ucols">
+          <div class="ucol"><h4><i>🙋</i>Tu cliente</h4><ol><li>Pide por WhatsApp, con texto o audio, o desde su portal web.</li><li>Repite su último pedido con un toque.</li><li>Ve el estado de su pedido y su cuenta.</li><li>Informa sus pagos subiendo el comprobante.</li></ol></div>
+          <div class="ucol sys"><h4><i>⚙️</i>El sistema, solo</h4><ol><li>Entiende el pedido y lo arma con tus productos y precios.</li><li>Revisa el stock y avisa si falta algo antes de confirmar.</li><li>Genera la hoja de armado para el depósito.</li><li>Actualiza la cuenta corriente y controla el límite de crédito.</li></ol></div>
+          <div class="ucol"><h4><i>👤</i>Vos y tu equipo</h4><ol><li>El depósito prepara según la hoja de armado.</li><li>El chofer entrega y sube la foto del remito firmado.</li><li>Ves pedidos, deudas y entregas en un solo lugar.</li><li>Cada área recibe sus avisos: ventas, depósito y administración.</li></ol></div>
+        </div>
+      </div>
+    </div>
     <div class="que">
       <div><em>1</em><b>Lo armamos</b><span>Cargamos tus productos, precios, clientes, zonas y días de reparto. Lo probás con pedidos reales.</span></div>
       <div><em>2</em><b>Lo usás</b><span>Conectamos tu número de WhatsApp Business. Tus clientes no tienen que bajarse nada.</span></div>
@@ -846,17 +837,15 @@ td.sw-b{color:#1F7A4D;font-weight:700}
     function render(){
       steps.forEach(function(s){s.classList.toggle('in',t>=+s.dataset.at)});
       paths.forEach(function(p,i){var at=+leaves[i].dataset.at-.6, k=Math.max(0,Math.min(1,(t-at)/.6));p.style.strokeDashoffset=(1-k)*p.dataset.l});
-      tr.classList.toggle('core-on',t>=2.3);
-      var ai=-1;stp.forEach(function(l,i){if(t>=+l.dataset.from)ai=i});stp.forEach(function(l,i){l.classList.toggle('on',i===ai);l.classList.toggle('done',i<ai)});tr.classList.toggle('done',t>=10.2);
+      tr.classList.toggle('core-on',t>=2.3);tr.classList.toggle('done',t>=10.2);
       sws.forEach(function(e){var b=t>=+e.dataset.sw,v=b?e.dataset.b:e.dataset.a;if(e.textContent!==v){e.textContent=v;e.classList.toggle('sw-b',b)}});
       leaves.forEach(function(l,i){var r=l.querySelector('.pl-r'),on=r&&t>=+r.dataset.r;if(r)r.classList.toggle('in',on);if(paths[i])paths[i].classList.toggle('ok',on)});
     }
-    var END=12.6, SPEED=.6, stp=[].slice.call(document.querySelectorAll('#trSteps li')), rp=document.getElementById('trReplay'), running=false;
+    var END=11.4, SPEED=.6, rp=document.getElementById('trReplay'), running=false;
     function loop(now){var dt=Math.min(.1,(now-last)/1000);last=now;if(vis){t=Math.min(END,t+dt*SPEED);render()}
       if(t<END)requestAnimationFrame(loop);else{running=false;rp.classList.add('on')}}
     function start(){if(running)return;running=true;last=performance.now();requestAnimationFrame(loop)}
     rp.addEventListener('click',function(){t=0;rp.classList.remove('on');render();start()});
-    stp.forEach(function(l){l.querySelector('button').addEventListener('click',function(){t=+l.dataset.from;rp.classList.remove('on');render();if(!reduce)start();else rp.classList.add('on')})});
     if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(tr);
     var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){draw();render()},120)});
     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){draw();render()});

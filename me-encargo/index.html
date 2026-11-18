@@ -297,7 +297,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .tree::before{display:none}
 .tr{display:grid;grid-template-columns:320px 80px minmax(0,1fr);align-items:center;margin-top:6px}
 .tr-root{display:flex;flex-direction:column;gap:12px;position:relative}
-.tstep{opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
+.tstep{opacity:0;transform:translateY(10px);transition:opacity .8s,transform .8s}
 .tstep.in{opacity:1;transform:none}
 .tn-msg{background:#D9F2D0;color:#1C2733;border-radius:16px 16px 16px 4px;padding:10px 13px;font-size:14.5px;line-height:1.4;font-style:italic}
 .tn-msg small{display:block;font-style:normal;font-size:11.5px;font-weight:700;color:#4E6B55;margin-bottom:4px}
@@ -346,6 +346,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 .tn-bot.tstep:not(.in){display:none}
 .pl-r{font-size:12px;font-weight:700;color:#1F7A4D;background:#F3FAF5;border-top:1px solid #E1F0E5;padding:5px 10px;opacity:0;transition:opacity .4s}
 .pl-r.in{opacity:1}
+.tr-replay{margin-left:12px;font:inherit;font-size:13px;font-weight:700;color:#0B141A;background:#D9F2D0;border:0;border-radius:999px;padding:6px 14px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s}
+.tr-replay.on{opacity:1;pointer-events:auto}
+.tr-replay:hover{background:#C4EAB6}
 .tn-re{font-style:normal}
 .tn-st{font-style:normal;font-size:12.5px;font-weight:700;justify-self:start;margin-top:6px;padding:3px 10px;border-radius:999px;background:#EAF1F3;color:var(--navy);transition:background .4s,color .4s}
 .tn-st.sw-b{background:#2E9E66;color:#fff}
@@ -540,7 +543,7 @@ td.sw-b{color:#1F7A4D;font-weight:700}
   </div>
 
   <section class="system tree" id="sistema" aria-label="Así viaja un pedido por el sistema Me Encargo">
-    <div class="pipe-top"><span class="pipe-tag"><i></i>Un pedido, todas las planillas al día</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo</span></div>
+    <div class="pipe-top"><span class="pipe-tag"><i></i>Un pedido, todas las planillas al día</span><span class="pipe-case">Kiosco Lucía → Distribuidora de bebidas · ejemplo<button type="button" class="tr-replay" id="trReplay">↻ Ver de nuevo</button></span></div>
     <div class="tr" id="tr">
       <div class="tr-root">
         <div class="tn-chat">
@@ -839,12 +842,16 @@ td.sw-b{color:#1F7A4D;font-weight:700}
       sws.forEach(function(e){var b=t>=+e.dataset.sw,v=b?e.dataset.b:e.dataset.a;if(e.textContent!==v){e.textContent=v;e.classList.toggle('sw-b',b)}});
       leaves.forEach(function(l,i){var r=l.querySelector('.pl-r'),on=r&&t>=+r.dataset.r;if(r)r.classList.toggle('in',on);if(paths[i])paths[i].classList.toggle('ok',on)});
     }
-    function loop(now){var dt=Math.min(.1,(now-last)/1000);last=now;if(vis){t+=dt;if(t>LEN)t=0;render()}requestAnimationFrame(loop)}
+    var END=11.4, SPEED=.6, rp=document.getElementById('trReplay'), running=false;
+    function loop(now){var dt=Math.min(.1,(now-last)/1000);last=now;if(vis){t=Math.min(END,t+dt*SPEED);render()}
+      if(t<END)requestAnimationFrame(loop);else{running=false;rp.classList.add('on')}}
+    function start(){if(running)return;running=true;last=performance.now();requestAnimationFrame(loop)}
+    rp.addEventListener('click',function(){t=0;rp.classList.remove('on');render();start()});
     if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(tr);
     var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){draw();render()},120)});
     if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){draw();render()});
     draw();
-    if(reduce){t=12;render()}else requestAnimationFrame(loop);
+    if(reduce){t=END;render();rp.classList.add('on')}else start();
   })();
 
   /* ===== alertas: aparecen al llegar ===== */

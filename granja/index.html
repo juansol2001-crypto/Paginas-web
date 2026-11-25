@@ -104,7 +104,7 @@ async function cargarBase(force){
 const prod = id => cache.productos.find(p=>p.id===id);
 const zonaDeBarrio = id => { const b=cache.barrios.find(x=>x.id===id); return b && cache.zonas.find(z=>z.id===b.zona_id); };
 
-const SECCIONES = [['inicio','Inicio'],['avisos','Avisos'],['pedidos','Pedidos'],['reparto','Reparto'],['stock','Stock'],['compras','Compras'],['cobros','Cobros'],['contable','Contable'],['clientes','Clientes'],['productos','Productos'],['proveedores','Proveedores'],['ajustes','Ajustes']];
+const SECCIONES = [['inicio','Inicio'],['avisos','Avisos'],['pedidos','Pedidos'],['reparto','Reparto'],['stock','Stock'],['compras','Compras'],['cobros','Cobros'],['contable','Contable'],['clientes','Clientes'],['productos','Productos'],['proveedores','Proveedores'],['planillas','Planillas'],['ajustes','Ajustes']];
 let usuario = null;
 
 async function iniciar(){
@@ -492,6 +492,64 @@ VISTAS.avisos = async m => {
 };
 
 /* ---------- Ajustes ---------- */
+
+/* ---------- Planillas (se arman solas con los datos del sistema) ---------- */
+const NO_PLATA = new Set(['Hay','Pedido','Disponible','Mínimo','Día de pago','Margen %','Recargo %','Diferencia %']);
+let hojaSel = 'TOTALES';
+async function armarPlanillas(){
+  await cargarBase();
+  const [res, hist, ped, gas, fij, comp, st, sal, bol] = await Promise.all([
+    q(sb.from('v_resultado_mensual').select('*').order('mes',{ascending:false})),
+    q(sb.from('ingresos_historicos').select('*').order('fecha',{ascending:false})),
+    q(sb.from('v_pedidos').select('*').order('fecha_entrega',{ascending:false}).limit(2000)),
+    q(sb.from('gastos').select('*').order('fecha',{ascending:false})),
+    q(sb.from('gastos_fijos').select('*').order('concepto')),
+    q(sb.from('competencia').select('*')),
+    q(sb.from('v_stock').select('*')),
+    q(sb.from('v_saldos').select('*').gt('saldo',0).order('saldo',{ascending:false})),
+    q(sb.from('facturas_proveedor').select('*').order('fecha',{ascending:false}))
+  ]);
+  const cli = id => cache.clientes.find(c=>c.id===id);
+  const barrioDe = c => cache.barrios?.find(b=>b.id===c?.barrio_id)?.nombre || '';
+  const provN = id => cache.proveedores.find(p=>p.id===id)?.nombre || '';
+  const ordenP = (a,b)=>(a.orden??999)-(b.orden??999);
+  const comps = [...new Set(comp.map(c=>c.competidor))];
+  const H = {};
+  H['TOTALES'] = res.filter(r=>Number(r.ganancia_bruta)||Number(r.gastos)).map(r=>({Mes:mesTxt(r.mes), 'Ganancia':Number(r.ganancia_bruta), 'Gastos':Number(r.gastos), 'Resultado':Number(r.resultado), 'Cobrado':Number(r.cobrado||0), 'Boletas proveedores':Number(r.boletas_proveedores||0)}));
+  H['INGRESOS'] = [
+    ...ped.filter(p=>p.estado==='entregado').map(p=>({Fecha:p.fecha_entrega, Reparto:barrioDe(cli(p.cliente_id)), Detalle:cli(p.cliente_id)?.nombre||'', 'Venta':Number(p.total), Origen:'Sistema'})),
+    ...hist.map(h=>({Fecha:h.fecha, Reparto:h.categoria||'', Detalle:h.descripcion||'', 'Venta':Number(h.monto), Origen:'Planilla (ganancia)'}))
+  ].sort((a,b)=>b.Fecha.localeCompare(a.Fecha));
+  H['EGRESOS'] = gas.map(g=>({Fecha:g.fecha, Categoría:g.categoria, Descripción:g.descripcion||'', Medio:g.medio||'', 'Monto':Number(g.monto)}));
+  H['Gastos Fijos'] = fij.map(f=>({Concepto:f.concepto, Categoría:f.categoria||'', Clasificación:f.clasificacion||'', 'Monto mensual':Number(f.monto_mensual), 'Día de pago':f.dia_pago??'', Activo:f.activo?'Sí':'No'}));
+  H['Precios'] = [...cache.productos].sort(ordenP).map(p=>{ const fila={Producto:p.nombre, 'Precio venta':Number(p.precio), 'Costo':Number(p.costo||0)};
+    cache.proveedores.forEach(pv=>{ const x=pv.producto_proveedor.find(y=>y.producto_id===p.id); if(x) fila['Costo '+pv.nombre]=Number(x.costo||0); });
+    fila['Margen %']=p.costo&&p.precio?Math.round((1-p.costo/p.precio)*100):''; return fila; });
+  const colsProv = cache.proveedores.map(pv=>'Costo '+pv.nombre).filter(k=>H['Precios'].some(f=>k in f));
+  H['Precios'] = H['Precios'].map(f=>{ const o={Producto:f.Producto,'Precio venta':f['Precio venta'],'Costo':f.Costo}; colsProv.forEach(k=>o[k]=f[k]??''); o['Margen %']=f['Margen %']; return o; });
+  H['Competencia'] = [...cache.productos].sort(ordenP).filter(p=>comp.some(c=>c.producto_id===p.id)).map(p=>{ const o={Producto:p.nombre,'Nuestro precio':Number(p.precio)}; comps.forEach(c=>{const x=comp.find(y=>y.producto_id===p.id&&y.competidor===c); o[c]=x?Number(x.precio):'';}); const vals=comps.map(c=>o[c]).filter(v=>v!==''); const prom=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0; o['Diferencia %']=prom?Math.round((p.precio/prom-1)*100):''; return o; });
+  H['Stock'] = st.map(s=>({p:prod(s.producto_id), s})).sort((a,b)=>ordenP(a.p||{},b.p||{})).map(({p,s})=>({Producto:p?.nombre||'', Hay:Number(s.fisico), Pedido:Number(s.comprometido), Disponible:Number(s.disponible), Mínimo:Number(s.stock_minimo||0)}));
+  H['Reparto'] = ped.filter(p=>['pendiente','confirmado','armado'].includes(p.estado)).sort((a,b)=>a.fecha_entrega.localeCompare(b.fecha_entrega)).map(p=>{const c=cli(p.cliente_id); return {Fecha:p.fecha_entrega, Barrio:barrioDe(c), Cliente:c?.nombre||'', Lote:c?.lote||'', Teléfono:c?.telefono||'', Estado:p.estado, 'Total':Number(p.total)};});
+  H['Cobros'] = sal.map(s=>({Cliente:s.nombre, Barrio:s.barrio||'', 'Debe':Number(s.saldo), 'Desde':s.primera_entrega_impaga||''}));
+  H['Facturas'] = bol.map(b=>({Fecha:b.fecha, Proveedor:provN(b.proveedor_id), Número:b.numero||'', 'Monto':Number(b.monto), Vence:b.vence||'', Pagada:b.pagada?'Sí':'No', 'Fecha de pago':b.fecha_pago||'', Medio:b.medio_pago||''}));
+  return H;
+}
+VISTAS.planillas = async m => {
+  const H = await armarPlanillas();
+  const nombres = Object.keys(H);
+  if(!H[hojaSel]) hojaSel = nombres[0];
+  const celda = (k,v) => v===''||v==null ? '' : typeof v==='number' ? (NO_PLATA.has(k)? (k.endsWith('%')? v+'%' : num(v)) : money(v)) : /^\d{4}-\d{2}-\d{2}$/.test(v) ? fdate(v) : esc(v);
+  const filas = H[hojaSel], cols = filas.length ? Object.keys(filas[0]) : [];
+  m.innerHTML = `<div class="row"><h2 class="sp">Planillas</h2><button class="btn pri" id="todas">Descargar todas en Excel</button></div>
+   <p class="muted">Son tus mismas planillas, pero se completan solas con lo que cargás en el sistema (pedidos, pagos, gastos, boletas, precios). No hace falta tocarlas: abrís la que necesitás o te bajás todas juntas en un Excel.</p>
+   <div class="row" style="flex-wrap:wrap;gap:6px;margin:10px 0">${nombres.map(n=>`<button class="btn sm ${n===hojaSel?'pri':''}" data-hoja="${esc(n)}">${esc(n)} <span class="muted" style="${n===hojaSel?'color:inherit':''}">(${H[n].length})</span></button>`).join('')}</div>
+   <div class="row"><h3 class="sp">${esc(hojaSel)}</h3><button class="btn sm" id="una">Descargar esta hoja</button></div>
+   ${filas.length?`<div class="scroll"><table class="hoja"><tr>${cols.map(c=>`<th class="${typeof filas[0][c]==='number'?'n':''}">${esc(c)}</th>`).join('')}</tr>${filas.map(f=>`<tr>${cols.map(c=>`<td class="${typeof f[c]==='number'?'n':''}">${celda(c,f[c])}</td>`).join('')}</tr>`).join('')}</table></div>`:'<div class="empty">Todavía no hay datos para esta planilla. Se va a llenar sola a medida que uses el sistema.</div>'}`;
+  m.querySelectorAll('[data-hoja]').forEach(b=>b.onclick=()=>{ hojaSel=b.dataset.hoja; ruta(); });
+  $('#una').onclick=()=>excel(hojaSel, filas);
+  $('#todas').onclick=()=>{ const wb=XLSX.utils.book_new(); nombres.forEach(n=>{ const ws=H[n].length?XLSX.utils.json_to_sheet(H[n]):XLSX.utils.aoa_to_sheet([['Sin datos todavía']]); if(H[n].length) ws['!cols']=Object.keys(H[n][0]).map(k=>({wch:Math.max(k.length, ...H[n].slice(0,200).map(f=>String(f[k]??'').length))+2})); XLSX.utils.book_append_sheet(wb,ws,n.slice(0,30)); }); XLSX.writeFile(wb, `Granja Los Abrojos - Planillas ${hoy()}.xlsx`); };
+};
+
 VISTAS.ajustes = async m => {
   await cargarBase(true);
   const c = cache.config;

@@ -104,7 +104,7 @@ async function cargarBase(force){
 const prod = id => cache.productos.find(p=>p.id===id);
 const zonaDeBarrio = id => { const b=cache.barrios.find(x=>x.id===id); return b && cache.zonas.find(z=>z.id===b.zona_id); };
 
-const SECCIONES = [['inicio','Inicio'],['pedidos','Pedidos'],['reparto','Reparto'],['stock','Stock'],['compras','Compras'],['cobros','Cobros'],['contable','Contable'],['clientes','Clientes'],['productos','Productos'],['proveedores','Proveedores'],['ajustes','Ajustes']];
+const SECCIONES = [['inicio','Inicio'],['avisos','Avisos'],['pedidos','Pedidos'],['reparto','Reparto'],['stock','Stock'],['compras','Compras'],['cobros','Cobros'],['contable','Contable'],['clientes','Clientes'],['productos','Productos'],['proveedores','Proveedores'],['ajustes','Ajustes']];
 let usuario = null;
 
 async function iniciar(){
@@ -134,8 +134,54 @@ function pantallaLogin(){
   };
 }
 
+/* ---------- Avisos ---------- */
+async function calcAvisos(){
+  const h = hoy(); const enUnaSemana = sumar(h,7); const mes = h.slice(0,7);
+  const [manuales, bols, saldos, stock, fijos, gastosMes] = await Promise.all([
+    q(sb.from('avisos').select('*').eq('resuelto',false).order('creado_en')),
+    q(sb.from('facturas_proveedor').select('id,monto,vence,fecha,proveedores(nombre)').eq('pagada',false)),
+    q(sb.from('v_saldos').select('*').gt('saldo',0)),
+    q(sb.from('v_stock').select('*')),
+    q(sb.from('gastos_fijos').select('*').eq('activo',true)),
+    q(sb.from('gastos').select('descripcion').gte('fecha',mes+'-01'))
+  ]);
+  const L = [];
+  manuales.forEach(a=>L.push({id:'m'+a.id, manual:a.id, nivel: a.tipo==='precios'?'media':'info', grupo: ({precios:'Precios',pagos:'Pagos',cobros:'Cobros',stock:'Stock',general:'Configuración'})[a.tipo], titulo:a.titulo, detalle:a.detalle}));
+  // Pagos a proveedores
+  const venc = bols.filter(b=>b.vence && b.vence < h), prox = bols.filter(b=>b.vence && b.vence >= h && b.vence <= enUnaSemana), sinV = bols.filter(b=>!b.vence);
+  if(venc.length) L.push({nivel:'alta', grupo:'Pagos', titulo:`${venc.length} boleta${venc.length>1?'s':''} vencida${venc.length>1?'s':''} por ${money(venc.reduce((a,b)=>a+Number(b.monto),0))}`, detalle: venc.map(b=>`${b.proveedores?.nombre||'Sin proveedor'}: ${money(b.monto)} (venció ${fdate(b.vence)})`).join(' · '), link:'#contable', tab:'boletas'});
+  if(prox.length) L.push({nivel:'media', grupo:'Pagos', titulo:`${prox.length} boleta${prox.length>1?'s':''} vence${prox.length>1?'n':''} esta semana`, detalle: prox.map(b=>`${b.proveedores?.nombre||'Sin proveedor'}: ${money(b.monto)} (${fdate(b.vence)})`).join(' · '), link:'#contable', tab:'boletas'});
+  if(sinV.length) L.push({nivel:'media', grupo:'Pagos', titulo:`${sinV.length} boleta${sinV.length>1?'s':''} sin pagar por ${money(sinV.reduce((a,b)=>a+Number(b.monto),0))}`, detalle: sinV.map(b=>`${b.proveedores?.nombre||'Sin proveedor'}: ${money(b.monto)} (del ${fdate(b.fecha)})`).join(' · '), link:'#contable', tab:'boletas'});
+  // Gastos fijos del mes
+  const pagadosMes = new Set(gastosMes.map(g=>(g.descripcion||'').toLowerCase()));
+  const dia = Number(h.slice(8,10));
+  fijos.filter(f=>f.dia_pago && Number(f.monto_mensual)>0 && !pagadosMes.has(f.concepto.toLowerCase())).forEach(f=>{
+    const falta = f.dia_pago - dia;
+    if(falta <= 5) L.push({nivel: falta<0?'alta':'media', grupo:'Pagos', titulo: `${f.concepto}: ${money(f.monto_mensual)} ${falta<0?'(se pasó el día '+f.dia_pago+')':falta===0?'vence hoy':'vence el día '+f.dia_pago}`, detalle:'Cuando lo pagues, marcalo en Contable → Gastos fijos.', link:'#contable', tab:'fijos'});
+  });
+  // Cobros atrasados
+  const atras = saldos.filter(s=>s.primera_entrega_impaga && s.primera_entrega_impaga <= sumar(h,-7));
+  if(atras.length) L.push({nivel:'media', grupo:'Cobros', titulo:`${atras.length} cliente${atras.length>1?'s':''} te debe${atras.length>1?'n':''} hace más de una semana`, detalle: atras.slice(0,8).map(s=>`${s.nombre}: ${money(s.saldo)}`).join(' · ')+(atras.length>8?' …':''), link:'#cobros'});
+  // Stock y precios calculados
+  const faltan = stock.filter(s=>Number(s.disponible)<0);
+  if(faltan.length) L.push({nivel:'alta', grupo:'Stock', titulo:`${faltan.length} producto${faltan.length>1?'s':''} no alcanza${faltan.length>1?'n':''} para los pedidos`, detalle: faltan.map(s=>`${s.nombre}: faltan ${num(-s.disponible)}`).join(' · '), link:'#stock'});
+  const prods = cache.productos.filter(p=>p.activo);
+  const bajos = prods.filter(p=>p.costo && p.precio && (1-p.costo/p.precio) < 0.15);
+  if(bajos.length) L.push({nivel:'media', grupo:'Precios', titulo:`${bajos.length} producto${bajos.length>1?'s':''} con margen menor al 15%`, detalle: bajos.map(p=>`${p.nombre}: ${Math.round((1-p.costo/p.precio)*100)}%`).join(' · ')+'. Revisá el precio o el costo.', link:'#productos'});
+  const sinCosto = prods.filter(p=>!p.costo);
+  if(sinCosto.length) L.push({nivel:'info', grupo:'Precios', titulo:`${sinCosto.length} producto${sinCosto.length>1?'s':''} sin costo cargado`, detalle: sinCosto.map(p=>p.nombre).join(', ')+'. Sin el costo no se puede calcular la ganancia.', link:'#productos'});
+  const viejos = prods.filter(p=>p.actualizado_en && (Date.now()-new Date(p.actualizado_en))/864e5 > 30);
+  if(viejos.length) L.push({nivel:'info', grupo:'Precios', titulo:`${viejos.length} precio${viejos.length>1?'s':''} sin actualizar hace más de un mes`, detalle: viejos.map(p=>p.nombre).join(', '), link:'#productos'});
+  if(!cache.config.lunes_semana_a && !manuales.some(a=>a.titulo.includes('Semana A'))) L.push({nivel:'media', grupo:'Configuración', titulo:'Cargar un lunes de Semana A', detalle:'Sin esto el sistema no sabe qué barrios tocan cada semana.', link:'#ajustes'});
+  const orden = {alta:0, media:1, info:2};
+  return L.sort((a,b)=>orden[a.nivel]-orden[b.nivel]);
+}
+async function badgeAvisos(){ try{ const n=(await calcAvisos()).length; const a=document.querySelector('nav a[data-k="avisos"]'); if(a) a.textContent = n?`Avisos (${n})`:'Avisos'; }catch(e){} }
+window.badgeAvisos = badgeAvisos;
+
 async function ruta(){
   const k = (location.hash.slice(1)||'inicio').split('?')[0];
+  badgeAvisos();
   document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on', a.dataset.k===k));
   const m = $('#main'); m.innerHTML = '<p class="muted">Cargando…</p>';
   try { await (VISTAS[k]||VISTAS.inicio)(m); } catch(e){ console.error(e); m.innerHTML = '<div class="alert">No se pudo cargar esta sección. Probá de nuevo.</div>'; }
@@ -162,6 +208,7 @@ VISTAS.inicio = async m => {
   const faltan = stock.filter(s => Number(s.disponible) < 0);
   const porCobrar = saldos.reduce((a,s)=>a+Number(s.saldo),0);
   const porPagar = bols.reduce((a,b)=>a+Number(b.monto),0);
+  calcAvisos().then(L=>{ const u=L.filter(a=>a.nivel!=='info'); const el=$('#avisoIni'); if(el && u.length) el.innerHTML=`<a href="#avisos" class="card" style="display:block;margin-bottom:12px;text-decoration:none;color:inherit;border-color:#E7C98A;background:var(--warn-bg)"><b>Tenés ${u.length} aviso${u.length>1?'s':''} para revisar</b><div class="muted">${u.slice(0,3).map(a=>esc(a.titulo)).join(' · ')}${u.length>3?' …':''}</div></a>`; }).catch(()=>{});
   const dow = ((new Date().getDay()+6)%7)+1;
   const tareas = [];
   if(dow===1){ tareas.push('9:00 · Mandar la difusión de la semana'); tareas.push('Pedir la carne a los proveedores (mirá “Compra sugerida” en Stock)'); tareas.push('19:00 · Recordatorio a los que no pidieron'); }
@@ -174,6 +221,7 @@ VISTAS.inicio = async m => {
   <h2>${new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</h2>
   <p class="muted" style="margin-top:-8px">${sem?'Semana '+sem+' · ':''}${zonas.length?'Reparto: '+zonas.map(z=>esc(z.nombre)).join(', '):'Hoy no hay reparto'}</p>
   ${tareas.length?`<div class="card" style="margin-bottom:12px"><b>Para hacer hoy</b><ul style="margin:6px 0 0;padding-left:20px">${tareas.map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
+  <div id="avisoIni"></div>
   <div class="grid">
     <div class="card metric"><div class="lbl">Pedidos de la semana</div><div class="val">${pedSem.length}</div></div>
     <div class="card metric"><div class="lbl">Vendido esta semana</div><div class="val">${money(pedSem.reduce((a,p)=>a+Number(p.total),0))}</div></div>
@@ -411,6 +459,23 @@ function formProv(p){
      dlg.close(); toast('Proveedor guardado'); await cargarBase(true); ruta(); },'pri']]);
 }
 
+VISTAS.avisos = async m => {
+  const L = await calcAvisos();
+  const col = {alta:'var(--bad)', media:'var(--warn)', info:'var(--soft)'};
+  const etq = {alta:'Urgente', media:'Revisar', info:'Para tener en cuenta'};
+  const grupos = ['Pagos','Precios','Cobros','Stock','Configuración'];
+  m.innerHTML = `<div class="row"><h2 class="sp">Avisos</h2><button class="btn sm" id="nav2">+ Agregar recordatorio</button></div>
+   <p class="muted">Lo que tenés que revisar o pagar. Se actualiza solo con lo que cargás en el sistema. Los recordatorios los podés marcar como resueltos.</p>
+   ${L.length ? grupos.filter(g=>L.some(a=>a.grupo===g)).map(g=>`<h3>${g}</h3><div class="list">${L.filter(a=>a.grupo===g).map(a=>`<div class="item" style="border-left:4px solid ${col[a.nivel]}"><div class="row"><b class="sp">${esc(a.titulo)}</b><span class="tag ${a.nivel==='alta'?'bad':a.nivel==='media'?'warn':''}">${etq[a.nivel]}</span></div>
+     ${a.detalle?`<div class="muted" style="margin-top:4px">${esc(a.detalle)}</div>`:''}
+     <div class="row" style="margin-top:8px">${a.link?`<a class="btn sm" href="${a.link}" ${a.tab?`data-tab2="${a.tab}"`:''}>Ir</a>`:''}${a.manual?`<button class="btn sm pri" data-res="${a.manual}">Resuelto</button>`:''}</div></div>`).join('')}</div>`).join('') : '<div class="empty">No hay avisos. Está todo al día.</div>'}`;
+  m.querySelectorAll('[data-tab2]').forEach(b=>b.addEventListener('click',()=>{ tabCont=b.dataset.tab2; }));
+  m.querySelectorAll('[data-res]').forEach(b=>b.onclick=async()=>{ await q(sb.from('avisos').update({resuelto:true, resuelto_en:new Date().toISOString()}).eq('id',Number(b.dataset.res))); toast('Marcado como resuelto'); ruta(); });
+  $('#nav2').onclick=()=>modal('Agregar recordatorio', `<label>Tipo</label><select id="at2"><option value="pagos">Pagos</option><option value="precios">Precios</option><option value="cobros">Cobros</option><option value="stock">Stock</option><option value="general">Otro</option></select>
+    <label>Qué hay que hacer</label><input id="att" placeholder="Pagar el seguro de la camioneta"><label>Detalle (opcional)</label><input id="atd">`,
+    [['Guardar', async()=>{ const t=$('#att').value.trim(); if(!t) return toast('Escribí qué hay que hacer'); await q(sb.from('avisos').insert({tipo:$('#at2').value, titulo:t, detalle:$('#atd').value||null})); dlg.close(); toast('Recordatorio agregado'); ruta(); },'pri']]);
+};
+
 /* ---------- Ajustes ---------- */
 VISTAS.ajustes = async m => {
   await cargarBase(true);
@@ -458,7 +523,7 @@ TABS_CONT.resultado = async el => {
   el.innerHTML = `<div class="grid"><div class="card metric"><div class="lbl">Ganancia bruta ${new Date().getFullYear()}</div><div class="val">${money(tot('ganancia_bruta'))}</div></div>
    <div class="card metric"><div class="lbl">Gastos ${new Date().getFullYear()}</div><div class="val">${money(tot('gastos'))}</div></div>
    <div class="card metric"><div class="lbl">Resultado ${new Date().getFullYear()}</div><div class="val">${money(tot('resultado'))}</div></div></div>
-   <p class="muted">Ganancia bruta = ventas entregadas menos lo que cuesta la mercadería (hasta octubre sale de tu planilla). Resultado = ganancia bruta menos gastos. Se calcula solo.</p>
+   <p class="muted">Ganancia bruta = ventas entregadas menos lo que cuesta la mercadería (hasta noviembre sale de tu planilla). Resultado = ganancia bruta menos gastos. Se calcula solo.</p>
    <div class="scroll"><table><tr><th>Mes</th><th class="n">Ventas</th><th class="n">Costo mercadería</th><th class="n">Ganancia bruta</th><th class="n">Gastos</th><th class="n">Resultado</th><th class="n">Cobrado</th><th class="n">Boletas proveedores</th></tr>
    ${filas.map(f=>`<tr><td>${mesTxt(f.mes)}</td><td class="n">${Number(f.ventas)?money(f.ventas):'—'}</td><td class="n">${Number(f.costo_mercaderia)?money(f.costo_mercaderia):'—'}</td><td class="n">${money(f.ganancia_bruta)}</td><td class="n">${money(f.gastos)}</td><td class="n" style="font-weight:600;${Number(f.resultado)<0?'color:var(--bad)':''}">${money(f.resultado)}</td><td class="n">${Number(f.cobrado)?money(f.cobrado):'—'}</td><td class="n">${Number(f.boletas_proveedores)?money(f.boletas_proveedores):'—'}</td></tr>`).join('')}</table></div>
    <div class="row" style="margin-top:10px"><button class="btn sm" id="xls">Descargar Excel</button></div>
@@ -511,11 +576,19 @@ TABS_CONT.gastos = async el => {
     [['Guardar', async()=>{ const monto=Number($('#gmo').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('gastos').insert({fecha:$('#gf').value, categoria:$('#gc').value, descripcion:$('#gd').value||null, monto})); dlg.close(); toast('Gasto cargado'); ruta(); },'pri']]);
 };
 TABS_CONT.fijos = async el => {
-  const fs = await q(sb.from('gastos_fijos').select('*').order('id'));
-  el.innerHTML = `<p class="muted">Lo que gastás todos los meses, como referencia. Los cambios se guardan solos. Total mensual: <b>${money(fs.filter(f=>f.activo).reduce((a,f)=>a+Number(f.monto_mensual),0))}</b></p>
-   <table><tr><th>Concepto</th><th class="n">Monto por mes</th><th>Clasificación</th><th>Activo</th></tr>${fs.map(f=>`<tr><td>${esc(f.concepto)}</td><td class="n"><input data-ff="monto_mensual" data-id="${f.id}" type="number" min="0" step="1000" value="${Number(f.monto_mensual)}" style="width:120px;text-align:right"></td><td>${esc(f.clasificacion||'')}</td><td><input data-ff="activo" data-id="${f.id}" type="checkbox" ${f.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table>
+  const mes = hoy().slice(0,7);
+  const [fs, gm] = await Promise.all([q(sb.from('gastos_fijos').select('*').order('id')), q(sb.from('gastos').select('descripcion').gte('fecha',mes+'-01'))]);
+  const pagados = new Set(gm.map(g=>(g.descripcion||'').toLowerCase()));
+  el.innerHTML = `<p class="muted">Lo que pagás todos los meses. Poné el día del mes en que vence y te va a aparecer en Avisos unos días antes. Cuando lo pagues, tocá “Pagado”: se anota solo en Gastos. Total mensual: <b>${money(fs.filter(f=>f.activo).reduce((a,f)=>a+Number(f.monto_mensual),0))}</b></p>
+   <div class="scroll"><table><tr><th>Concepto</th><th class="n">Monto por mes</th><th class="n">Vence el día</th><th>Categoría</th><th>Este mes</th><th>Activo</th></tr>${fs.map(f=>`<tr><td>${esc(f.concepto)}</td><td class="n"><input data-ff="monto_mensual" data-id="${f.id}" type="number" min="0" step="1000" value="${Number(f.monto_mensual)}" style="width:120px;text-align:right"></td>
+     <td class="n"><input data-ff="dia_pago" data-id="${f.id}" type="number" min="1" max="31" value="${f.dia_pago??''}" style="width:70px;text-align:right"></td>
+     <td><select data-ff="categoria" data-id="${f.id}" style="width:auto">${CATS_GASTO.map(c=>`<option ${f.categoria===c?'selected':''}>${c}</option>`).join('')}</select></td>
+     <td>${pagados.has(f.concepto.toLowerCase())?'<span class="tag ok">Pagado</span>':`<button class="btn sm" data-pagf="${f.id}">Pagado</button>`}</td>
+     <td><input data-ff="activo" data-id="${f.id}" type="checkbox" ${f.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table></div>
    <div style="margin-top:10px"><button class="btn sm" id="nf">+ Agregar gasto fijo</button></div>`;
-  el.querySelectorAll('[data-ff]').forEach(i=>i.onchange=async()=>{ const f=i.dataset.ff; await q(sb.from('gastos_fijos').update({[f]: f==='activo'?i.checked:Number(i.value||0)}).eq('id',Number(i.dataset.id))); toast('Guardado'); ruta(); });
+  el.querySelectorAll('[data-ff]').forEach(i=>i.onchange=async()=>{ const f=i.dataset.ff; const v = f==='activo'?i.checked : f==='categoria'?i.value : f==='dia_pago'?(i.value?Number(i.value):null) : Number(i.value||0); await q(sb.from('gastos_fijos').update({[f]: v}).eq('id',Number(i.dataset.id))); toast('Guardado'); ruta(); });
+  el.querySelectorAll('[data-pagf]').forEach(b=>b.onclick=()=>{ const f=fs.find(x=>x.id===Number(b.dataset.pagf)); modal('Registrar pago de '+f.concepto, `<label>Monto pagado</label><input id="pfm" type="number" min="1" value="${Number(f.monto_mensual)}"><label>Fecha</label><input id="pff" type="date" value="${hoy()}">`,
+    [['Guardar', async()=>{ const monto=Number($('#pfm').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('gastos').insert({fecha:$('#pff').value, categoria:f.categoria||'Otros', descripcion:f.concepto, monto})); dlg.close(); toast('Pago anotado en Gastos'); ruta(); },'pri']]); });
   $('#nf').onclick=async()=>{ const n=prompt('Concepto (ej. Alquiler depósito)'); if(!n||!n.trim()) return; const v=Number(prompt('Monto por mes')||0); await q(sb.from('gastos_fijos').insert({concepto:n.trim(), monto_mensual:v})); ruta(); };
 };
 sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_IN' && !usuario) iniciar(); });

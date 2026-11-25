@@ -82,7 +82,9 @@ const fdate = s => s ? new Date(s+'T12:00').toLocaleDateString('es-AR',{weekday:
 const semanaDe = s => { const a=cache.config?.lunes_semana_a; if(!a) return null; const d=(new Date(lunesDe(s)+'T12:00')-new Date(a+'T12:00'))/864e5/7; return ((Math.round(d)%2)+2)%2===0?'A':'B'; };
 const lunesDe = s => { const d=new Date(s+'T12:00'); const k=(d.getDay()+6)%7; d.setDate(d.getDate()-k); return iso(d); };
 const sumar = (s,n) => { const d=new Date(s+'T12:00'); d.setDate(d.getDate()+n); return iso(d); };
-const unidad = u => u==='kg'?'kg':u;
+const unidad = u => u==='kg'?'u.':u;
+const kgTxt = i => { const k = i.peso_real ?? i.kilos_estimados; return k!=null ? (i.peso_real!=null?'':'≈')+num(Number(k))+' kg' : ''; };
+const piezaTxt = p => p.unidad==='kg'&&p.peso_aprox_kg ? ` · ≈${num(Number(p.peso_aprox_kg))} kg ≈${money(p.precio*p.peso_aprox_kg)} c/u` : '';
 function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2600);}
 async function q(p){const {data,error}=await p; if(error){toast('Error: '+error.message); throw error;} return data;}
 function modal(title, body, actions){ $('#dlgT').textContent=title; $('#dlgB').innerHTML=body; const f=$('#dlgF'); f.innerHTML=''; (actions||[]).forEach(([t,fn,cls])=>{const b=document.createElement('button');b.className='btn '+(cls||'');b.textContent=t;b.onclick=fn;f.appendChild(b);}); dlg.showModal(); }
@@ -244,16 +246,17 @@ let semanaPed = null;
 async function resumenSemana(m, peds){
   if(!peds.length) return;
   const ids=peds.map(p=>p.id);
-  const [its, st] = await Promise.all([q(sb.from('pedido_items').select('producto_id,cantidad,pedido_id').in('pedido_id',ids)), q(sb.from('v_stock').select('*'))]);
-  const tot={}; its.forEach(i=>tot[i.producto_id]=(tot[i.producto_id]||0)+Number(i.cantidad));
+  const [its, st] = await Promise.all([q(sb.from('pedido_items').select('producto_id,cantidad,kilos_estimados,pedido_id').in('pedido_id',ids)), q(sb.from('v_stock').select('*'))]);
+  const tot={}, kg={}; its.forEach(i=>{ tot[i.producto_id]=(tot[i.producto_id]||0)+Number(i.cantidad); kg[i.producto_id]=(kg[i.producto_id]||0)+Number(i.kilos_estimados||0); });
+  const kgDe = (p,c) => p?.unidad==='kg'&&p?.peso_aprox_kg ? ` (≈${num(Math.round(c*p.peso_aprox_kg*10)/10)} kg)` : '';
   const filas=Object.entries(tot).map(([pid,c])=>{ pid=Number(pid); const p=prod(pid), s=st.find(x=>x.producto_id===pid); const hay=Number(s?.fisico||0); const otros=Math.max(0,Number(s?.comprometido||0)-c); const falta=Math.max(0, c+otros-hay); return {pid, p, c, hay, falta}; }).sort((a,b)=>(a.p?.orden??999)-(b.p?.orden??999));
   const provDe = pid => cache.proveedores.filter(pv=>pv.producto_proveedor.some(x=>x.producto_id===pid));
   const porProv={}; filas.filter(f=>f.falta>0).forEach(f=>{ const pv=provDe(f.pid); const k=pv.length===1?pv[0].nombre:(pv.length?pv.map(x=>x.nombre).join(' o '):'Sin proveedor asignado'); (porProv[k]=porProv[k]||[]).push(f); });
-  const txt = (k,fs) => `Hola! Te paso el pedido de Granja Los Abrojos para esta semana:\n${fs.map(f=>`- ${f.p?.nombre}: ${num(Math.ceil(f.falta*10)/10)} ${unidad(f.p?.unidad)}`).join('\n')}\nGracias!`;
+  const txt = (k,fs) => `Hola! Te paso el pedido de Granja Los Abrojos para esta semana:\n${fs.map(f=>`- ${f.p?.nombre}: ${num(Math.ceil(f.falta))} ${unidad(f.p?.unidad)}${kgDe(f.p,Math.ceil(f.falta))}`).join('\n')}\nGracias!`;
   m.querySelector('#resSem')?.remove(); if(!m.querySelector('.list')) return;
   m.querySelector('.list').insertAdjacentHTML('beforebegin', `<div class="card" id="resSem" style="margin-bottom:14px"><h3 style="margin-top:0">Total de la semana por producto</h3>
-   <div class="scroll"><table><tr><th>Producto</th><th class="n">Pedido esta semana</th><th class="n">Tenés</th><th class="n">Falta encargar</th></tr>${filas.map(f=>`<tr><td>${esc(f.p?.nombre)}</td><td class="n">${num(f.c)} ${unidad(f.p?.unidad)}</td><td class="n">${num(f.hay)}</td><td class="n" style="${f.falta>0?'color:var(--bad);font-weight:600':''}">${f.falta>0?num(Math.ceil(f.falta*10)/10)+' '+unidad(f.p?.unidad):'✓'}</td></tr>`).join('')}</table></div>
-   ${Object.keys(porProv).length?`<h3>Qué encargar a cada proveedor</h3>${Object.entries(porProv).map(([k,fs],i)=>`<div class="item" style="margin-bottom:8px"><div class="row"><b class="sp">${esc(k)}</b><button class="btn sm" data-copiar="${i}">Copiar mensaje</button></div><div class="muted">${fs.map(f=>`${esc(f.p?.nombre)}: ${num(Math.ceil(f.falta*10)/10)} ${unidad(f.p?.unidad)}`).join(' · ')}</div></div>`).join('')}<p class="muted">“Copiar mensaje” arma el texto del pedido para pegarlo en el WhatsApp del proveedor. Si un producto lo tienen varios proveedores, elegí a quién se lo pedís.</p>`:'<p class="muted">Con lo que tenés alcanza para todos los pedidos de la semana. 👌</p>'}</div>`);
+   <div class="scroll"><table><tr><th>Producto</th><th class="n">Pedido esta semana</th><th class="n">Tenés</th><th class="n">Falta encargar</th></tr>${filas.map(f=>`<tr><td>${esc(f.p?.nombre)}</td><td class="n">${num(f.c)} ${unidad(f.p?.unidad)}<div class="muted" style="font-size:12px">${kgDe(f.p,f.c)}</div></td><td class="n">${num(f.hay)}</td><td class="n" style="${f.falta>0?'color:var(--bad);font-weight:600':''}">${f.falta>0?num(Math.ceil(f.falta))+' '+unidad(f.p?.unidad):'✓'}</td></tr>`).join('')}</table></div>
+   ${Object.keys(porProv).length?`<h3>Qué encargar a cada proveedor</h3>${Object.entries(porProv).map(([k,fs],i)=>`<div class="item" style="margin-bottom:8px"><div class="row"><b class="sp">${esc(k)}</b><button class="btn sm" data-copiar="${i}">Copiar mensaje</button></div><div class="muted">${fs.map(f=>`${esc(f.p?.nombre)}: ${num(Math.ceil(f.falta))} ${unidad(f.p?.unidad)}`).join(' · ')}</div></div>`).join('')}<p class="muted">“Copiar mensaje” arma el texto del pedido para pegarlo en el WhatsApp del proveedor. Si un producto lo tienen varios proveedores, elegí a quién se lo pedís.</p>`:'<p class="muted">Con lo que tenés alcanza para todos los pedidos de la semana. 👌</p>'}</div>`);
   const entradas=Object.entries(porProv);
   m.querySelectorAll('[data-copiar]').forEach(b=>b.onclick=async()=>{ const [k,fs]=entradas[Number(b.dataset.copiar)]; try{ await navigator.clipboard.writeText(txt(k,fs)); toast('Mensaje copiado: pegalo en el WhatsApp de '+k); }catch(_){ modal('Pedido para '+k, `<textarea style="width:100%;height:160px">${esc(txt(k,fs))}</textarea>`, []); } });
 }
@@ -282,8 +285,8 @@ VISTAS.pedidos = async m => {
   m.querySelectorAll('.item').forEach(el=>el.onclick=()=>verPedido(Number(el.dataset.id)));
 };
 
-function opcionesProductos(sel){ let cat=''; return cache.productos.filter(p=>p.activo).map(p=>{let s=''; if(p.categoria!==cat){ if(cat) s+='</optgroup>'; cat=p.categoria; s+=`<optgroup label="${esc(cat)}">`;} return s+`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.nombre)} (${money(p.precio)}/${unidad(p.unidad)})</option>`;}).join('')+'</optgroup>'; }
-function filaItem(it={}){ return `<div class="it"><select class="ip">${opcionesProductos(it.producto_id)}</select><input class="ic" type="number" step="0.1" min="0" placeholder="Cant." value="${it.cantidad??''}"><button class="btn sm" type="button" onclick="this.parentNode.remove()">✕</button></div>`; }
+function opcionesProductos(sel){ let cat=''; return cache.productos.filter(p=>p.activo).map(p=>{let s=''; if(p.categoria!==cat){ if(cat) s+='</optgroup>'; cat=p.categoria; s+=`<optgroup label="${esc(cat)}">`;} return s+`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.nombre)} (${money(p.precio)}/${p.unidad==='kg'?'kg':esc(p.unidad)}${piezaTxt(p)})</option>`;}).join('')+'</optgroup>'; }
+function filaItem(it={}){ return `<div class="it"><select class="ip">${opcionesProductos(it.producto_id)}</select><input class="ic" type="number" step="1" min="0" placeholder="Unid." value="${it.cantidad??''}"><button class="btn sm" type="button" onclick="this.parentNode.remove()">✕</button></div>`; }
 
 async function formPedido(ped){
   await cargarBase();
@@ -292,7 +295,7 @@ async function formPedido(ped){
     <label>Cliente</label><input id="fcli" list="dlcli" placeholder="Escribí el nombre" value="${esc(ped?cache.clientes.find(c=>c.id===ped.cliente_id)?.nombre:'')}">
     <datalist id="dlcli">${cache.clientes.filter(c=>c.activo).map(c=>`<option value="${esc(c.nombre)}">${esc(c.barrios?.nombre||'')}</option>`).join('')}</datalist>
     <label>Fecha de entrega</label><input id="ffec" type="date" value="${ped?.fecha_entrega||''}"><div class="muted" id="fsug"></div>
-    <label>Productos (cantidad en kg, o maples para huevos)</label><div class="items" id="fits">${(items.length?items:[{}]).map(filaItem).join('')}</div>
+    <label>Productos (en unidades: 1 lomo, 2 pollos, 1 maple de huevos)</label><p class="muted" style="margin:0">El precio final sale de los kilos reales que cargás al armar el pedido.</p><div class="items" id="fits">${(items.length?items:[{}]).map(filaItem).join('')}</div>
     <button class="btn sm" type="button" id="fadd">+ Agregar producto</button>
     <label>Notas</label><textarea id="fnot" rows="2">${esc(ped?.notas||'')}</textarea>
     <p class="muted" id="ferr" style="color:var(--bad)"></p>`,
@@ -321,7 +324,7 @@ async function verPedido(id){
   const [p] = await q(sb.from('v_pedidos').select('*').eq('id',id));
   const its = await q(sb.from('pedido_items').select('*').eq('pedido_id',id));
   modal('Pedido de '+p.cliente, `<p class="muted">${p.fecha_entrega?fdate(p.fecha_entrega):'Sin fecha'} · ${esc(p.barrio||'')} · ${tagEstado(p.estado)}</p>
-  <table><tr><th>Producto</th><th class="n">Pedido</th><th class="n">Peso real</th><th class="n">Importe</th></tr>${its.map(i=>`<tr><td>${esc(prod(i.producto_id)?.nombre)}</td><td class="n">${num(i.cantidad)}</td><td class="n">${i.peso_real?num(i.peso_real,3):'—'}</td><td class="n">${money(i.importe)}</td></tr>`).join('')}
+  <table><tr><th>Producto</th><th class="n">Unidades</th><th class="n">Kilos</th><th class="n">Importe</th></tr>${its.map(i=>`<tr><td>${esc(prod(i.producto_id)?.nombre)}</td><td class="n">${num(i.cantidad)} ${unidad(prod(i.producto_id)?.unidad)}</td><td class="n">${kgTxt(i)||'—'}</td><td class="n">${i.peso_real==null&&i.kilos_estimados!=null?'≈':''}${money(i.importe)}</td></tr>`).join('')}
   <tr><td colspan="3"><b>Total</b></td><td class="n"><b>${money(p.total)}</b></td></tr></table>
   ${p.notas?`<p>${esc(p.notas)}</p>`:''}
   <label>Cambiar estado</label><select id="vest">${['pendiente','confirmado','armado','entregado','cancelado'].map(e=>`<option ${e===p.estado?'selected':''}>${e}</option>`).join('')}</select>`,
@@ -338,13 +341,13 @@ VISTAS.reparto = async m => {
   const its = peds.length ? await q(sb.from('pedido_items').select('*').in('pedido_id',peds.map(p=>p.id))) : [];
   m.innerHTML = `<div class="row"><h2 class="sp">Hoja de reparto</h2><button class="btn sm" id="xls">Descargar Excel</button></div>
   <div class="row" style="margin-bottom:6px"><input type="date" id="frep" value="${fechaRep}" style="width:auto"><span class="muted">${sem?'Semana '+sem+' · ':''}${zonas.length?zonas.map(z=>esc(z.nombre)).join(', '):'sin zona asignada ese día'}</span></div>
-  <p class="muted">${peds.length} pedidos · ${money(peds.reduce((a,p)=>a+Number(p.total),0))}. Cargá el peso real al armar y marcá cada entrega.</p>
+  <p class="muted">${peds.length} pedidos · ${money(peds.reduce((a,p)=>a+Number(p.total),0))}. Al armar cada pedido, pesá las piezas y cargá los <b>kilos reales</b>: el importe se calcula solo con el precio por kilo. Mientras no los cargues, el importe es aproximado (≈).</p>
   <div class="list">${peds.length ? peds.map(p=>`<div class="item"><div class="row"><b class="sp">${esc(p.cliente)}</b>${tagEstado(p.estado)}</div>
    <div class="muted">${esc(p.barrio||'')}${(()=>{const c=cache.clientes.find(x=>x.id===p.cliente_id);return c?.lote?' · lote '+esc(c.lote):''})()}${p.telefono?' · '+esc(p.telefono):''}</div>
-   <table style="margin-top:8px"><tr><th>Producto</th><th class="n">Pedido</th><th class="n">Peso real</th></tr>${its.filter(i=>i.pedido_id===p.id).map(i=>`<tr><td>${esc(prod(i.producto_id)?.nombre)}</td><td class="n">${num(i.cantidad)} ${unidad(prod(i.producto_id)?.unidad)}</td><td class="n"><input class="pr" data-id="${i.id}" type="number" step="0.001" min="0" value="${i.peso_real??''}" style="width:90px;text-align:right"></td></tr>`).join('')}</table>
+   <table style="margin-top:8px"><tr><th>Producto</th><th class="n">Unidades</th><th class="n">Kilos reales</th><th class="n">Importe</th></tr>${its.filter(i=>i.pedido_id===p.id).map(i=>{const pr=prod(i.producto_id); const porKg=pr?.unidad==='kg'; return `<tr><td>${esc(pr?.nombre)}<div class="muted" style="font-size:12px">${porKg?money(i.precio_unitario)+'/kg':money(i.precio_unitario)+' c/u'}</div></td><td class="n">${num(i.cantidad)} ${unidad(pr?.unidad)}</td><td class="n">${porKg?`<input class="pr" data-id="${i.id}" type="number" step="0.01" min="0" value="${i.peso_real??''}" placeholder="${i.kilos_estimados!=null?'≈'+num(Number(i.kilos_estimados)):''}" style="width:90px;text-align:right">`:'<span class="muted">—</span>'}</td><td class="n">${porKg&&i.peso_real==null?'<span class="muted">≈</span>':''}${money(i.importe)}</td></tr>`;}).join('')}</table>
    <div class="row" style="margin-top:8px"><b class="sp">${money(p.total)}</b>${p.estado!=='armado'&&p.estado!=='entregado'?`<button class="btn sm" data-arm="${p.id}">Armado</button>`:''}${p.estado!=='entregado'?`<button class="btn sm pri" data-ent="${p.id}" data-medio="efectivo">Entregado · pagó efectivo</button><button class="btn sm pri" data-ent="${p.id}" data-medio="transferencia">Entregado · transfiere</button><button class="btn sm" data-ent="${p.id}" data-medio="">Entregado · paga después</button>`:''}</div></div>`).join('') : '<div class="empty">No hay pedidos para ese día.</div>'}</div>`;
   $('#frep').onchange=e=>{fechaRep=e.target.value;ruta();};
-  m.querySelectorAll('.pr').forEach(inp=>inp.onchange=async()=>{ await q(sb.from('pedido_items').update({peso_real:inp.value?Number(inp.value):null}).eq('id',Number(inp.dataset.id))); toast('Peso guardado'); });
+  m.querySelectorAll('.pr').forEach(inp=>inp.onchange=async()=>{ await q(sb.from('pedido_items').update({peso_real:inp.value?Number(inp.value):null}).eq('id',Number(inp.dataset.id))); toast('Kilos guardados: importe actualizado'); ruta(); });
   m.querySelectorAll('[data-arm]').forEach(b=>b.onclick=async()=>{ await q(sb.from('pedidos').update({estado:'armado'}).eq('id',Number(b.dataset.arm))); ruta(); });
   m.querySelectorAll('[data-ent]').forEach(b=>b.onclick=async()=>{ const id=Number(b.dataset.ent), medio=b.dataset.medio;
     await q(sb.from('pedidos').update({estado:'entregado'}).eq('id',id));
@@ -380,27 +383,27 @@ VISTAS.stock = async m => {
 
 /* ---------- Foto de boleta → compra ---------- */
 async function achicarFoto(f){ const img=await createImageBitmap(f); const k=Math.min(1,1800/Math.max(img.width,img.height)); const c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k); c.getContext('2d').drawImage(img,0,0,c.width,c.height); return await new Promise(r=>c.toBlob(r,'image/jpeg',0.85)); }
-function filaBoleta(it={}){ return `<div class="it row" style="gap:6px;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap"><div style="flex:2;min-width:180px"><select class="bp"><option value="">— Elegí el producto —</option>${[...cache.productos].sort((a,b)=>(a.orden??999)-(b.orden??999)).map(p=>`<option value="${p.id}" ${p.id===it.producto_id?'selected':''}>${esc(p.nombre)}</option>`).join('')}</select>${it.texto?`<div class="muted" style="font-size:12px">En la boleta: “${esc(it.texto)}”</div>`:''}</div><input class="bc" type="number" step="0.001" min="0" placeholder="Kilos / unid." value="${it.cantidad??''}" style="width:100px"><input class="bu" type="number" step="1" min="0" placeholder="Costo x kg" value="${it.precio_unitario??''}" style="width:110px"><button class="btn sm" type="button" onclick="this.parentElement.remove()" title="Quitar">✕</button></div>`; }
+function filaBoleta(it={}){ return `<div class="it row" style="gap:6px;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap"><div style="flex:2;min-width:180px"><select class="bp"><option value="">— Elegí el producto —</option>${[...cache.productos].sort((a,b)=>(a.orden??999)-(b.orden??999)).map(p=>`<option value="${p.id}" ${p.id===it.producto_id?'selected':''}>${esc(p.nombre)}</option>`).join('')}</select>${it.texto?`<div class="muted" style="font-size:12px">En la boleta: “${esc(it.texto)}”</div>`:''}</div><input class="bc" type="number" step="1" min="0" placeholder="Unidades" title="Unidades (piezas, bolsas, maples)" value="${it.unidades??''}" style="width:85px"><input class="bk" type="number" step="0.01" min="0" placeholder="Kilos" title="Kilos" value="${it.kilos??''}" style="width:85px"><input class="bu" type="number" step="1" min="0" placeholder="Costo x kg" value="${it.precio_unitario??''}" style="width:110px"><button class="btn sm" type="button" onclick="this.parentElement.remove()" title="Quitar">✕</button></div>`; }
 async function revisarBoleta(path, L, aviso){
   await cargarBase();
   const {data:u}=await sb.storage.from('comprobantes').createSignedUrl(path, 3600);
-  const sumaItems = (L.items||[]).reduce((a,i)=>a+(Number(i.importe)||(Number(i.cantidad)*Number(i.precio_unitario))||0),0);
+  const sumaItems = (L.items||[]).reduce((a,i)=>a+(Number(i.importe)||(Number(i.kilos??i.unidades)*Number(i.precio_unitario))||0),0);
   modal('Revisá la boleta', `${aviso?`<p style="color:var(--bad)">${esc(aviso)}</p>`:'<p class="muted">Esto es lo que se leyó. Revisalo, corregí lo que haga falta y confirmá.</p>'}
     ${u?.signedUrl?`<a href="${u.signedUrl}" target="_blank" rel="noopener"><img src="${u.signedUrl}" style="max-width:100%;max-height:220px;border-radius:8px;display:block;margin:6px 0"></a>`:''}
     ${L.dudas?`<p class="muted" style="background:#FBF3E4;padding:8px;border-radius:8px">⚠️ ${esc(L.dudas)}</p>`:''}
     <label>Proveedor</label><select id="bpv"><option value="">— Elegí —</option>${cache.proveedores.map(p=>`<option value="${p.id}" ${p.id===L.proveedor_id?'selected':''}>${esc(p.nombre)}</option>`).join('')}</select>${L.proveedor_texto&&!L.proveedor_id?`<div class="muted" style="font-size:12px">En la boleta dice: “${esc(L.proveedor_texto)}”</div>`:''}
     <div class="row" style="gap:8px"><div style="flex:1"><label>Fecha</label><input id="bfe" type="date" value="${L.fecha||hoy()}"></div><div style="flex:1"><label>Número</label><input id="bnu" value="${esc(L.numero||'')}"></div><div style="flex:1"><label>Vence</label><input id="bve" type="date" value="${L.vence||''}"></div></div>
-    <label>Qué entró</label><div id="bits">${(L.items&&L.items.length?L.items:[{}]).map(filaBoleta).join('')}</div><button class="btn sm" type="button" id="badd">+ Agregar renglón</button>
+    <label>Qué entró</label><p class="muted" style="margin:0 0 6px">Unidades = piezas, bolsas o maples (es lo que suma al stock). Kilos y costo por kilo = lo que dice la boleta.</p><div id="bits">${(L.items&&L.items.length?L.items:[{}]).map(filaBoleta).join('')}</div><button class="btn sm" type="button" id="badd">+ Agregar renglón</button>
     <label>Total de la boleta</label><input id="bto" type="number" step="1" min="0" value="${L.total??(sumaItems?Math.round(sumaItems):'')}">
     <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="bpg" style="width:auto"> Ya la pagué</label>
     <div id="bpgx" style="display:none"><label>Cómo</label><select id="bmd"><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option></select></div>`,
     [['Confirmar compra', async()=>{
       const prov=$('#bpv').value?Number($('#bpv').value):null; if(!prov) return toast('Elegí el proveedor');
-      const filas=[...document.querySelectorAll('#bits .it')].map(r=>({producto_id:Number(r.querySelector('.bp').value)||null, cantidad:Number(r.querySelector('.bc').value)||0, costo_unitario:Number(r.querySelector('.bu').value)||null})).filter(i=>i.cantidad>0||i.producto_id);
+      const filas=[...document.querySelectorAll('#bits .it')].map(r=>({producto_id:Number(r.querySelector('.bp').value)||null, cantidad:Number(r.querySelector('.bc').value)||0, kilos:Number(r.querySelector('.bk').value)||null, costo_unitario:Number(r.querySelector('.bu').value)||null})).filter(i=>i.cantidad>0||i.producto_id);
       if(!filas.length) return toast('Agregá al menos un producto');
       if(filas.some(i=>!i.producto_id)) return toast('Hay un renglón sin producto elegido: elegilo o quitalo con ✕');
-      if(filas.some(i=>!(i.cantidad>0))) return toast('Hay un renglón sin cantidad');
-      const total=Number($('#bto').value)||filas.reduce((a,i)=>a+i.cantidad*(i.costo_unitario||0),0)||null;
+      if(filas.some(i=>!(i.cantidad>0))) return toast('Poné cuántas unidades (piezas, bolsas o maples) entraron de cada producto');
+      const total=Number($('#bto').value)||filas.reduce((a,i)=>a+(i.kilos??i.cantidad)*(i.costo_unitario||0),0)||null;
       const fecha=$('#bfe').value||hoy(), pagada=$('#bpg').checked;
       const c=await q(sb.from('compras').insert({proveedor_id:prov, fecha, total, comprobante_url:path, notas:$('#bnu').value?('Boleta '+$('#bnu').value):null}).select('id').single());
       await q(sb.from('compra_items').insert(filas.map(i=>({...i, compra_id:c.id}))));
@@ -433,7 +436,7 @@ VISTAS.compras = async m => {
     b.disabled=false; b.textContent='📷 Subir foto de la boleta'; };
   $('#nueva').onclick=()=>{ modal('Registrar compra', `<label>Proveedor</label><select id="cp"><option value="">—</option>${cache.proveedores.map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('')}</select>
     <label>Fecha</label><input id="cf" type="date" value="${hoy()}">
-    <label>Productos y kilos que entraron</label><div class="items" id="cits">${filaItem()}</div><button class="btn sm" type="button" id="cadd">+ Agregar producto</button>
+    <label>Productos que entraron (en unidades: piezas, bolsas, maples)</label><div class="items" id="cits">${filaItem()}</div><button class="btn sm" type="button" id="cadd">+ Agregar producto</button>
     <label>Total pagado (opcional)</label><input id="ct" type="number" step="1" min="0">`,
     [['Guardar', async()=>{ const its=[...document.querySelectorAll('#cits .it')].map(r=>({producto_id:Number(r.querySelector('.ip').value), cantidad:Number(r.querySelector('.ic').value)})).filter(i=>i.cantidad>0); if(!its.length) return toast('Agregá al menos un producto');
       const c = await q(sb.from('compras').insert({proveedor_id:$('#cp').value?Number($('#cp').value):null, fecha:$('#cf').value, total:$('#ct').value?Number($('#ct').value):null}).select('id').single());
@@ -442,6 +445,11 @@ VISTAS.compras = async m => {
 };
 
 /* ---------- Cobros ---------- */
+function detalleTexto(s, peds, its){
+  const lineas = peds.slice(0,3).reverse().map(p=>`Entrega del ${fdate(p.fecha_entrega)}:\n`+its.filter(i=>i.pedido_id===p.id).map(i=>{const pr=prod(i.producto_id); const k=i.peso_real??i.kilos_estimados; return `- ${num(i.cantidad)} ${pr?.nombre}${pr?.unidad==='kg'&&k!=null?` (${num(Number(k))} kg x ${money(i.precio_unitario)})`:''}: ${money(i.importe)}`;}).join('\n')+`\nTotal: ${money(p.total)}`).join('\n\n');
+  return `Hola ${s.nombre.split(' ')[0]}! Te paso el detalle de Granja Los Abrojos:\n\n${lineas}\n\nSaldo pendiente: ${money(s.saldo)}. ¡Gracias!`;
+}
+
 VISTAS.cobros = async m => {
   const [saldos, pagos] = await Promise.all([q(sb.from('v_saldos').select('*').gt('saldo',0).order('saldo',{ascending:false})), q(sb.from('pagos').select('*, clientes(nombre)').order('fecha',{ascending:false}).limit(30))]);
   const total = saldos.reduce((a,s)=>a+Number(s.saldo),0);
@@ -449,9 +457,17 @@ VISTAS.cobros = async m => {
   m.innerHTML = `<div class="row"><h2 class="sp">Cobros</h2><button class="btn" id="pago">Otro pago</button><button class="btn sm" id="xls">Descargar Excel</button></div>
   <div class="grid"><div class="card metric"><div class="lbl">Total por cobrar</div><div class="val">${money(total)}</div></div><div class="card metric"><div class="lbl">Clientes que deben</div><div class="val">${saldos.length}</div></div></div>
   <h3>Quién debe</h3>
-  ${saldos.length?`<div class="scroll"><table><tr><th>Cliente</th><th>Barrio</th><th class="n">Debe</th><th>Desde</th><th></th></tr>${saldos.map(s=>`<tr><td>${esc(s.nombre)}</td><td>${esc(s.barrio||'')}</td><td class="n"><b>${money(s.saldo)}</b></td><td class="muted">${fdate(s.primera_entrega_impaga)}</td><td><div class="row" style="flex-wrap:nowrap"><button class="btn sm pri" data-cobra="${s.cliente_id}" data-medio="transferencia">Pagó transferencia</button><button class="btn sm pri" data-cobra="${s.cliente_id}" data-medio="efectivo">Pagó efectivo</button>${wa(s)?`<a class="btn sm" target="_blank" rel="noopener" href="${wa(s)}">Recordar</a>`:''}</div></td></tr>`).join('')}</table></div>`:'<p class="muted">Nadie te debe. 👌</p>'}
+  ${saldos.length?`<div class="scroll"><table><tr><th>Cliente</th><th>Barrio</th><th class="n">Debe</th><th>Desde</th><th></th></tr>${saldos.map(s=>`<tr><td>${esc(s.nombre)}</td><td>${esc(s.barrio||'')}</td><td class="n"><b>${money(s.saldo)}</b></td><td class="muted">${fdate(s.primera_entrega_impaga)}</td><td><div class="row" style="flex-wrap:nowrap"><button class="btn sm" data-det="${s.cliente_id}">Ver detalle</button><button class="btn sm pri" data-cobra="${s.cliente_id}" data-medio="transferencia">Pagó transferencia</button><button class="btn sm pri" data-cobra="${s.cliente_id}" data-medio="efectivo">Pagó efectivo</button>${wa(s)?`<a class="btn sm" target="_blank" rel="noopener" href="${wa(s)}">Recordar</a>`:''}</div></td></tr>`).join('')}</table></div>`:'<p class="muted">Nadie te debe. 👌</p>'}
   <h3>Últimos pagos</h3>
   ${pagos.length?`<table><tr><th>Fecha</th><th>Cliente</th><th>Medio</th><th class="n">Monto</th><th></th></tr>${pagos.map(p=>`<tr><td>${fdate(p.fecha)}</td><td>${esc(p.clientes?.nombre)}</td><td>${esc(p.medio)}</td><td class="n">${money(p.monto)}</td><td><button class="btn sm danger" data-delpago="${p.id}">Borrar</button></td></tr>`).join('')}</table>`:'<p class="muted">Todavía no hay pagos registrados.</p>'}`;
+  m.querySelectorAll('[data-det]').forEach(b=>b.onclick=async()=>{ const s=saldos.find(x=>x.cliente_id===Number(b.dataset.det));
+    const peds=await q(sb.from('v_pedidos').select('*').eq('cliente_id',s.cliente_id).eq('estado','entregado').order('fecha_entrega',{ascending:false}).limit(8));
+    const its=peds.length?await q(sb.from('pedido_items').select('*').in('pedido_id',peds.map(p=>p.id))):[];
+    const pgs=await q(sb.from('pagos').select('*').eq('cliente_id',s.cliente_id).order('fecha',{ascending:false}).limit(8));
+    const txt=detalleTexto(s, peds, its);
+    modal(`${s.nombre} · debe ${money(s.saldo)}`, `${peds.map(p=>`<h3 style="margin:12px 0 4px">Entrega del ${fdate(p.fecha_entrega)} · ${money(p.total)}</h3><table><tr><th>Producto</th><th class="n">Unid.</th><th class="n">Kilos</th><th class="n">Precio</th><th class="n">Importe</th></tr>${its.filter(i=>i.pedido_id===p.id).map(i=>{const pr=prod(i.producto_id); return `<tr><td>${esc(pr?.nombre)}</td><td class="n">${num(i.cantidad)}</td><td class="n">${kgTxt(i)||'—'}</td><td class="n">${money(i.precio_unitario)}${pr?.unidad==='kg'?'/kg':''}</td><td class="n">${money(i.importe)}</td></tr>`;}).join('')}</table>`).join('')||'<p class="muted">Sin entregas.</p>'}
+      ${pgs.length?`<h3 style="margin:14px 0 4px">Pagos</h3><table>${pgs.map(x=>`<tr><td>${fdate(x.fecha)}</td><td>${esc(x.medio)}</td><td class="n">${money(x.monto)}</td></tr>`).join('')}</table>`:''}`,
+      [['Copiar detalle para mandarle', async()=>{ try{ await navigator.clipboard.writeText(txt); toast('Detalle copiado: pegalo en su WhatsApp'); }catch(_){ toast('No se pudo copiar'); } }]]); });
   m.querySelectorAll('[data-cobra]').forEach(b=>b.onclick=()=>{ const s=saldos.find(x=>x.cliente_id===Number(b.dataset.cobra)); const medio=b.dataset.medio;
     modal(`${s.nombre} pagó por ${medio}`, `<label>Monto</label><input id="cqm" type="number" min="1" step="1" value="${Math.round(Number(s.saldo))}"><p class="muted">Debe ${money(s.saldo)}. Si pagó una parte, cambiá el monto.</p><label>Fecha</label><input id="cqf" type="date" value="${hoy()}">`,
       [['Confirmar', async()=>{ const monto=Number($('#cqm').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('pagos').insert({cliente_id:s.cliente_id, monto, medio, fecha:$('#cqf').value})); dlg.close(); toast(`Pago por ${medio} registrado`); ruta(); },'pri']]); });

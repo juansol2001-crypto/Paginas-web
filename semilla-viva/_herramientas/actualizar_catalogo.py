@@ -20,13 +20,25 @@ from pathlib import Path
 TIENDA = "https://minorista.semillaviva.com.ar"
 INDEX = Path(__file__).resolve().parent.parent / "index.html"
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh) catalogo-semilla-viva"}
-CATEGORIAS = [  # (slug en la tienda, clave en la web), en orden de prioridad
-    ("infusiones", "yerbas"), ("dulces", "mieles"), ("harinas-y-semillas", "harinas"),
-    ("aceites", "aceites"), ("snacks-y-galletitas", "snacks"), ("bebidas", "bebidas"),
-    ("gourmet", "gourmet"), ("azucar-y-edulcorantes", "endulzantes"),
-    ("sales-y-especias", "especias"), ("suplementos-superalimentos-y-mas1", "suplementos"),
+CATEGORIAS = [  # (slug en la tienda, clave en la web, nombre en la tienda), en orden de prioridad
+    ("infusiones", "yerbas", "Yerbas e infusiones naturales"), ("dulces", "mieles", "Mieles y dulces"),
+    ("harinas-y-semillas", "harinas", "Harinas y cereales"), ("aceites", "aceites", "Aceites, acetos y vinagres"),
+    ("snacks-y-galletitas", "snacks", "Snacks y funcionales"), ("bebidas", "bebidas", "Kombucha y bebidas"),
+    ("gourmet", "gourmet", "Gourmet y conservas"), ("azucar-y-edulcorantes", "endulzantes", "Azúcar y edulcorantes"),
+    ("sales-y-especias", "especias", "Sales y especias"),
+    ("suplementos-superalimentos-y-mas1", "suplementos", "Suplementos, superalimentos y más"),
 ]
-ETIQUETAS = [("o", "organicos"), ("g", "singluten"), ("v", "veganos")]
+SUBCATEGORIAS = [  # (ruta en la tienda, clave, nombre, categoría)
+    ("infusiones/yerba-mate", "yerba-mate", "Selección especial de yerbas", "yerbas"),
+    ("infusiones/cafe", "leon-de-poncho", "Infusiones León de Poncho", "yerbas"),
+    ("dulces/miel", "miel", "Mieles orgánicas, crudas y puras", "mieles"),
+    ("dulces/mantequilla-de-mani", "mani", "Mantequilla de maní", "mieles"),
+    ("dulces/mermeladas", "mermeladas", "Mermeladas", "mieles"),
+    ("dulces/dulce-de-leche", "dulce-de-leche", "Dulce de leche", "mieles"),
+    ("bebidas/jugos-naturales", "jugos", "Jugos naturales", "bebidas"),
+    ("bebidas/vino", "vinos", "Vinos", "bebidas"),
+]
+ETIQUETAS = [("o", "organicos"), ("g", "singluten"), ("v", "veganos"), ("f", "ofertas")]
 
 
 def bajar(url):
@@ -90,18 +102,24 @@ def main():
     if len(todos) < 100:
         sys.exit(f"Solo encontré {len(todos)} productos; no toco la web.")
     en_cat = {}
-    for slug, _ in CATEGORIAS + [(c, None) for _, c in ETIQUETAS]:
+    for slug in [c[0] for c in CATEGORIAS] + [c for _, c in ETIQUETAS] + [c[0] for c in SUBCATEGORIAS]:
         for pag in paginas(f"{TIENDA}/{slug}/"):
             for i in ids(pag):
                 en_cat.setdefault(i, set()).add(slug)
+    portada = bajar(f"{TIENDA}/")
+    k = portada.find('data-store="home-products-featured"')
+    destacados = ids(portada[k:portada.find('data-store="home-welcome-message"', k)]) if k > 0 else []
 
     salida = []
     for p in todos.values():
         vs = p["variantes"]
         disp = [x for x in vs if x.get("available")]
-        precios = [x["price_number"] for x in (disp or vs) if x.get("price_number") is not None]
-        if not precios:
+        pool = [x for x in (disp or vs) if x.get("price_number") is not None]
+        if not pool:
             continue
+        barata = min(pool, key=lambda x: x["price_number"])
+        antes = barata.get("compare_at_price_number")
+        antes = round(antes, 2) if antes and antes > barata["price_number"] else None
         stocks = [x.get("stock") for x in vs]
         if not disp:
             stock = 0
@@ -112,16 +130,21 @@ def main():
         cats = en_cat.get(p["id"], set())
         salida.append({
             "i": p["id"], "n": p["nombre"],
-            "c": next((k for s, k in CATEGORIAS if s in cats), "almacen"),
-            "p": round(min(precios), 2), "s": stock, "u": p["slug"], "f": p["foto"],
+            "c": next((k for s, k, _ in CATEGORIAS if s in cats), "almacen"),
+            "sc": next((k for s, k, _, _ in SUBCATEGORIAS if s in cats), ""),
+            "p": round(barata["price_number"], 2), "a": antes, "s": stock, "u": p["slug"], "f": p["foto"],
             "t": "".join(k for k, s in ETIQUETAS if s in cats),
+            "d": destacados.index(p["id"]) + 1 if p["id"] in destacados else 0,
         })
 
     hoy = datetime.now(timezone(timedelta(hours=-3))).strftime("%Y-%m-%d")
     datos = {
         "fuente": "Tienda online de Semilla Viva (Tiendanube)", "actualizado": hoy, "moneda": "ARS",
         "img_base": "https://acdn-us.mitiendanube.com/stores/976/760/products/",
-        "tienda": f"{TIENDA}/productos/", "productos": salida,
+        "tienda": f"{TIENDA}/productos/",
+        "categorias": [[k, n] for _, k, n in CATEGORIAS] + [["almacen", "Almacén"]],
+        "subcategorias": [[k, n, c] for _, k, n, c in SUBCATEGORIAS],
+        "productos": salida,
     }
     bloque = json.dumps(datos, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     web = INDEX.read_text(encoding="utf-8")

@@ -356,12 +356,60 @@ VISTAS.stock = async m => {
 };
 
 /* ---------- Compras ---------- */
+
+/* ---------- Foto de boleta → compra ---------- */
+async function achicarFoto(f){ const img=await createImageBitmap(f); const k=Math.min(1,1800/Math.max(img.width,img.height)); const c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k); c.getContext('2d').drawImage(img,0,0,c.width,c.height); return await new Promise(r=>c.toBlob(r,'image/jpeg',0.85)); }
+function filaBoleta(it={}){ return `<div class="it row" style="gap:6px;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap"><div style="flex:2;min-width:180px"><select class="bp"><option value="">— Elegí el producto —</option>${[...cache.productos].sort((a,b)=>(a.orden??999)-(b.orden??999)).map(p=>`<option value="${p.id}" ${p.id===it.producto_id?'selected':''}>${esc(p.nombre)}</option>`).join('')}</select>${it.texto?`<div class="muted" style="font-size:12px">En la boleta: “${esc(it.texto)}”</div>`:''}</div><input class="bc" type="number" step="0.001" min="0" placeholder="Kilos / unid." value="${it.cantidad??''}" style="width:100px"><input class="bu" type="number" step="1" min="0" placeholder="Costo x kg" value="${it.precio_unitario??''}" style="width:110px"><button class="btn sm" type="button" onclick="this.parentElement.remove()" title="Quitar">✕</button></div>`; }
+async function revisarBoleta(path, L, aviso){
+  await cargarBase();
+  const {data:u}=await sb.storage.from('comprobantes').createSignedUrl(path, 3600);
+  const sumaItems = (L.items||[]).reduce((a,i)=>a+(Number(i.importe)||(Number(i.cantidad)*Number(i.precio_unitario))||0),0);
+  modal('Revisá la boleta', `${aviso?`<p style="color:var(--bad)">${esc(aviso)}</p>`:'<p class="muted">Esto es lo que se leyó. Revisalo, corregí lo que haga falta y confirmá.</p>'}
+    ${u?.signedUrl?`<a href="${u.signedUrl}" target="_blank" rel="noopener"><img src="${u.signedUrl}" style="max-width:100%;max-height:220px;border-radius:8px;display:block;margin:6px 0"></a>`:''}
+    ${L.dudas?`<p class="muted" style="background:#FBF3E4;padding:8px;border-radius:8px">⚠️ ${esc(L.dudas)}</p>`:''}
+    <label>Proveedor</label><select id="bpv"><option value="">— Elegí —</option>${cache.proveedores.map(p=>`<option value="${p.id}" ${p.id===L.proveedor_id?'selected':''}>${esc(p.nombre)}</option>`).join('')}</select>${L.proveedor_texto&&!L.proveedor_id?`<div class="muted" style="font-size:12px">En la boleta dice: “${esc(L.proveedor_texto)}”</div>`:''}
+    <div class="row" style="gap:8px"><div style="flex:1"><label>Fecha</label><input id="bfe" type="date" value="${L.fecha||hoy()}"></div><div style="flex:1"><label>Número</label><input id="bnu" value="${esc(L.numero||'')}"></div><div style="flex:1"><label>Vence</label><input id="bve" type="date" value="${L.vence||''}"></div></div>
+    <label>Qué entró</label><div id="bits">${(L.items&&L.items.length?L.items:[{}]).map(filaBoleta).join('')}</div><button class="btn sm" type="button" id="badd">+ Agregar renglón</button>
+    <label>Total de la boleta</label><input id="bto" type="number" step="1" min="0" value="${L.total??(sumaItems?Math.round(sumaItems):'')}">
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="bpg" style="width:auto"> Ya la pagué</label>
+    <div id="bpgx" style="display:none"><label>Cómo</label><select id="bmd"><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option></select></div>`,
+    [['Confirmar compra', async()=>{
+      const prov=$('#bpv').value?Number($('#bpv').value):null; if(!prov) return toast('Elegí el proveedor');
+      const filas=[...document.querySelectorAll('#bits .it')].map(r=>({producto_id:Number(r.querySelector('.bp').value)||null, cantidad:Number(r.querySelector('.bc').value)||0, costo_unitario:Number(r.querySelector('.bu').value)||null})).filter(i=>i.cantidad>0||i.producto_id);
+      if(!filas.length) return toast('Agregá al menos un producto');
+      if(filas.some(i=>!i.producto_id)) return toast('Hay un renglón sin producto elegido: elegilo o quitalo con ✕');
+      if(filas.some(i=>!(i.cantidad>0))) return toast('Hay un renglón sin cantidad');
+      const total=Number($('#bto').value)||filas.reduce((a,i)=>a+i.cantidad*(i.costo_unitario||0),0)||null;
+      const fecha=$('#bfe').value||hoy(), pagada=$('#bpg').checked;
+      const c=await q(sb.from('compras').insert({proveedor_id:prov, fecha, total, comprobante_url:path, notas:$('#bnu').value?('Boleta '+$('#bnu').value):null}).select('id').single());
+      await q(sb.from('compra_items').insert(filas.map(i=>({...i, compra_id:c.id}))));
+      await q(sb.from('facturas_proveedor').insert({proveedor_id:prov, fecha, numero:$('#bnu').value||null, monto:total||0, vence:$('#bve').value||null, foto_path:path, pagada, fecha_pago:pagada?hoy():null, medio_pago:pagada?$('#bmd').value:null}));
+      const costos=filas.filter(i=>i.costo_unitario>0); if(costos.length) await q(sb.from('producto_proveedor').upsert(costos.map(i=>({producto_id:i.producto_id, proveedor_id:prov, costo:i.costo_unitario})),{onConflict:'producto_id,proveedor_id'}));
+      dlg.close(); cargarBase(true); toast(pagada?'Compra cargada y boleta marcada como pagada':'Compra cargada: sumó al stock y la boleta quedó “a pagar”'); ruta(); },'pri']]);
+  $('#badd').onclick=()=>$('#bits').insertAdjacentHTML('beforeend',filaBoleta());
+  $('#bpg').onchange=()=>$('#bpgx').style.display=$('#bpg').checked?'block':'none';
+}
 VISTAS.compras = async m => {
   const compras = await q(sb.from('compras').select('*, proveedores(nombre), compra_items(cantidad, producto_id)').order('fecha',{ascending:false}).limit(40));
-  m.innerHTML = `<div class="row"><h2 class="sp">Compras a proveedores</h2><button class="btn pri" id="nueva">Registrar compra</button></div>
-  <p class="muted">Cada compra suma al stock automáticamente.</p>
+  m.innerHTML = `<div class="row"><h2 class="sp">Compras a proveedores</h2><button class="btn pri" id="foto">📷 Subir foto de la boleta</button><button class="btn" id="nueva">Cargar a mano</button><input type="file" id="ffoto" accept="image/*" capture="environment" style="display:none"></div>
+  <p class="muted">Sacale una foto a la boleta del proveedor: el sistema la lee y te arma la compra. Vos revisás, confirmás, y queda todo hecho: suma el stock, guarda los costos y deja la boleta en “a pagar” con la foto.</p>
   <div class="list">${compras.length?compras.map(c=>`<div class="item"><div class="row"><b class="sp">${esc(c.proveedores?.nombre||'Sin proveedor')}</b><span class="muted">${fdate(c.fecha)}</span><button class="btn sm danger" data-delcompra="${c.id}">Borrar</button></div><div class="muted">${c.compra_items.map(i=>`${esc(prod(i.producto_id)?.nombre)} ${num(i.cantidad)}`).join(' · ')}</div>${c.total?`<b>${money(c.total)}</b>`:''}</div>`).join(''):'<div class="empty">Todavía no hay compras registradas.</div>'}</div>`;
   m.querySelectorAll('[data-delcompra]').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar esta compra? También se descuenta del stock.')) return; await q(sb.from('compras').delete().eq('id',Number(b.dataset.delcompra))); toast('Compra borrada'); ruta(); });
+  $('#foto').onclick=()=>$('#ffoto').click();
+  $('#ffoto').onchange=async e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return;
+    const b=$('#foto'); b.disabled=true; b.textContent='Subiendo foto…';
+    try{
+      const blob = await achicarFoto(f);
+      const path=`boletas/${hoy()}-${Date.now()}.jpg`;
+      const {error:ue}=await sb.storage.from('comprobantes').upload(path, blob, {contentType:'image/jpeg'}); if(ue) throw new Error('No se pudo subir la foto: '+ue.message);
+      b.textContent='Leyendo la boleta… (unos segundos)';
+      const {data, error}=await sb.functions.invoke('leer-boleta',{body:{path}});
+      let lectura=null, aviso='';
+      if(error||!data?.ok){ let msg=data?.error||''; try{ msg = msg || (await error.context.json()).error; }catch(_){} aviso = (msg||'No se pudo leer la boleta')+'. Completala a mano: la foto ya quedó guardada.'; }
+      else lectura=data.lectura;
+      revisarBoleta(path, lectura||{items:[{}]}, aviso);
+    }catch(err){ toast(err.message||String(err)); }
+    b.disabled=false; b.textContent='📷 Subir foto de la boleta'; };
   $('#nueva').onclick=()=>{ modal('Registrar compra', `<label>Proveedor</label><select id="cp"><option value="">—</option>${cache.proveedores.map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('')}</select>
     <label>Fecha</label><input id="cf" type="date" value="${hoy()}">
     <label>Productos y kilos que entraron</label><div class="items" id="cits">${filaItem()}</div><button class="btn sm" type="button" id="cadd">+ Agregar producto</button>
@@ -428,12 +476,14 @@ async function formCliente(c){
 }
 
 /* ---------- Productos ---------- */
+function celdasPieza(p){ const k = p.unidad==='kg' ? Number(p.peso_aprox_kg||0) : 1; const pv=Number(p.precio)*k, pc=p.costo!=null?Number(p.costo)*k:null; const g=pc!=null?pv-pc:null;
+  return `<td class="n" data-pz="${p.id}">${k?money(pv):'—'}</td><td class="n" data-pz="${p.id}">${k&&pc!=null?money(pc):'—'}</td><td class="n" data-pz="${p.id}" style="font-weight:600;color:${g==null?'inherit':g<0?'var(--bad)':'var(--ok)'}">${k&&g!=null?money(g):'—'}</td><td class="n muted" data-pz="${p.id}">${p.costo&&p.precio?Math.round((1-p.costo/p.precio)*100)+'%':'—'}</td>`; }
 VISTAS.productos = async m => {
   await cargarBase(true);
   m.innerHTML = `<div class="row"><h2 class="sp">Productos y precios</h2><button class="btn pri" id="nuevo">Nuevo producto</button><button class="btn sm" id="xls">Descargar lista</button></div>
-  <p class="muted">Cambiá el precio y tocá fuera del casillero: se guarda solo. Los pedidos ya cargados mantienen el precio que tenían.</p>
-  <div class="scroll"><table><tr><th>Producto</th><th>Unidad</th><th class="n">Precio</th><th class="n">Costo</th><th class="n">Margen</th><th>Peso aprox.</th><th class="n">Stock mínimo</th><th>Activo</th></tr>
-  ${cache.productos.map(p=>`<tr><td>${esc(p.nombre)}<div class="muted">${esc(p.categoria)}${p.abreviatura?' · '+esc(p.abreviatura):''}</div></td><td>${esc(p.unidad)}</td><td class="n"><input data-id="${p.id}" data-f="precio" type="number" min="0" step="100" value="${Number(p.precio)}" style="width:110px;text-align:right"></td><td class="n"><input data-id="${p.id}" data-f="costo" type="number" min="0" step="100" value="${p.costo!=null?Number(p.costo):''}" style="width:110px;text-align:right"></td><td class="n muted">${p.costo&&p.precio?Math.round((1-p.costo/p.precio)*100)+'%':'—'}</td><td class="muted">${esc(p.peso_aprox||'')}</td><td class="n"><input data-id="${p.id}" data-f="stock_minimo" type="number" min="0" step="0.5" value="${Number(p.stock_minimo||0)}" style="width:80px;text-align:right"></td><td><input data-id="${p.id}" data-f="activo" type="checkbox" ${p.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table></div>`;
+  <p class="muted">Cambiá un número y tocá fuera del casillero: se guarda solo. Precio y costo van siempre <b>por kilo</b>; con lo que pesa cada pieza (un pollo, una bolsa, un lomo) el sistema te calcula cuánto la cobrás y cuánto ganás por cada una. Los pedidos ya cargados mantienen el precio que tenían.</p>
+  <div class="scroll"><table><tr><th>Producto</th><th class="n">Precio x kg</th><th class="n">Costo x kg</th><th class="n">Pesa aprox. (kg)</th><th class="n">Precio de la pieza</th><th class="n">Costo de la pieza</th><th class="n">Ganás por pieza</th><th class="n">Margen</th><th class="n">Stock mínimo</th><th>Activo</th></tr>
+  ${cache.productos.map(p=>`<tr><td>${esc(p.nombre)}<div class="muted">${esc(p.categoria)}${p.abreviatura?' · '+esc(p.abreviatura):''}</div></td><td class="n"><input data-id="${p.id}" data-f="precio" type="number" min="0" step="100" value="${Number(p.precio)}" style="width:100px;text-align:right">${p.unidad!=='kg'?`<div class="muted" style="font-size:12px">por ${esc(p.unidad)}</div>`:''}</td><td class="n"><input data-id="${p.id}" data-f="costo" type="number" min="0" step="100" value="${p.costo!=null?Number(p.costo):''}" style="width:100px;text-align:right"></td><td class="n">${p.unidad==='kg'?`<input data-id="${p.id}" data-f="peso_aprox_kg" type="number" min="0" step="0.05" value="${p.peso_aprox_kg!=null?Number(p.peso_aprox_kg):''}" style="width:70px;text-align:right"><div class="muted" style="font-size:12px">${esc(p.peso_aprox||'')}</div>`:'<span class="muted">—</span>'}</td>${celdasPieza(p)}<td class="n"><input data-id="${p.id}" data-f="stock_minimo" type="number" min="0" step="0.5" value="${Number(p.stock_minimo||0)}" style="width:80px;text-align:right"></td><td><input data-id="${p.id}" data-f="activo" type="checkbox" ${p.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table></div>`;
   const comp = await q(sb.from('competencia').select('*'));
   const comps = [...new Set(comp.map(c=>c.competidor))];
   if(comp.length){ const ps = cache.productos.filter(p=>comp.some(c=>c.producto_id===p.id));
@@ -442,7 +492,7 @@ VISTAS.productos = async m => {
      <div class="scroll"><table><tr><th>Producto</th><th class="n">Tu precio</th>${comps.map(c=>`<th class="n">${esc(c)}</th>`).join('')}</tr>
      ${ps.map(p=>`<tr><td>${esc(p.nombre)}</td><td class="n"><b>${money(p.precio)}</b></td>${comps.map(c=>{const x=comp.find(y=>y.producto_id===p.id&&y.competidor===c); if(!x) return '<td class="n muted">—</td>'; const d=Number(p.precio)-Number(x.precio); return `<td class="n" title="${esc(x.detalle||'Cargado a mano')} · ${fdate(x.fecha)}">${money(x.precio)}<div style="font-size:12px;color:${d<=0?'var(--ok)':'var(--bad)'}">${d<=0?'Estás '+money(-d)+' más barato':'Estás '+money(d)+' más caro'}</div></td>`;}).join('')}</tr>`).join('')}</table></div>`); }
   if($('#actComp')) $('#actComp').onclick=async()=>{ const b=$('#actComp'); b.disabled=true; b.textContent='Buscando precios… (1 minuto)'; try{ const {data,error}=await sb.functions.invoke('precios-competencia',{body:{}}); if(error) throw error; toast(`Listo: ${data.leidos} precios actualizados`); ruta(); }catch(e){ toast('No se pudo actualizar: '+(e.message||e)); b.disabled=false; b.textContent='Actualizar ahora'; } };
-  m.querySelectorAll('input[data-f]').forEach(inp=>inp.onchange=async()=>{ const f=inp.dataset.f; const v=f==='activo'?inp.checked:(inp.value===''?null:Number(inp.value)); await q(sb.from('productos').update({[f]:v}).eq('id',Number(inp.dataset.id))); toast('Guardado'); const p=prod(Number(inp.dataset.id)); if(p) p[f]=v; });
+  m.querySelectorAll('input[data-f]').forEach(inp=>inp.onchange=async()=>{ const f=inp.dataset.f; const v=f==='activo'?inp.checked:(inp.value===''?null:Number(inp.value)); await q(sb.from('productos').update({[f]:v}).eq('id',Number(inp.dataset.id))); toast('Guardado'); const p=prod(Number(inp.dataset.id)); if(p){ p[f]=v; const cs=m.querySelectorAll(`[data-pz="${p.id}"]`); if(cs.length){ cs[0].insertAdjacentHTML('beforebegin', celdasPieza(p)); cs.forEach(c=>c.remove()); } } });
   $('#xls').onclick=()=>excel('Lista de precios', cache.productos.filter(p=>p.activo).map(p=>({Categoría:p.categoria, Producto:p.nombre, 'Precio':Number(p.precio), Unidad:p.unidad, 'Peso aproximado':p.peso_aprox})));
   $('#nuevo').onclick=()=>modal('Nuevo producto', `<label>Nombre</label><input id="pn"><label>Categoría</label><input id="pcat" list="dlcat"><datalist id="dlcat">${[...new Set(cache.productos.map(p=>p.categoria))].map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
     <label>Unidad</label><select id="pu"><option value="kg">kg</option><option value="maple">maple</option><option value="paquete">paquete</option><option value="unidad">unidad</option></select>

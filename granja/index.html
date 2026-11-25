@@ -96,7 +96,7 @@ async function cargarBase(force){
     q(sb.from('zonas').select('*').order('orden')),
     q(sb.from('barrios').select('*, zonas(nombre)').order('nombre')),
     q(sb.from('clientes').select('*, barrios(nombre, zona_id)').order('nombre')),
-    q(sb.from('proveedores').select('*, producto_proveedor(producto_id)').order('nombre')),
+    q(sb.from('proveedores').select('*, producto_proveedor(producto_id,costo)').order('nombre')),
     q(sb.from('config').select('*').single())
   ]);
   cache = {productos, zonas, barrios, clientes, proveedores, config};
@@ -322,11 +322,15 @@ VISTAS.reparto = async m => {
   <div class="list">${peds.length ? peds.map(p=>`<div class="item"><div class="row"><b class="sp">${esc(p.cliente)}</b>${tagEstado(p.estado)}</div>
    <div class="muted">${esc(p.barrio||'')}${(()=>{const c=cache.clientes.find(x=>x.id===p.cliente_id);return c?.lote?' · lote '+esc(c.lote):''})()}${p.telefono?' · '+esc(p.telefono):''}</div>
    <table style="margin-top:8px"><tr><th>Producto</th><th class="n">Pedido</th><th class="n">Peso real</th></tr>${its.filter(i=>i.pedido_id===p.id).map(i=>`<tr><td>${esc(prod(i.producto_id)?.nombre)}</td><td class="n">${num(i.cantidad)} ${unidad(prod(i.producto_id)?.unidad)}</td><td class="n"><input class="pr" data-id="${i.id}" type="number" step="0.001" min="0" value="${i.peso_real??''}" style="width:90px;text-align:right"></td></tr>`).join('')}</table>
-   <div class="row" style="margin-top:8px"><b class="sp">${money(p.total)}</b>${p.estado!=='armado'&&p.estado!=='entregado'?`<button class="btn sm" data-arm="${p.id}">Armado</button>`:''}${p.estado!=='entregado'?`<button class="btn sm pri" data-ent="${p.id}">Entregado</button>`:''}</div></div>`).join('') : '<div class="empty">No hay pedidos para ese día.</div>'}</div>`;
+   <div class="row" style="margin-top:8px"><b class="sp">${money(p.total)}</b>${p.estado!=='armado'&&p.estado!=='entregado'?`<button class="btn sm" data-arm="${p.id}">Armado</button>`:''}${p.estado!=='entregado'?`<button class="btn sm pri" data-ent="${p.id}" data-medio="efectivo">Entregado · pagó efectivo</button><button class="btn sm pri" data-ent="${p.id}" data-medio="transferencia">Entregado · transfiere</button><button class="btn sm" data-ent="${p.id}" data-medio="">Entregado · paga después</button>`:''}</div></div>`).join('') : '<div class="empty">No hay pedidos para ese día.</div>'}</div>`;
   $('#frep').onchange=e=>{fechaRep=e.target.value;ruta();};
   m.querySelectorAll('.pr').forEach(inp=>inp.onchange=async()=>{ await q(sb.from('pedido_items').update({peso_real:inp.value?Number(inp.value):null}).eq('id',Number(inp.dataset.id))); toast('Peso guardado'); });
   m.querySelectorAll('[data-arm]').forEach(b=>b.onclick=async()=>{ await q(sb.from('pedidos').update({estado:'armado'}).eq('id',Number(b.dataset.arm))); ruta(); });
-  m.querySelectorAll('[data-ent]').forEach(b=>b.onclick=async()=>{ await q(sb.from('pedidos').update({estado:'entregado'}).eq('id',Number(b.dataset.ent))); toast('Marcado como entregado'); ruta(); });
+  m.querySelectorAll('[data-ent]').forEach(b=>b.onclick=async()=>{ const id=Number(b.dataset.ent), medio=b.dataset.medio;
+    await q(sb.from('pedidos').update({estado:'entregado'}).eq('id',id));
+    if(medio){ const [p]=await q(sb.from('v_pedidos').select('cliente_id,total').eq('id',id)); if(p && Number(p.total)>0) await q(sb.from('pagos').insert({cliente_id:p.cliente_id, monto:Number(p.total), medio, notas:'Al entregar el pedido'})); toast(`Entregado y cobrado (${medio})`); }
+    else toast('Entregado: queda en Cobros como pendiente');
+    ruta(); });
   $('#xls').onclick=()=>excel('Reparto '+fechaRep, its.map(i=>{const p=peds.find(x=>x.id===i.pedido_id); const c=cache.clientes.find(x=>x.id===p.cliente_id); return {Barrio:p.barrio, Lote:c?.lote||'', Cliente:p.cliente, Teléfono:p.telefono||'', Producto:prod(i.producto_id)?.nombre, Cantidad:Number(i.cantidad), 'Peso real':i.peso_real?Number(i.peso_real):'', Importe:Number(i.importe)};}));
 };
 
@@ -373,12 +377,15 @@ VISTAS.cobros = async m => {
   const [saldos, pagos] = await Promise.all([q(sb.from('v_saldos').select('*').gt('saldo',0).order('saldo',{ascending:false})), q(sb.from('pagos').select('*, clientes(nombre)').order('fecha',{ascending:false}).limit(30))]);
   const total = saldos.reduce((a,s)=>a+Number(s.saldo),0);
   const wa = s => { const t=String(s.telefono||'').replace(/\D/g,''); if(!t) return ''; const tel = t.startsWith('54')?t:'549'+t.replace(/^0/,''); return `https://wa.me/${tel}?text=${encodeURIComponent(`Hola ${s.nombre.split(' ')[0]}! Te paso el saldo pendiente de Granja Los Abrojos: ${money(s.saldo)}. Cuando puedas, me avisás por acá. ¡Gracias!`)}`; };
-  m.innerHTML = `<div class="row"><h2 class="sp">Cobros</h2><button class="btn pri" id="pago">Registrar pago</button><button class="btn sm" id="xls">Descargar Excel</button></div>
+  m.innerHTML = `<div class="row"><h2 class="sp">Cobros</h2><button class="btn" id="pago">Otro pago</button><button class="btn sm" id="xls">Descargar Excel</button></div>
   <div class="grid"><div class="card metric"><div class="lbl">Total por cobrar</div><div class="val">${money(total)}</div></div><div class="card metric"><div class="lbl">Clientes que deben</div><div class="val">${saldos.length}</div></div></div>
   <h3>Quién debe</h3>
-  ${saldos.length?`<div class="scroll"><table><tr><th>Cliente</th><th>Barrio</th><th class="n">Debe</th><th>Desde</th><th></th></tr>${saldos.map(s=>`<tr><td>${esc(s.nombre)}</td><td>${esc(s.barrio||'')}</td><td class="n"><b>${money(s.saldo)}</b></td><td class="muted">${fdate(s.primera_entrega_impaga)}</td><td>${wa(s)?`<a class="btn sm" target="_blank" rel="noopener" href="${wa(s)}">Recordar</a>`:''}</td></tr>`).join('')}</table></div>`:'<p class="muted">Nadie te debe. 👌</p>'}
+  ${saldos.length?`<div class="scroll"><table><tr><th>Cliente</th><th>Barrio</th><th class="n">Debe</th><th>Desde</th><th></th></tr>${saldos.map(s=>`<tr><td>${esc(s.nombre)}</td><td>${esc(s.barrio||'')}</td><td class="n"><b>${money(s.saldo)}</b></td><td class="muted">${fdate(s.primera_entrega_impaga)}</td><td><div class="row" style="flex-wrap:nowrap"><button class="btn sm pri" data-cobra="${s.cliente_id}" data-medio="transferencia">Pagó transferencia</button><button class="btn sm pri" data-cobra="${s.cliente_id}" data-medio="efectivo">Pagó efectivo</button>${wa(s)?`<a class="btn sm" target="_blank" rel="noopener" href="${wa(s)}">Recordar</a>`:''}</div></td></tr>`).join('')}</table></div>`:'<p class="muted">Nadie te debe. 👌</p>'}
   <h3>Últimos pagos</h3>
   ${pagos.length?`<table><tr><th>Fecha</th><th>Cliente</th><th>Medio</th><th class="n">Monto</th><th></th></tr>${pagos.map(p=>`<tr><td>${fdate(p.fecha)}</td><td>${esc(p.clientes?.nombre)}</td><td>${esc(p.medio)}</td><td class="n">${money(p.monto)}</td><td><button class="btn sm danger" data-delpago="${p.id}">Borrar</button></td></tr>`).join('')}</table>`:'<p class="muted">Todavía no hay pagos registrados.</p>'}`;
+  m.querySelectorAll('[data-cobra]').forEach(b=>b.onclick=()=>{ const s=saldos.find(x=>x.cliente_id===Number(b.dataset.cobra)); const medio=b.dataset.medio;
+    modal(`${s.nombre} pagó por ${medio}`, `<label>Monto</label><input id="cqm" type="number" min="1" step="1" value="${Math.round(Number(s.saldo))}"><p class="muted">Debe ${money(s.saldo)}. Si pagó una parte, cambiá el monto.</p><label>Fecha</label><input id="cqf" type="date" value="${hoy()}">`,
+      [['Confirmar', async()=>{ const monto=Number($('#cqm').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('pagos').insert({cliente_id:s.cliente_id, monto, medio, fecha:$('#cqf').value})); dlg.close(); toast(`Pago por ${medio} registrado`); ruta(); },'pri']]); });
   m.querySelectorAll('[data-delpago]').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar este pago?')) return; await q(sb.from('pagos').delete().eq('id',Number(b.dataset.delpago))); toast('Pago borrado'); ruta(); });
   $('#xls').onclick=()=>excel('Saldos '+hoy(), saldos.map(s=>({Cliente:s.nombre, Barrio:s.barrio, Teléfono:s.telefono, Vendido:Number(s.vendido), Pagado:Number(s.pagado), Debe:Number(s.saldo), Desde:s.primera_entrega_impaga})));
   $('#pago').onclick=()=>{ modal('Registrar pago', `<label>Cliente</label><input id="pc" list="dlc2"><datalist id="dlc2">${cache.clientes.map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist>
@@ -427,6 +434,13 @@ VISTAS.productos = async m => {
   <p class="muted">Cambiá el precio y tocá fuera del casillero: se guarda solo. Los pedidos ya cargados mantienen el precio que tenían.</p>
   <div class="scroll"><table><tr><th>Producto</th><th>Unidad</th><th class="n">Precio</th><th class="n">Costo</th><th class="n">Margen</th><th>Peso aprox.</th><th class="n">Stock mínimo</th><th>Activo</th></tr>
   ${cache.productos.map(p=>`<tr><td>${esc(p.nombre)}<div class="muted">${esc(p.categoria)}${p.abreviatura?' · '+esc(p.abreviatura):''}</div></td><td>${esc(p.unidad)}</td><td class="n"><input data-id="${p.id}" data-f="precio" type="number" min="0" step="100" value="${Number(p.precio)}" style="width:110px;text-align:right"></td><td class="n"><input data-id="${p.id}" data-f="costo" type="number" min="0" step="100" value="${p.costo!=null?Number(p.costo):''}" style="width:110px;text-align:right"></td><td class="n muted">${p.costo&&p.precio?Math.round((1-p.costo/p.precio)*100)+'%':'—'}</td><td class="muted">${esc(p.peso_aprox||'')}</td><td class="n"><input data-id="${p.id}" data-f="stock_minimo" type="number" min="0" step="0.5" value="${Number(p.stock_minimo||0)}" style="width:80px;text-align:right"></td><td><input data-id="${p.id}" data-f="activo" type="checkbox" ${p.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table></div>`;
+  const comp = await q(sb.from('competencia').select('*'));
+  const comps = [...new Set(comp.map(c=>c.competidor))];
+  if(comp.length){ const ps = cache.productos.filter(p=>comp.some(c=>c.producto_id===p.id));
+    const fechaC = comp.map(c=>c.fecha).sort().pop();
+    m.insertAdjacentHTML('beforeend', `<h3>Comparación con la competencia</h3><p class="muted">Precios de tu planilla “Competencia” (cargados el ${fdate(fechaC)}). En verde, si estás más barato; en rojo, si estás más caro.</p>
+     <div class="scroll"><table><tr><th>Producto</th><th class="n">Tu precio</th>${comps.map(c=>`<th class="n">${esc(c)}</th>`).join('')}</tr>
+     ${ps.map(p=>`<tr><td>${esc(p.nombre)}</td><td class="n"><b>${money(p.precio)}</b></td>${comps.map(c=>{const x=comp.find(y=>y.producto_id===p.id&&y.competidor===c); if(!x) return '<td class="n muted">—</td>'; const d=Number(p.precio)-Number(x.precio); return `<td class="n">${money(x.precio)}<div style="font-size:12px;color:${d<=0?'var(--ok)':'var(--bad)'}">${d<=0?'Estás '+money(-d)+' más barato':'Estás '+money(d)+' más caro'}</div></td>`;}).join('')}</tr>`).join('')}</table></div>`); }
   m.querySelectorAll('input[data-f]').forEach(inp=>inp.onchange=async()=>{ const f=inp.dataset.f; const v=f==='activo'?inp.checked:(inp.value===''?null:Number(inp.value)); await q(sb.from('productos').update({[f]:v}).eq('id',Number(inp.dataset.id))); toast('Guardado'); const p=prod(Number(inp.dataset.id)); if(p) p[f]=v; });
   $('#xls').onclick=()=>excel('Lista de precios', cache.productos.filter(p=>p.activo).map(p=>({Categoría:p.categoria, Producto:p.nombre, 'Precio':Number(p.precio), Unidad:p.unidad, 'Peso aproximado':p.peso_aprox})));
   $('#nuevo').onclick=()=>modal('Nuevo producto', `<label>Nombre</label><input id="pn"><label>Categoría</label><input id="pcat" list="dlcat"><datalist id="dlcat">${[...new Set(cache.productos.map(p=>p.categoria))].map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
@@ -441,7 +455,8 @@ VISTAS.proveedores = async m => {
   m.innerHTML = `<div class="row"><h2 class="sp">Proveedores</h2><button class="btn pri" id="nuevo">Nuevo proveedor</button></div>
   <div class="list">${cache.proveedores.length?cache.proveedores.map(p=>`<div class="item" data-id="${p.id}" style="cursor:pointer"><b>${esc(p.nombre)}</b> <span class="muted">${esc(p.telefono||'')}</span>
    <div class="muted">Le pedís: ${p.dias_pedido?.length?p.dias_pedido.map(d=>DIAS[d]).join(', '):'—'} · Entrega: ${p.dias_entrega?.length?p.dias_entrega.map(d=>DIAS[d]).join(', '):'—'}</div>
-   <div class="muted">${p.producto_proveedor.map(x=>esc(prod(x.producto_id)?.nombre)).join(', ')||'Sin productos asignados'}</div></div>`).join(''):'<div class="empty">Todavía no hay proveedores. Cargá los tuyos para que la compra sugerida te diga a quién pedirle.</div>'}</div>`;
+   ${p.comision?`<div class="muted">Recargo: ${num(p.comision)}%</div>`:''}
+   ${p.producto_proveedor.length?`<table style="margin-top:8px"><tr><th>Producto</th><th class="n">Costo</th><th class="n">Tu precio</th><th class="n">Margen</th></tr>${p.producto_proveedor.map(x=>{const pr=prod(x.producto_id); return `<tr><td>${esc(pr?.nombre)}</td><td class="n">${x.costo?money(x.costo):'—'}</td><td class="n">${pr?money(pr.precio):'—'}</td><td class="n">${x.costo&&pr?.precio?Math.round((1-x.costo/pr.precio)*100)+'%':'—'}</td></tr>`;}).join('')}</table>`:'<div class="muted">Sin productos asignados</div>'}</div>`).join(''):'<div class="empty">Todavía no hay proveedores. Cargá los tuyos para que la compra sugerida te diga a quién pedirle.</div>'}</div>`;
   $('#nuevo').onclick=()=>formProv();
   m.querySelectorAll('.item').forEach(el=>el.onclick=()=>formProv(cache.proveedores.find(p=>p.id===Number(el.dataset.id))));
 };
@@ -510,7 +525,7 @@ let tabCont = 'resultado';
 const CATS_GASTO = ['Sueldos','Transporte','Insumos','Comisiones','Contador','Arca','Wpp','Redes','Claude','Rojo','Otros'];
 const mesTxt = s => new Date(s+'T12:00').toLocaleDateString('es-AR',{month:'long',year:'numeric'});
 VISTAS.contable = async m => {
-  const tabs = [['resultado','Estado de resultados'],['boletas','Boletas de proveedores'],['gastos','Gastos'],['fijos','Gastos fijos']];
+  const tabs = [['resultado','Estado de resultados'],['ingresos','Ingresos'],['boletas','Boletas de proveedores'],['gastos','Gastos'],['fijos','Gastos fijos']];
   m.innerHTML = `<h2>Contable</h2><div class="row" style="margin-bottom:12px">${tabs.map(([k,t])=>`<button class="btn sm ${tabCont===k?'pri':''}" data-tab="${k}">${t}</button>`).join('')}</div><div id="cont"></div>`;
   m.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ tabCont=b.dataset.tab; ruta(); });
   await TABS_CONT[tabCont]($('#cont'));
@@ -534,6 +549,26 @@ TABS_CONT.resultado = async el => {
   const meses = [...new Set(gs.map(g=>g.fecha.slice(0,7)))].sort().reverse();
   const cats = [...new Set(gs.map(g=>g.categoria))].sort();
   $('#gcat').innerHTML = gs.length ? `<div class="scroll"><table><tr><th>Categoría</th>${meses.map(x=>`<th class="n">${mesTxt(x+'-01')}</th>`).join('')}</tr>${cats.map(c=>`<tr><td>${esc(c)}</td>${meses.map(x=>`<td class="n">${money(gs.filter(g=>g.categoria===c&&g.fecha.startsWith(x)).reduce((a,g)=>a+Number(g.monto),0))}</td>`).join('')}</tr>`).join('')}</table></div>` : '<p class="muted">Sin gastos en los últimos meses.</p>';
+};
+TABS_CONT.ingresos = async el => {
+  const anioSel = new Date().getFullYear();
+  const [hist, ventas] = await Promise.all([
+    q(sb.from('ingresos_historicos').select('*').gte('fecha',`${anioSel}-01-01`).order('fecha',{ascending:false})),
+    q(sb.from('v_resultado_mensual').select('mes,ventas,costo_mercaderia').gte('mes',`${anioSel}-01-01`))
+  ]);
+  const meses = [...new Set([...hist.map(h=>h.fecha.slice(0,7)), ...ventas.filter(v=>Number(v.ventas)).map(v=>v.mes.slice(0,7))])].sort().reverse();
+  const cats = [...new Set(hist.map(h=>h.categoria||'Otros'))].sort();
+  const sumH = (mes,cat) => hist.filter(h=>h.fecha.startsWith(mes)&&(cat==null||(h.categoria||'Otros')===cat)).reduce((a,h)=>a+Number(h.monto),0);
+  const ganSis = mes => { const v=ventas.find(x=>x.mes.startsWith(mes)); return v?Number(v.ventas)-Number(v.costo_mercaderia):0; };
+  el.innerHTML = `<p class="muted">Lo que ganaste en cada reparto (ventas menos lo que pagás a los proveedores). Hasta noviembre viene de tu planilla; desde que uses el sistema se calcula solo con los pedidos entregados.</p>
+   <h3>Por barrio y mes · ${anioSel}</h3>
+   <div class="scroll"><table><tr><th>Mes</th>${cats.map(c=>`<th class="n">${esc(c)}</th>`).join('')}<th class="n">Con el sistema</th><th class="n">Total</th></tr>
+   ${meses.map(m=>`<tr><td>${mesTxt(m+'-01')}</td>${cats.map(c=>`<td class="n">${sumH(m,c)?money(sumH(m,c)):'—'}</td>`).join('')}<td class="n">${ganSis(m)?money(ganSis(m)):'—'}</td><td class="n"><b>${money(sumH(m,null)+ganSis(m))}</b></td></tr>`).join('')}
+   <tr style="background:#FBF8F4"><td><b>Total del año</b></td>${cats.map(c=>`<td class="n"><b>${money(hist.filter(h=>(h.categoria||'Otros')===c).reduce((a,h)=>a+Number(h.monto),0))}</b></td>`).join('')}<td class="n"><b>${money(meses.reduce((a,m)=>a+ganSis(m),0))}</b></td><td class="n"><b>${money(hist.reduce((a,h)=>a+Number(h.monto),0)+meses.reduce((a,m)=>a+ganSis(m),0))}</b></td></tr></table></div>
+   <div class="row" style="margin-top:10px"><button class="btn sm" id="xls">Descargar Excel</button></div>
+   <h3>Detalle</h3>
+   <div class="scroll"><table><tr><th>Fecha</th><th>Reparto</th><th>Descripción</th><th class="n">Ganancia</th></tr>${hist.map(h=>`<tr><td>${fdate(h.fecha)}</td><td>${esc(h.categoria||'')}</td><td>${esc(h.descripcion||'')}</td><td class="n">${money(h.monto)}</td></tr>`).join('')}</table></div>`;
+  $('#xls').onclick=()=>excel('Ingresos '+anioSel, hist.map(h=>({Fecha:h.fecha, Reparto:h.categoria, Descripción:h.descripcion, Ganancia:Number(h.monto)})));
 };
 TABS_CONT.boletas = async el => {
   const bols = await q(sb.from('facturas_proveedor').select('*, proveedores(nombre)').order('pagada').order('fecha',{ascending:false}).limit(150));

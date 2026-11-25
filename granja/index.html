@@ -239,6 +239,23 @@ const tagEstado = e => `<span class="tag ${({entregado:'ok',armado:'acc',confirm
 
 /* ---------- Pedidos ---------- */
 let semanaPed = null;
+
+/* Resumen de la semana: total por producto y qué encargar a cada proveedor */
+async function resumenSemana(m, peds){
+  if(!peds.length) return;
+  const ids=peds.map(p=>p.id);
+  const [its, st] = await Promise.all([q(sb.from('pedido_items').select('producto_id,cantidad,pedido_id').in('pedido_id',ids)), q(sb.from('v_stock').select('*'))]);
+  const tot={}; its.forEach(i=>tot[i.producto_id]=(tot[i.producto_id]||0)+Number(i.cantidad));
+  const filas=Object.entries(tot).map(([pid,c])=>{ pid=Number(pid); const p=prod(pid), s=st.find(x=>x.producto_id===pid); const hay=Number(s?.fisico||0); const otros=Math.max(0,Number(s?.comprometido||0)-c); const falta=Math.max(0, c+otros-hay); return {pid, p, c, hay, falta}; }).sort((a,b)=>(a.p?.orden??999)-(b.p?.orden??999));
+  const provDe = pid => cache.proveedores.filter(pv=>pv.producto_proveedor.some(x=>x.producto_id===pid));
+  const porProv={}; filas.filter(f=>f.falta>0).forEach(f=>{ const pv=provDe(f.pid); const k=pv.length===1?pv[0].nombre:(pv.length?pv.map(x=>x.nombre).join(' o '):'Sin proveedor asignado'); (porProv[k]=porProv[k]||[]).push(f); });
+  const txt = (k,fs) => `Hola! Te paso el pedido de Granja Los Abrojos para esta semana:\n${fs.map(f=>`- ${f.p?.nombre}: ${num(Math.ceil(f.falta*10)/10)} ${unidad(f.p?.unidad)}`).join('\n')}\nGracias!`;
+  m.querySelector('.list').insertAdjacentHTML('beforebegin', `<div class="card" style="margin-bottom:14px"><h3 style="margin-top:0">Total de la semana por producto</h3>
+   <div class="scroll"><table><tr><th>Producto</th><th class="n">Pedido esta semana</th><th class="n">Tenés</th><th class="n">Falta encargar</th></tr>${filas.map(f=>`<tr><td>${esc(f.p?.nombre)}</td><td class="n">${num(f.c)} ${unidad(f.p?.unidad)}</td><td class="n">${num(f.hay)}</td><td class="n" style="${f.falta>0?'color:var(--bad);font-weight:600':''}">${f.falta>0?num(Math.ceil(f.falta*10)/10)+' '+unidad(f.p?.unidad):'✓'}</td></tr>`).join('')}</table></div>
+   ${Object.keys(porProv).length?`<h3>Qué encargar a cada proveedor</h3>${Object.entries(porProv).map(([k,fs],i)=>`<div class="item" style="margin-bottom:8px"><div class="row"><b class="sp">${esc(k)}</b><button class="btn sm" data-copiar="${i}">Copiar mensaje</button></div><div class="muted">${fs.map(f=>`${esc(f.p?.nombre)}: ${num(Math.ceil(f.falta*10)/10)} ${unidad(f.p?.unidad)}`).join(' · ')}</div></div>`).join('')}<p class="muted">“Copiar mensaje” arma el texto del pedido para pegarlo en el WhatsApp del proveedor. Si un producto lo tienen varios proveedores, elegí a quién se lo pedís.</p>`:'<p class="muted">Con lo que tenés alcanza para todos los pedidos de la semana. 👌</p>'}</div>`);
+  const entradas=Object.entries(porProv);
+  m.querySelectorAll('[data-copiar]').forEach(b=>b.onclick=async()=>{ const [k,fs]=entradas[Number(b.dataset.copiar)]; try{ await navigator.clipboard.writeText(txt(k,fs)); toast('Mensaje copiado: pegalo en el WhatsApp de '+k); }catch(_){ modal('Pedido para '+k, `<textarea style="width:100%;height:160px">${esc(txt(k,fs))}</textarea>`, []); } });
+}
 VISTAS.pedidos = async m => {
   semanaPed = semanaPed || lunesDe(hoy());
   const dom = sumar(semanaPed,6);
@@ -252,6 +269,7 @@ VISTAS.pedidos = async m => {
   <div class="list">${todos.length ? todos.map(p=>`<div class="item" data-id="${p.id}" style="cursor:pointer"><div class="row"><b class="sp">${esc(p.cliente)}</b>${tagEstado(p.estado)}</div>
   <div class="row muted"><span>${p.fecha_entrega?fdate(p.fecha_entrega):'Sin fecha'} · ${esc(p.barrio||'sin barrio')}</span><span class="sp"></span><b style="color:var(--ink)">${money(p.total)}</b></div>
   ${!p.llega_minimo && p.estado!=='cancelado' ? `<div class="tag warn" style="margin-top:6px">No llega al mínimo de ${money(p.pedido_minimo)}</div>`:''}</div>`).join('') : '<div class="empty">No hay pedidos cargados para esta semana.</div>'}</div>`;
+  await resumenSemana(m, peds.filter(p=>p.estado!=='cancelado'));
   $('#prev').onclick=()=>{semanaPed=sumar(semanaPed,-7);ruta();};
   $('#next').onclick=()=>{semanaPed=sumar(semanaPed,7);ruta();};
   $('#nuevo').onclick=()=>formPedido();

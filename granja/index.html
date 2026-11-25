@@ -104,7 +104,7 @@ async function cargarBase(force){
 const prod = id => cache.productos.find(p=>p.id===id);
 const zonaDeBarrio = id => { const b=cache.barrios.find(x=>x.id===id); return b && cache.zonas.find(z=>z.id===b.zona_id); };
 
-const SECCIONES = [['inicio','Inicio'],['pedidos','Pedidos'],['reparto','Reparto'],['stock','Stock'],['compras','Compras'],['cobros','Cobros'],['clientes','Clientes'],['productos','Productos'],['proveedores','Proveedores'],['ajustes','Ajustes']];
+const SECCIONES = [['inicio','Inicio'],['pedidos','Pedidos'],['reparto','Reparto'],['stock','Stock'],['compras','Compras'],['cobros','Cobros'],['contable','Contable'],['clientes','Clientes'],['productos','Productos'],['proveedores','Proveedores'],['ajustes','Ajustes']];
 let usuario = null;
 
 async function iniciar(){
@@ -151,23 +151,34 @@ async function semanaYZona(fecha){
 const VISTAS = {};
 VISTAS.inicio = async m => {
   const h = hoy(), lun = lunesDe(h), dom = sumar(lun,6);
-  const [{sem, zonas}, pedSem, stock, saldos, repHoy] = await Promise.all([
+  const [{sem, zonas}, pedSem, stock, saldos, repHoy, bols] = await Promise.all([
     semanaYZona(h),
     q(sb.from('v_pedidos').select('id,total,estado').gte('fecha_entrega',lun).lte('fecha_entrega',dom).neq('estado','cancelado')),
     q(sb.from('v_stock').select('*')),
     q(sb.from('v_saldos').select('saldo').gt('saldo',0)),
-    q(sb.from('v_pedidos').select('*').eq('fecha_entrega',h).neq('estado','cancelado').order('barrio'))
+    q(sb.from('v_pedidos').select('*').eq('fecha_entrega',h).neq('estado','cancelado').order('barrio')),
+    q(sb.from('facturas_proveedor').select('monto, vence, proveedores(nombre)').eq('pagada',false))
   ]);
   const faltan = stock.filter(s => Number(s.disponible) < 0);
   const porCobrar = saldos.reduce((a,s)=>a+Number(s.saldo),0);
+  const porPagar = bols.reduce((a,b)=>a+Number(b.monto),0);
+  const dow = ((new Date().getDay()+6)%7)+1;
+  const tareas = [];
+  if(dow===1){ tareas.push('9:00 · Mandar la difusión de la semana'); tareas.push('Pedir la carne a los proveedores (mirá “Compra sugerida” en Stock)'); tareas.push('19:00 · Recordatorio a los que no pidieron'); }
+  if(dow===2){ tareas.push('A la noche llega la carne: registrá la compra y sacale foto a cada boleta (Contable)'); }
+  if(dow===3){ tareas.push('A la mañana llega el otro proveedor: registrá la compra y su boleta'); tareas.push('Hoy te van transfiriendo: registrá cada pago en Cobros'); }
+  if(dow>=3 && dow<=5 && zonas.length) tareas.push('Reparto de 9 a 14: '+zonas.map(z=>esc(z.nombre)).join(', '));
+  if(dow>=3 && dow<=6 && bols.length) tareas.push(`Pagar proveedores: ${bols.length} boletas pendientes por ${money(porPagar)} (Contable)`);
   m.innerHTML = `
   ${!cache.config.lunes_semana_a ? '<div class="alert">Falta cargar un lunes de “Semana A” en Ajustes para que el ciclo de reparto se calcule bien.</div>':''}
   <h2>${new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</h2>
   <p class="muted" style="margin-top:-8px">${sem?'Semana '+sem+' · ':''}${zonas.length?'Reparto: '+zonas.map(z=>esc(z.nombre)).join(', '):'Hoy no hay reparto'}</p>
+  ${tareas.length?`<div class="card" style="margin-bottom:12px"><b>Para hacer hoy</b><ul style="margin:6px 0 0;padding-left:20px">${tareas.map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
   <div class="grid">
     <div class="card metric"><div class="lbl">Pedidos de la semana</div><div class="val">${pedSem.length}</div></div>
     <div class="card metric"><div class="lbl">Vendido esta semana</div><div class="val">${money(pedSem.reduce((a,p)=>a+Number(p.total),0))}</div></div>
     <div class="card metric"><div class="lbl">Por cobrar</div><div class="val">${money(porCobrar)}</div></div>
+    <div class="card metric"><div class="lbl">Por pagar a proveedores</div><div class="val">${money(porPagar)}</div></div>
     <div class="card metric ${faltan.length?'bad':''}"><div class="lbl">Productos que van a faltar</div><div class="val">${faltan.length}</div></div>
   </div>
   <h3>Va a faltar</h3>
@@ -297,7 +308,8 @@ VISTAS.compras = async m => {
   const compras = await q(sb.from('compras').select('*, proveedores(nombre), compra_items(cantidad, producto_id)').order('fecha',{ascending:false}).limit(40));
   m.innerHTML = `<div class="row"><h2 class="sp">Compras a proveedores</h2><button class="btn pri" id="nueva">Registrar compra</button></div>
   <p class="muted">Cada compra suma al stock automáticamente.</p>
-  <div class="list">${compras.length?compras.map(c=>`<div class="item"><div class="row"><b class="sp">${esc(c.proveedores?.nombre||'Sin proveedor')}</b><span class="muted">${fdate(c.fecha)}</span></div><div class="muted">${c.compra_items.map(i=>`${esc(prod(i.producto_id)?.nombre)} ${num(i.cantidad)}`).join(' · ')}</div>${c.total?`<b>${money(c.total)}</b>`:''}</div>`).join(''):'<div class="empty">Todavía no hay compras registradas.</div>'}</div>`;
+  <div class="list">${compras.length?compras.map(c=>`<div class="item"><div class="row"><b class="sp">${esc(c.proveedores?.nombre||'Sin proveedor')}</b><span class="muted">${fdate(c.fecha)}</span><button class="btn sm danger" data-delcompra="${c.id}">Borrar</button></div><div class="muted">${c.compra_items.map(i=>`${esc(prod(i.producto_id)?.nombre)} ${num(i.cantidad)}`).join(' · ')}</div>${c.total?`<b>${money(c.total)}</b>`:''}</div>`).join(''):'<div class="empty">Todavía no hay compras registradas.</div>'}</div>`;
+  m.querySelectorAll('[data-delcompra]').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar esta compra? También se descuenta del stock.')) return; await q(sb.from('compras').delete().eq('id',Number(b.dataset.delcompra))); toast('Compra borrada'); ruta(); });
   $('#nueva').onclick=()=>{ modal('Registrar compra', `<label>Proveedor</label><select id="cp"><option value="">—</option>${cache.proveedores.map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('')}</select>
     <label>Fecha</label><input id="cf" type="date" value="${hoy()}">
     <label>Productos y kilos que entraron</label><div class="items" id="cits">${filaItem()}</div><button class="btn sm" type="button" id="cadd">+ Agregar producto</button>
@@ -318,7 +330,8 @@ VISTAS.cobros = async m => {
   <h3>Quién debe</h3>
   ${saldos.length?`<div class="scroll"><table><tr><th>Cliente</th><th>Barrio</th><th class="n">Debe</th><th>Desde</th><th></th></tr>${saldos.map(s=>`<tr><td>${esc(s.nombre)}</td><td>${esc(s.barrio||'')}</td><td class="n"><b>${money(s.saldo)}</b></td><td class="muted">${fdate(s.primera_entrega_impaga)}</td><td>${wa(s)?`<a class="btn sm" target="_blank" rel="noopener" href="${wa(s)}">Recordar</a>`:''}</td></tr>`).join('')}</table></div>`:'<p class="muted">Nadie te debe. 👌</p>'}
   <h3>Últimos pagos</h3>
-  ${pagos.length?`<table><tr><th>Fecha</th><th>Cliente</th><th>Medio</th><th class="n">Monto</th></tr>${pagos.map(p=>`<tr><td>${fdate(p.fecha)}</td><td>${esc(p.clientes?.nombre)}</td><td>${esc(p.medio)}</td><td class="n">${money(p.monto)}</td></tr>`).join('')}</table>`:'<p class="muted">Todavía no hay pagos registrados.</p>'}`;
+  ${pagos.length?`<table><tr><th>Fecha</th><th>Cliente</th><th>Medio</th><th class="n">Monto</th><th></th></tr>${pagos.map(p=>`<tr><td>${fdate(p.fecha)}</td><td>${esc(p.clientes?.nombre)}</td><td>${esc(p.medio)}</td><td class="n">${money(p.monto)}</td><td><button class="btn sm danger" data-delpago="${p.id}">Borrar</button></td></tr>`).join('')}</table>`:'<p class="muted">Todavía no hay pagos registrados.</p>'}`;
+  m.querySelectorAll('[data-delpago]').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar este pago?')) return; await q(sb.from('pagos').delete().eq('id',Number(b.dataset.delpago))); toast('Pago borrado'); ruta(); });
   $('#xls').onclick=()=>excel('Saldos '+hoy(), saldos.map(s=>({Cliente:s.nombre, Barrio:s.barrio, Teléfono:s.telefono, Vendido:Number(s.vendido), Pagado:Number(s.pagado), Debe:Number(s.saldo), Desde:s.primera_entrega_impaga})));
   $('#pago').onclick=()=>{ modal('Registrar pago', `<label>Cliente</label><input id="pc" list="dlc2"><datalist id="dlc2">${cache.clientes.map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist>
     <label>Monto</label><input id="pm" type="number" min="1" step="1"><label>Medio</label><select id="pmd"><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option></select>
@@ -364,9 +377,9 @@ VISTAS.productos = async m => {
   await cargarBase(true);
   m.innerHTML = `<div class="row"><h2 class="sp">Productos y precios</h2><button class="btn pri" id="nuevo">Nuevo producto</button><button class="btn sm" id="xls">Descargar lista</button></div>
   <p class="muted">Cambiá el precio y tocá fuera del casillero: se guarda solo. Los pedidos ya cargados mantienen el precio que tenían.</p>
-  <div class="scroll"><table><tr><th>Producto</th><th>Unidad</th><th class="n">Precio</th><th>Peso aprox.</th><th class="n">Stock mínimo</th><th>Activo</th></tr>
-  ${cache.productos.map(p=>`<tr><td>${esc(p.nombre)}<div class="muted">${esc(p.categoria)}${p.abreviatura?' · '+esc(p.abreviatura):''}</div></td><td>${esc(p.unidad)}</td><td class="n"><input data-id="${p.id}" data-f="precio" type="number" min="0" step="100" value="${Number(p.precio)}" style="width:110px;text-align:right"></td><td class="muted">${esc(p.peso_aprox||'')}</td><td class="n"><input data-id="${p.id}" data-f="stock_minimo" type="number" min="0" step="0.5" value="${Number(p.stock_minimo||0)}" style="width:80px;text-align:right"></td><td><input data-id="${p.id}" data-f="activo" type="checkbox" ${p.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table></div>`;
-  m.querySelectorAll('input[data-f]').forEach(inp=>inp.onchange=async()=>{ const f=inp.dataset.f; const v=f==='activo'?inp.checked:Number(inp.value); await q(sb.from('productos').update({[f]:v}).eq('id',Number(inp.dataset.id))); toast('Guardado'); const p=prod(Number(inp.dataset.id)); if(p) p[f]=v; });
+  <div class="scroll"><table><tr><th>Producto</th><th>Unidad</th><th class="n">Precio</th><th class="n">Costo</th><th class="n">Margen</th><th>Peso aprox.</th><th class="n">Stock mínimo</th><th>Activo</th></tr>
+  ${cache.productos.map(p=>`<tr><td>${esc(p.nombre)}<div class="muted">${esc(p.categoria)}${p.abreviatura?' · '+esc(p.abreviatura):''}</div></td><td>${esc(p.unidad)}</td><td class="n"><input data-id="${p.id}" data-f="precio" type="number" min="0" step="100" value="${Number(p.precio)}" style="width:110px;text-align:right"></td><td class="n"><input data-id="${p.id}" data-f="costo" type="number" min="0" step="100" value="${p.costo!=null?Number(p.costo):''}" style="width:110px;text-align:right"></td><td class="n muted">${p.costo&&p.precio?Math.round((1-p.costo/p.precio)*100)+'%':'—'}</td><td class="muted">${esc(p.peso_aprox||'')}</td><td class="n"><input data-id="${p.id}" data-f="stock_minimo" type="number" min="0" step="0.5" value="${Number(p.stock_minimo||0)}" style="width:80px;text-align:right"></td><td><input data-id="${p.id}" data-f="activo" type="checkbox" ${p.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table></div>`;
+  m.querySelectorAll('input[data-f]').forEach(inp=>inp.onchange=async()=>{ const f=inp.dataset.f; const v=f==='activo'?inp.checked:(inp.value===''?null:Number(inp.value)); await q(sb.from('productos').update({[f]:v}).eq('id',Number(inp.dataset.id))); toast('Guardado'); const p=prod(Number(inp.dataset.id)); if(p) p[f]=v; });
   $('#xls').onclick=()=>excel('Lista de precios', cache.productos.filter(p=>p.activo).map(p=>({Categoría:p.categoria, Producto:p.nombre, 'Precio':Number(p.precio), Unidad:p.unidad, 'Peso aproximado':p.peso_aprox})));
   $('#nuevo').onclick=()=>modal('Nuevo producto', `<label>Nombre</label><input id="pn"><label>Categoría</label><input id="pcat" list="dlcat"><datalist id="dlcat">${[...new Set(cache.productos.map(p=>p.categoria))].map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
     <label>Unidad</label><select id="pu"><option value="kg">kg</option><option value="maple">maple</option><option value="paquete">paquete</option><option value="unidad">unidad</option></select>
@@ -402,14 +415,109 @@ function formProv(p){
 VISTAS.ajustes = async m => {
   await cargarBase(true);
   const c = cache.config;
+  const equipo = await q(sb.from('equipo').select('*').order('nombre'));
+  const diaSel = (z) => `<select data-zf="dia_reparto" data-z="${z.id}" style="width:auto"><option value="">—</option>${[1,2,3,4,5,6].map(d=>`<option value="${d}" ${z.dia_reparto===d?'selected':''}>${DIAS[d]}</option>`).join('')}</select>`;
+  const semSel = (z) => `<select data-zf="semana" data-z="${z.id}" style="width:auto"><option value="" ${!z.semana?'selected':''}>Todas</option><option ${z.semana==='A'?'selected':''}>A</option><option ${z.semana==='B'?'selected':''}>B</option></select>`;
   m.innerHTML = `<h2>Ajustes</h2><div class="card">
-   <label>Un lunes de “Semana A” (la semana de Bancalari, Escobar y Villanueva)</label><input id="sa" type="date" value="${c.lunes_semana_a||''}" style="max-width:220px">
+   <label>Un lunes de “Semana A” (la semana de Newman, Escobar y Villanueva)</label><input id="sa" type="date" value="${c.lunes_semana_a||''}" style="max-width:220px">
    <label>WhatsApp de pedidos</label><input id="sw" value="${esc(c.whatsapp_pedidos||'')}" style="max-width:220px">
+   <label>Mail para el resumen contable mensual</label><input id="se" type="email" value="${esc(c.email_resumen||'')}" style="max-width:320px">
    <div style="margin-top:12px"><button class="btn pri" id="gs">Guardar</button></div></div>
-   <h3>Zonas de reparto</h3><table><tr><th>Zona</th><th>Semana</th><th>Día</th><th class="n">Pedido mínimo</th></tr>${cache.zonas.map(z=>`<tr><td>${esc(z.nombre)}</td><td>${z.semana||'todas'}</td><td>${z.dia_reparto?DIAS[z.dia_reparto]:'—'}</td><td class="n">${z.pedido_minimo?money(z.pedido_minimo):'—'}</td></tr>`).join('')}</table>`;
-  $('#gs').onclick=async()=>{ const v=$('#sa').value; if(v && new Date(v+'T12:00').getDay()!==1) return toast('Esa fecha no es lunes'); await q(sb.from('config').update({lunes_semana_a:v||null, whatsapp_pedidos:$('#sw').value||null}).eq('id',true)); toast('Ajustes guardados'); await cargarBase(true); };
+   <div class="row" style="margin-top:18px"><h3 class="sp" style="margin:0">Zonas y barrios de reparto</h3><button class="btn sm" id="nz">+ Nueva zona</button></div>
+   <p class="muted">Los cambios se guardan solos. El pedido mínimo en 0 significa que no hay mínimo.</p>
+   <div class="list">${cache.zonas.map(z=>`<div class="item"><div class="row"><b class="sp">${esc(z.nombre)}</b>
+     <span class="muted">Semana</span>${semSel(z)}<span class="muted">Día</span>${diaSel(z)}
+     <span class="muted">Mínimo $</span><input data-zf="pedido_minimo" data-z="${z.id}" type="number" min="0" step="1000" value="${Number(z.pedido_minimo||0)}" style="width:110px"></div>
+     <div class="chk" style="margin-top:8px">${cache.barrios.filter(b=>b.zona_id===z.id).map(b=>`<label>${esc(b.nombre)} <button class="btn sm" data-delb="${b.id}" title="Quitar barrio" style="padding:0 6px;border:none">✕</button></label>`).join('')}
+     <button class="btn sm" data-addb="${z.id}">+ Barrio</button></div></div>`).join('')}</div>
+   <h3>Personas con acceso</h3>
+   <table><tr><th>Nombre</th><th>Mail</th><th>Rol</th></tr>${equipo.map(e=>`<tr><td>${esc(e.nombre)}</td><td>${esc(e.email)}</td><td>${esc(e.rol)}</td></tr>`).join('')}</table>
+   <p class="muted">Para sumar a alguien, pedíselo a Me Encargo.</p>`;
+  $('#gs').onclick=async()=>{ const v=$('#sa').value; if(v && new Date(v+'T12:00').getDay()!==1) return toast('Esa fecha no es lunes'); await q(sb.from('config').update({lunes_semana_a:v||null, whatsapp_pedidos:$('#sw').value||null, email_resumen:$('#se').value.trim()||null}).eq('id',true)); toast('Ajustes guardados'); await cargarBase(true); };
+  m.querySelectorAll('[data-zf]').forEach(el=>el.onchange=async()=>{ const f=el.dataset.zf; let v=el.value; v = f==='pedido_minimo'?Number(v||0):(f==='dia_reparto'?(v?Number(v):null):(v||null)); await q(sb.from('zonas').update({[f]:v}).eq('id',Number(el.dataset.z))); toast('Zona actualizada'); await cargarBase(true); });
+  m.querySelectorAll('[data-addb]').forEach(b=>b.onclick=async()=>{ const n=prompt('Nombre del barrio'); if(!n||!n.trim()) return; await q(sb.from('barrios').insert({zona_id:Number(b.dataset.addb), nombre:n.trim()})); toast('Barrio agregado'); ruta(); });
+  m.querySelectorAll('[data-delb]').forEach(b=>b.onclick=async(e)=>{ e.preventDefault(); const id=Number(b.dataset.delb); if(cache.clientes.some(c=>c.barrio_id===id)) return toast('Ese barrio tiene clientes: primero cambiales el barrio'); if(!confirm('¿Quitar este barrio?')) return; await q(sb.from('barrios').delete().eq('id',id)); toast('Barrio quitado'); ruta(); });
+  $('#nz').onclick=async()=>{ const n=prompt('Nombre de la zona (por ejemplo: Viernes semana B)'); if(!n||!n.trim()) return; await q(sb.from('zonas').insert({nombre:n.trim(), orden:cache.zonas.length+1})); toast('Zona creada: elegí su semana y día'); ruta(); };
 };
 
+/* ---------- Contable ---------- */
+let tabCont = 'resultado';
+const CATS_GASTO = ['Sueldos','Transporte','Insumos','Comisiones','Contador','Arca','Wpp','Redes','Claude','Rojo','Otros'];
+const mesTxt = s => new Date(s+'T12:00').toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+VISTAS.contable = async m => {
+  const tabs = [['resultado','Estado de resultados'],['boletas','Boletas de proveedores'],['gastos','Gastos'],['fijos','Gastos fijos']];
+  m.innerHTML = `<h2>Contable</h2><div class="row" style="margin-bottom:12px">${tabs.map(([k,t])=>`<button class="btn sm ${tabCont===k?'pri':''}" data-tab="${k}">${t}</button>`).join('')}</div><div id="cont"></div>`;
+  m.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ tabCont=b.dataset.tab; ruta(); });
+  await TABS_CONT[tabCont]($('#cont'));
+};
+const TABS_CONT = {};
+TABS_CONT.resultado = async el => {
+  const filas = await q(sb.from('v_resultado_mensual').select('*').order('mes',{ascending:false}));
+  const anio = filas.filter(f=>f.mes.startsWith(String(new Date().getFullYear())));
+  const tot = k => anio.reduce((a,f)=>a+Number(f[k]),0);
+  el.innerHTML = `<div class="grid"><div class="card metric"><div class="lbl">Ganancia bruta ${new Date().getFullYear()}</div><div class="val">${money(tot('ganancia_bruta'))}</div></div>
+   <div class="card metric"><div class="lbl">Gastos ${new Date().getFullYear()}</div><div class="val">${money(tot('gastos'))}</div></div>
+   <div class="card metric"><div class="lbl">Resultado ${new Date().getFullYear()}</div><div class="val">${money(tot('resultado'))}</div></div></div>
+   <p class="muted">Ganancia bruta = ventas entregadas menos lo que cuesta la mercadería (hasta octubre sale de tu planilla). Resultado = ganancia bruta menos gastos. Se calcula solo.</p>
+   <div class="scroll"><table><tr><th>Mes</th><th class="n">Ventas</th><th class="n">Costo mercadería</th><th class="n">Ganancia bruta</th><th class="n">Gastos</th><th class="n">Resultado</th><th class="n">Cobrado</th><th class="n">Boletas proveedores</th></tr>
+   ${filas.map(f=>`<tr><td>${mesTxt(f.mes)}</td><td class="n">${Number(f.ventas)?money(f.ventas):'—'}</td><td class="n">${Number(f.costo_mercaderia)?money(f.costo_mercaderia):'—'}</td><td class="n">${money(f.ganancia_bruta)}</td><td class="n">${money(f.gastos)}</td><td class="n" style="font-weight:600;${Number(f.resultado)<0?'color:var(--bad)':''}">${money(f.resultado)}</td><td class="n">${Number(f.cobrado)?money(f.cobrado):'—'}</td><td class="n">${Number(f.boletas_proveedores)?money(f.boletas_proveedores):'—'}</td></tr>`).join('')}</table></div>
+   <div class="row" style="margin-top:10px"><button class="btn sm" id="xls">Descargar Excel</button></div>
+   <h3>Gastos por categoría (últimos 3 meses)</h3><div id="gcat"></div>`;
+  $('#xls').onclick=()=>excel('Estado de resultados', filas.map(f=>({Mes:mesTxt(f.mes), Ventas:Number(f.ventas), 'Costo mercadería':Number(f.costo_mercaderia), 'Ganancia bruta':Number(f.ganancia_bruta), Gastos:Number(f.gastos), Resultado:Number(f.resultado), Cobrado:Number(f.cobrado), 'Boletas proveedores':Number(f.boletas_proveedores)})));
+  const d = new Date(); d.setMonth(d.getMonth()-2); d.setDate(1);
+  const gs = await q(sb.from('gastos').select('fecha,categoria,monto').gte('fecha', iso(d)));
+  const meses = [...new Set(gs.map(g=>g.fecha.slice(0,7)))].sort().reverse();
+  const cats = [...new Set(gs.map(g=>g.categoria))].sort();
+  $('#gcat').innerHTML = gs.length ? `<div class="scroll"><table><tr><th>Categoría</th>${meses.map(x=>`<th class="n">${mesTxt(x+'-01')}</th>`).join('')}</tr>${cats.map(c=>`<tr><td>${esc(c)}</td>${meses.map(x=>`<td class="n">${money(gs.filter(g=>g.categoria===c&&g.fecha.startsWith(x)).reduce((a,g)=>a+Number(g.monto),0))}</td>`).join('')}</tr>`).join('')}</table></div>` : '<p class="muted">Sin gastos en los últimos meses.</p>';
+};
+TABS_CONT.boletas = async el => {
+  const bols = await q(sb.from('facturas_proveedor').select('*, proveedores(nombre)').order('pagada').order('fecha',{ascending:false}).limit(150));
+  const pend = bols.filter(b=>!b.pagada);
+  el.innerHTML = `<div class="row"><p class="muted sp">Sacale foto a cada boleta y marcá cuáles pagaste. Las pendientes aparecen en Inicio de miércoles a sábado.</p><button class="btn pri" id="nb">Cargar boleta</button></div>
+   <div class="grid"><div class="card metric"><div class="lbl">Pendiente de pago</div><div class="val">${money(pend.reduce((a,b)=>a+Number(b.monto),0))}</div></div><div class="card metric"><div class="lbl">Boletas pendientes</div><div class="val">${pend.length}</div></div></div>
+   <div class="list" style="margin-top:12px">${bols.length?bols.map(b=>`<div class="item"><div class="row"><b class="sp">${esc(b.proveedores?.nombre||'Sin proveedor')}</b>${b.pagada?`<span class="tag ok">Pagada ${b.fecha_pago?fdate(b.fecha_pago):''}</span>`:`<span class="tag warn">Pendiente</span>`}</div>
+     <div class="row muted"><span>${fdate(b.fecha)}${b.numero?' · N° '+esc(b.numero):''}${b.vence?' · vence '+fdate(b.vence):''}</span><span class="sp"></span><b style="color:var(--ink)">${money(b.monto)}</b></div>
+     <div class="row" style="margin-top:8px">${b.foto_path?`<button class="btn sm" data-foto="${esc(b.foto_path)}">Ver foto</button>`:''}${!b.pagada?`<button class="btn sm pri" data-pagar="${b.id}">Marcar pagada</button>`:`<button class="btn sm" data-despagar="${b.id}">Marcar pendiente</button>`}<button class="btn sm danger" data-delbol="${b.id}">Borrar</button></div></div>`).join(''):'<div class="empty">Todavía no hay boletas cargadas.</div>'}</div>`;
+  el.querySelectorAll('[data-foto]').forEach(b=>b.onclick=async()=>{ const {data,error}=await sb.storage.from('comprobantes').createSignedUrl(b.dataset.foto, 300); if(error) return toast('No se pudo abrir la foto'); window.open(data.signedUrl,'_blank'); });
+  el.querySelectorAll('[data-pagar]').forEach(b=>b.onclick=()=>modal('Marcar boleta pagada', `<label>Fecha de pago</label><input id="fp" type="date" value="${hoy()}"><label>Medio</label><select id="mp"><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option><option value="otro">Otro</option></select>`,
+    [['Guardar', async()=>{ await q(sb.from('facturas_proveedor').update({pagada:true, fecha_pago:$('#fp').value, medio_pago:$('#mp').value}).eq('id',Number(b.dataset.pagar))); dlg.close(); toast('Boleta pagada'); ruta(); },'pri']]));
+  el.querySelectorAll('[data-despagar]').forEach(b=>b.onclick=async()=>{ await q(sb.from('facturas_proveedor').update({pagada:false, fecha_pago:null, medio_pago:null}).eq('id',Number(b.dataset.despagar))); ruta(); });
+  el.querySelectorAll('[data-delbol]').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar esta boleta?')) return; const x=bols.find(y=>y.id===Number(b.dataset.delbol)); if(x?.foto_path) await sb.storage.from('comprobantes').remove([x.foto_path]); await q(sb.from('facturas_proveedor').delete().eq('id',x.id)); toast('Boleta borrada'); ruta(); });
+  $('#nb').onclick=()=>{ modal('Cargar boleta de proveedor', `<label>Foto de la boleta</label><input id="bf" type="file" accept="image/*,application/pdf" capture="environment">
+    <label>Proveedor</label><select id="bp"><option value="">—</option>${cache.proveedores.map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('')}</select>
+    <label>Fecha</label><input id="bd" type="date" value="${hoy()}"><label>Monto total</label><input id="bm" type="number" min="0" step="1">
+    <label>Número de boleta (opcional)</label><input id="bn"><label>Vence (opcional)</label><input id="bv" type="date">
+    <label><input type="checkbox" id="bpag" style="width:auto"> Ya está pagada</label><p class="muted" id="berr" style="color:var(--bad)"></p>`,
+    [['Guardar', async()=>{ const monto=Number($('#bm').value); if(!(monto>0)){ $('#berr').textContent='Poné el monto de la boleta.'; return; }
+      let foto_path=null; const f=$('#bf').files[0];
+      if(f){ const ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''); foto_path=`boletas/${hoy()}-${Date.now()}.${ext}`; const {error}=await sb.storage.from('comprobantes').upload(foto_path, f); if(error){ $('#berr').textContent='No se pudo subir la foto: '+error.message; return; } }
+      const pag=$('#bpag').checked;
+      await q(sb.from('facturas_proveedor').insert({proveedor_id:$('#bp').value?Number($('#bp').value):null, fecha:$('#bd').value, monto, numero:$('#bn').value||null, vence:$('#bv').value||null, foto_path, pagada:pag, fecha_pago:pag?hoy():null}));
+      dlg.close(); toast('Boleta cargada'); ruta(); },'pri']]); };
+};
+let mesGastos = null;
+TABS_CONT.gastos = async el => {
+  mesGastos = mesGastos || hoy().slice(0,7);
+  const desde = mesGastos+'-01'; const h = new Date(desde+'T12:00'); h.setMonth(h.getMonth()+1); const hasta = iso(h);
+  const gs = await q(sb.from('gastos').select('*').gte('fecha',desde).lt('fecha',hasta).order('fecha',{ascending:false}));
+  el.innerHTML = `<div class="row"><input type="month" id="gm" value="${mesGastos}" style="width:auto"><span class="sp"></span><button class="btn pri" id="ng">Cargar gasto</button><button class="btn sm" id="xls">Descargar Excel</button></div>
+   <p class="muted">Sueldos, nafta, ARCA, contador, mensajes de WhatsApp y todo lo que no es mercadería. Total del mes: <b>${money(gs.reduce((a,g)=>a+Number(g.monto),0))}</b></p>
+   ${gs.length?`<div class="scroll"><table><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th class="n">Monto</th><th></th></tr>${gs.map(g=>`<tr><td>${fdate(g.fecha)}</td><td>${esc(g.categoria)}</td><td>${esc(g.descripcion||'')}</td><td class="n">${money(g.monto)}</td><td><button class="btn sm danger" data-delg="${g.id}">Borrar</button></td></tr>`).join('')}</table></div>`:'<div class="empty">No hay gastos cargados este mes.</div>'}`;
+  $('#gm').onchange=e=>{ mesGastos=e.target.value; ruta(); };
+  $('#xls').onclick=()=>excel('Gastos '+mesGastos, gs.map(g=>({Fecha:g.fecha, Categoría:g.categoria, Descripción:g.descripcion, Monto:Number(g.monto)})));
+  el.querySelectorAll('[data-delg]').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar este gasto?')) return; await q(sb.from('gastos').delete().eq('id',Number(b.dataset.delg))); toast('Gasto borrado'); ruta(); });
+  $('#ng').onclick=()=>modal('Cargar gasto', `<label>Fecha</label><input id="gf" type="date" value="${hoy()}"><label>Categoría</label><select id="gc">${CATS_GASTO.map(c=>`<option>${c}</option>`).join('')}</select>
+    <label>Descripción</label><input id="gd" placeholder="Nafta, pago empleado, monotributo…"><label>Monto</label><input id="gmo" type="number" min="1" step="1">`,
+    [['Guardar', async()=>{ const monto=Number($('#gmo').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('gastos').insert({fecha:$('#gf').value, categoria:$('#gc').value, descripcion:$('#gd').value||null, monto})); dlg.close(); toast('Gasto cargado'); ruta(); },'pri']]);
+};
+TABS_CONT.fijos = async el => {
+  const fs = await q(sb.from('gastos_fijos').select('*').order('id'));
+  el.innerHTML = `<p class="muted">Lo que gastás todos los meses, como referencia. Los cambios se guardan solos. Total mensual: <b>${money(fs.filter(f=>f.activo).reduce((a,f)=>a+Number(f.monto_mensual),0))}</b></p>
+   <table><tr><th>Concepto</th><th class="n">Monto por mes</th><th>Clasificación</th><th>Activo</th></tr>${fs.map(f=>`<tr><td>${esc(f.concepto)}</td><td class="n"><input data-ff="monto_mensual" data-id="${f.id}" type="number" min="0" step="1000" value="${Number(f.monto_mensual)}" style="width:120px;text-align:right"></td><td>${esc(f.clasificacion||'')}</td><td><input data-ff="activo" data-id="${f.id}" type="checkbox" ${f.activo?'checked':''} style="width:auto"></td></tr>`).join('')}</table>
+   <div style="margin-top:10px"><button class="btn sm" id="nf">+ Agregar gasto fijo</button></div>`;
+  el.querySelectorAll('[data-ff]').forEach(i=>i.onchange=async()=>{ const f=i.dataset.ff; await q(sb.from('gastos_fijos').update({[f]: f==='activo'?i.checked:Number(i.value||0)}).eq('id',Number(i.dataset.id))); toast('Guardado'); ruta(); });
+  $('#nf').onclick=async()=>{ const n=prompt('Concepto (ej. Alquiler depósito)'); if(!n||!n.trim()) return; const v=Number(prompt('Monto por mes')||0); await q(sb.from('gastos_fijos').insert({concepto:n.trim(), monto_mensual:v})); ruta(); };
+};
 sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_IN' && !usuario) iniciar(); });
 iniciar();
 </script>

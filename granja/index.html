@@ -534,6 +534,31 @@ async function armarPlanillas(){
   H['Facturas'] = bol.map(b=>({Fecha:b.fecha, Proveedor:provN(b.proveedor_id), Número:b.numero||'', 'Monto':Number(b.monto), Vence:b.vence||'', Pagada:b.pagada?'Sí':'No', 'Fecha de pago':b.fecha_pago||'', Medio:b.medio_pago||''}));
   return H;
 }
+
+/* Botón "Agregar" de cada planilla */
+function irYAbrir(hash, sel, tab){ if(tab) tabCont=tab; location.hash=hash; let n=0; const t=setInterval(()=>{ const b=document.querySelector(sel); if(b){ clearInterval(t); b.click(); } else if(++n>40) clearInterval(t); },150); }
+const optsProd = () => [...cache.productos].sort((a,b)=>(a.orden??999)-(b.orden??999)).map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('');
+const AGREGAR = {
+  'INGRESOS': ()=> modal('Agregar ingreso', `<p class="muted">Para algo que no pasó por un pedido (por ejemplo, una venta suelta). Los pedidos entregados se suman solos.</p>
+    <label>Fecha</label><input id="ai_f" type="date" value="${hoy()}"><label>Reparto o barrio</label><input id="ai_c" list="ai_l" placeholder="Ej. Newman"><datalist id="ai_l">${cache.barrios.map(b=>`<option value="${esc(b.nombre)}">`).join('')}</datalist>
+    <label>Detalle</label><input id="ai_d" placeholder="Ej. Venta en el club"><label>Monto (ganancia)</label><input id="ai_m" type="number" min="0" step="1">`,
+    [['Guardar', async()=>{ const monto=Number($('#ai_m').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('ingresos_historicos').insert({fecha:$('#ai_f').value, categoria:$('#ai_c').value.trim()||null, descripcion:$('#ai_d').value.trim()||null, monto})); dlg.close(); toast('Ingreso agregado'); ruta(); },'pri']]),
+  'EGRESOS': ()=> modal('Agregar gasto', `<label>Fecha</label><input id="ag_f" type="date" value="${hoy()}"><label>Categoría</label><select id="ag_c">${CATS_GASTO.map(c=>`<option>${c}</option>`).join('')}</select>
+    <label>Descripción</label><input id="ag_d"><label>Monto</label><input id="ag_m" type="number" min="0" step="1"><label>Medio</label><select id="ag_md"><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option></select>`,
+    [['Guardar', async()=>{ const monto=Number($('#ag_m').value); if(!(monto>0)) return toast('Poné el monto'); await q(sb.from('gastos').insert({fecha:$('#ag_f').value, categoria:$('#ag_c').value, descripcion:$('#ag_d').value.trim()||null, monto, medio:$('#ag_md').value})); dlg.close(); toast('Gasto agregado'); ruta(); },'pri']]),
+  'Gastos Fijos': ()=> modal('Agregar gasto fijo', `<label>Concepto</label><input id="af_n" placeholder="Ej. Alquiler depósito"><label>Categoría</label><select id="af_c">${CATS_GASTO.map(c=>`<option>${c}</option>`).join('')}</select>
+    <label>Monto por mes</label><input id="af_m" type="number" min="0" step="1"><label>Día del mes que se paga (opcional)</label><input id="af_d" type="number" min="1" max="31">`,
+    [['Guardar', async()=>{ const n=$('#af_n').value.trim(); if(!n) return toast('Poné el concepto'); await q(sb.from('gastos_fijos').insert({concepto:n, categoria:$('#af_c').value, monto_mensual:Number($('#af_m').value||0), dia_pago:$('#af_d').value?Number($('#af_d').value):null, activo:true})); dlg.close(); toast('Gasto fijo agregado'); ruta(); },'pri']]),
+  'Competencia': async ()=>{ const comps=[...new Set((await q(sb.from('competencia').select('competidor'))).map(c=>c.competidor))];
+    modal('Agregar precio de la competencia', `<label>Producto</label><select id="ac_p">${optsProd()}</select><label>Competidor</label><input id="ac_c" list="ac_l" placeholder="Ej. Coto"><datalist id="ac_l">${comps.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+      <label>Precio</label><input id="ac_m" type="number" min="0" step="1"><p class="muted">Si ese competidor ya tenía precio para ese producto, se reemplaza por el nuevo.</p>`,
+      [['Guardar', async()=>{ const c=$('#ac_c').value.trim(), precio=Number($('#ac_m').value); if(!c||!(precio>0)) return toast('Completá competidor y precio'); await q(sb.from('competencia').upsert({producto_id:Number($('#ac_p').value), competidor:c, precio, fecha:hoy()},{onConflict:'producto_id,competidor'})); dlg.close(); toast('Precio guardado'); ruta(); },'pri']]); },
+  'Precios': ()=> irYAbrir('#productos','#nuevo'),
+  'Stock': ()=> irYAbrir('#stock','#aj'),
+  'Reparto': ()=> irYAbrir('#pedidos','#nuevo'),
+  'Cobros': ()=> irYAbrir('#cobros','#pago'),
+  'Facturas': ()=> irYAbrir('#contable','#nb','boletas')
+};
 VISTAS.planillas = async m => {
   const H = await armarPlanillas();
   const nombres = Object.keys(H);
@@ -543,9 +568,10 @@ VISTAS.planillas = async m => {
   m.innerHTML = `<div class="row"><h2 class="sp">Planillas</h2><button class="btn pri" id="todas">Descargar todas en Excel</button></div>
    <p class="muted">Son tus mismas planillas, pero se completan solas con lo que cargás en el sistema (pedidos, pagos, gastos, boletas, precios). No hace falta tocarlas: abrís la que necesitás o te bajás todas juntas en un Excel.</p>
    <div class="row" style="flex-wrap:wrap;gap:6px;margin:10px 0">${nombres.map(n=>`<button class="btn sm ${n===hojaSel?'pri':''}" data-hoja="${esc(n)}">${esc(n)} <span class="muted" style="${n===hojaSel?'color:inherit':''}">(${H[n].length})</span></button>`).join('')}</div>
-   <div class="row"><h3 class="sp">${esc(hojaSel)}</h3><button class="btn sm" id="una">Descargar esta hoja</button></div>
+   <div class="row"><h3 class="sp">${esc(hojaSel)}</h3>${AGREGAR[hojaSel]?`<button class="btn sm pri" id="agr">+ Agregar</button>`:'<span class="muted" style="font-size:13px">Se calcula sola</span>'}<button class="btn sm" id="una">Descargar esta hoja</button></div>
    ${filas.length?`<div class="scroll"><table class="hoja"><tr>${cols.map(c=>`<th class="${typeof filas[0][c]==='number'?'n':''}">${esc(c)}</th>`).join('')}</tr>${filas.map(f=>`<tr>${cols.map(c=>`<td class="${typeof f[c]==='number'?'n':''}">${celda(c,f[c])}</td>`).join('')}</tr>`).join('')}</table></div>`:'<div class="empty">Todavía no hay datos para esta planilla. Se va a llenar sola a medida que uses el sistema.</div>'}`;
   m.querySelectorAll('[data-hoja]').forEach(b=>b.onclick=()=>{ hojaSel=b.dataset.hoja; ruta(); });
+  if($('#agr')) $('#agr').onclick=()=>AGREGAR[hojaSel]();
   $('#una').onclick=()=>excel(hojaSel, filas);
   $('#todas').onclick=()=>{ const wb=XLSX.utils.book_new(); nombres.forEach(n=>{ const ws=H[n].length?XLSX.utils.json_to_sheet(H[n]):XLSX.utils.aoa_to_sheet([['Sin datos todavía']]); if(H[n].length) ws['!cols']=Object.keys(H[n][0]).map(k=>({wch:Math.max(k.length, ...H[n].slice(0,200).map(f=>String(f[k]??'').length))+2})); XLSX.utils.book_append_sheet(wb,ws,n.slice(0,30)); }); XLSX.writeFile(wb, `Granja Los Abrojos - Planillas ${hoy()}.xlsx`); };
 };

@@ -135,6 +135,8 @@ def main():
             "p": round(barata["price_number"], 2), "a": antes, "s": stock, "u": p["slug"], "f": p["foto"],
             "t": "".join(k for k, s in ETIQUETAS if s in cats),
             "d": destacados.index(p["id"]) + 1 if p["id"] in destacados else 0,
+            # variante para mandar al carrito de la tienda; nv > 1 = hay que elegir en la ficha
+            "v": barata.get("id"), "nv": len(vs),
         })
 
     hoy = datetime.now(timezone(timedelta(hours=-3))).strftime("%Y-%m-%d")

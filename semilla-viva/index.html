@@ -930,7 +930,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
 <nav class="bbar" aria-label="Accesos rápidos">
   <a href="#tienda"><svg class="ico" aria-hidden="true"><use href="#i-tienda"/></svg>Tienda</a>
   <a href="#origen"><svg class="ico" aria-hidden="true"><use href="#i-hoja"/></svg>Origen</a>
-  <button class="bbar__pedir" type="button" data-abrir-pedido aria-haspopup="dialog">Pedir ahora <span class="bbar__n" data-n>0</span><span class="vh"> productos</span></button>
+  <button class="bbar__pedir" type="button" data-abrir-pedido aria-haspopup="dialog">Tu pedido <span class="bbar__n" data-n>0</span><span class="vh"> productos</span></button>
   <button type="button" data-abrir="dlg-ayuda"><svg class="ico" aria-hidden="true"><use href="#i-ayuda"/></svg>Ayuda</button>
   <button type="button" data-abrir="dlg-cuenta"><svg class="ico" aria-hidden="true"><use href="#i-cuenta"/></svg>Cuenta</button>
 </nav>
@@ -960,8 +960,8 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
       <div><dt>Con transferencia (3 % OFF)</dt><dd data-ped-tr>$ 0</dd></div>
     </dl>
     <div class="ped__acts">
-      <a class="btn btn--full" data-ped-wa href="#" target="_blank" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-wa"/></svg>Pedir por WhatsApp</a>
-      <button class="btn btn--line btn--full" type="button" data-ped-online hidden>Pagar online en la tienda</button>
+      <button class="btn btn--full" type="button" data-ped-online hidden>Pagar online</button>
+      <a class="btn btn--line btn--full" data-ped-wa href="#" target="_blank" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-wa"/></svg>Pedir por WhatsApp</a>
       <button class="btn btn--full" type="button" data-ped-com hidden><svg class="ico" aria-hidden="true"><use href="#i-wa"/></svg>Enviar pedido mayorista</button>
     </div>
     <p class="ped__note" data-ped-note></p>
@@ -2098,9 +2098,10 @@ Has cargado la política de cookies sin compatibilidad con JavaScript. En AMP, p
     const go = $('[data-ped-wa]'), online = $('[data-ped-online]'), com = $('[data-ped-com]');
     go.hidden = !casa; com.hidden = casa;
     if (casa && it.length) go.href = wa(WA, mensaje());
-    online.hidden = !(casa && it.length === 1);
+    online.hidden = !(casa && it.length);
+    online.disabled = false; online.textContent = 'Pagar online';
     $('[data-ped-note]').textContent = casa
-      ? (it.length === 1 ? 'Por WhatsApp te confirmamos stock y envío. Online pagás con Mercado Pago, tarjeta o transferencia.' : 'Por WhatsApp te confirmamos stock, envío y forma de pago. Para pagar online, usá «Comprar online» en cada producto.')
+      ? 'Online pagás con Mercado Pago, tarjeta o transferencia. Si preferís, pedilo por WhatsApp y te confirmamos stock y envío.'
       : `${unidades} unidades. Te respondemos con tu lista mayorista y las condiciones de tu zona.`;
     $('[data-ped-help]').textContent = '';
   }
@@ -2108,15 +2109,44 @@ Has cargado la política de cookies sin compatibilidad con JavaScript. En AMP, p
   $$('[data-abrir-pedido]').forEach((b) => b.addEventListener('click', abrirPedido));
   $('[data-ir-tienda]').addEventListener('click', () => { cerrarTodo(); irA('tienda'); });
 
-  /* comprar online: manda el producto al carrito real de la tienda */
+  /* comprar online: manda los productos al carrito real de la tienda (Tiendanube).
+     Desde semillaviva.com.ar la tienda (minorista.semillaviva.com.ar) es "del mismo sitio" y el navegador
+     comparte su carrito: se manda el pedido completo y se pasa a pagar. Desde otra dirección (la de prueba)
+     el navegador no comparte el carrito, así que la tienda recibe un producto por vez. */
+  const MISMO_SITIO = /(^|\.)semillaviva\.com\.ar$/.test(location.hostname);
+  async function alCarrito(lista) {
+    for (const { p, q } of lista) {
+      const body = new URLSearchParams({ add_to_cart: p.i, quantity: q });
+      if (p.v) body.set('variant_id', p.v);
+      await fetch(`${TIENDA}/comprar/`, { method: 'POST', mode: 'no-cors', credentials: 'include', redirect: 'manual', body });
+    }
+    location.href = `${TIENDA}/comprar/`;
+  }
   function comprarOnline(p, q) {
     if (p.nv > 1) { window.open(`${D.tienda}${p.u}/`, '_blank', 'noopener'); return; }
+    if (MISMO_SITIO) { alCarrito([{ p, q }]).catch(() => {}); return; }
     const f = document.createElement('form');
     f.method = 'post'; f.action = `${TIENDA}/comprar/`; f.target = '_blank'; f.rel = 'noopener';
     [['add_to_cart', p.i], ['quantity', q], ['variant_id', p.v]].forEach(([n, v]) => { if (v == null) return; const i = document.createElement('input'); i.type = 'hidden'; i.name = n; i.value = v; f.appendChild(i); });
     document.body.appendChild(f); f.submit(); f.remove();
   }
-  $('[data-ped-online]').addEventListener('click', () => { const [x] = items(); if (x) comprarOnline(x.p, x.q); });
+  $('[data-ped-online]').addEventListener('click', async (e) => {
+    const btn = e.currentTarget, help = $('[data-ped-help]'), it = items();
+    if (!it.length) return;
+    if (!MISMO_SITIO) {
+      if (it.length === 1) { comprarOnline(it[0].p, it[0].q); return; }
+      $('[data-ped-note]').textContent = 'En esta versión de prueba la tienda online recibe un producto por vez. Con la web en semillaviva.com.ar, «Pagar online» pasa el pedido completo. Mientras tanto, podés pedirlo por WhatsApp.';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Armando tu carrito en la tienda…'; help.textContent = '';
+    try {
+      await alCarrito(it);
+      pedido.clear(); store.set('sv-pedido', {});
+    } catch {
+      btn.disabled = false; btn.textContent = 'Pagar online';
+      help.textContent = 'No pudimos pasar el pedido a la tienda. Probá de nuevo o pedilo por WhatsApp.';
+    }
+  });
 
   /* pedido mayorista */
   function validar(form, campos) {

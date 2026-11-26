@@ -105,15 +105,15 @@ button { cursor: pointer; }
 .top__cart b, .bbar__n { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px; background: var(--lima); color: var(--tinta); font-size: 0.8125rem; }
 
 /* ---------- portada ---------- */
-.hero { padding-top: clamp(24px, 4vw, 56px); }
+.hero { padding-top: clamp(20px, 3vw, 44px); }
 .hero__grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: clamp(28px, 4.5vw, 72px); align-items: center; }
 .live { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 14px 4px 10px; border-radius: 999px; background: var(--acento-suave); font-size: 0.9375rem; }
 .live .ico { width: 18px; height: 18px; color: var(--acento); }
 .live b { font-weight: 700; }
-.hero h1 { margin: 18px 0 16px; font-size: clamp(2.6rem, 1rem + 5.4vw, 5.9rem); }
+.hero h1 { margin: 16px 0 14px; font-size: clamp(2.6rem, 1rem + 4.7vw, 5.5rem); }
 .hero h1 em { font-style: normal; color: var(--acento); }
 .hero__lead { max-width: 40ch; color: var(--tinta-2); font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.3125rem); }
-.hero__search { gap: 6px; max-width: 560px; height: 62px; margin-top: 28px; padding: 6px 6px 6px 20px; box-shadow: var(--sombra); }
+.hero__search { gap: 6px; max-width: 560px; height: 62px; margin-top: 24px; padding: 6px 6px 6px 20px; box-shadow: var(--sombra); }
 .hero__search input { font-size: 1.0625rem; }
 .hero__search .btn { min-height: 48px; }
 .hero__hoy { margin-top: 14px; color: var(--tinta-2); font-size: 0.9375rem; }
@@ -526,6 +526,48 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
   .modo span { justify-content: center; width: 100%; padding: 0 10px; }
 }
 
+/* mucho más que yerba */
+.almacen { display: flex; align-items: center; gap: 16px 28px; margin-top: clamp(20px, 2.5vw, 32px); padding: 16px 20px; border-radius: var(--r-l); background: var(--blanco); box-shadow: 0 1px 0 var(--linea); }
+.almacen__head { flex: none; display: grid; justify-items: start; }
+.almacen__head .link { min-height: 36px; font-size: 0.9375rem; }
+.almacen__h { max-width: 9ch; font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.875rem); line-height: 1.05; }
+.almacen__list { display: flex; flex: 1; flex-wrap: wrap; gap: 8px; min-width: 0; margin: 0; padding: 0; list-style: none; scrollbar-width: none; }
+.almacen__list::-webkit-scrollbar { display: none; }
+.almacen__list li { flex: none; }
+.hc { display: flex; align-items: center; gap: 8px; height: 100%; min-height: 56px; padding: 4px 14px 4px 4px; border: 1.5px solid var(--linea); border-radius: 999px; text-decoration: none; transition: border-color 0.2s, background-color 0.2s; }
+.hc:hover { border-color: var(--tinta); }
+.hc__img { flex: none; width: 46px; height: 46px; overflow: hidden; border-radius: 50%; background: var(--papel-2); }
+.hc__img img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.hc__t { display: grid; line-height: 1.2; }
+.hc__n { font-weight: 700; font-size: 0.875rem; white-space: nowrap; }
+.hc__c { color: var(--tinta-2); font-size: 0.8125rem; white-space: nowrap; }
+.hc--todo { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; padding: 6px 20px; border-color: var(--tinta); background: var(--tinta); color: var(--papel); }
+.hc--todo .hc__c { color: var(--tiza-2); }
+.hc--todo:hover { background: var(--pizarra-2); }
+.com__prov--2 { margin-top: 4px; }
+
+/* solicitud mayorista */
+.sol { max-width: 720px; }
+.sol__lead { color: var(--tinta-2); }
+.sol__cats { margin: 0; padding: 0; border: 0; }
+.sol__cats legend { margin-bottom: 8px; padding: 0; font-size: 0.9375rem; font-weight: 600; }
+.sol__opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { position: relative; }
+.opt input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.opt span { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1.5px solid var(--borde); border-radius: 999px; background: var(--blanco); font-weight: 600; }
+.opt span::before { content: ""; width: 14px; height: 14px; border: 1.5px solid var(--borde); border-radius: 4px; }
+.opt input:checked + span { border-color: var(--cielo-3); background: var(--cielo-2); }
+.opt input:checked + span::before { border-color: var(--cielo-3); background: var(--cielo-3); box-shadow: inset 0 0 0 2px var(--cielo-2); }
+.opt input:focus-visible + span { outline: 3px solid var(--foco); outline-offset: 2px; }
+.sol__cats[aria-invalid] .opt span { border-color: var(--error); }
+.sol .btn { --acento: var(--cielo); --acento-2: var(--cielo-3); justify-self: start; }
+@media (max-width: 56rem) {
+  .almacen { flex-direction: column; align-items: stretch; gap: 12px; margin-inline: 0; padding: 16px; }
+  .almacen__h { max-width: none; }
+  .almacen__list { flex-wrap: nowrap; width: calc(100% + 32px); margin-inline: -16px; padding-inline: 16px; overflow-x: auto; }
+  .almacen__list li { flex: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -589,7 +631,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
     <div class="hero__txt">
       <p class="live"><svg class="ico" aria-hidden="true"><use href="#i-reloj"/></svg><span data-estado role="status">Lunes a viernes de 8 a 17 h y sábados de 10 a 14 h.</span></p>
       <h1 id="hero-h">Especialistas en yerba <em>con origen.</em></h1>
-      <p class="hero__lead">Orgánicos, naturales y gourmet, directo de productores. Comprá online o pasá por el local de Mataderos.</p>
+      <p class="hero__lead">Yerbas, mieles, harinas, aceites y almacén natural, directo de productores. Comprá online o pasá por el local de Mataderos.</p>
       <form class="search hero__search" role="search" data-buscar data-hero-search>
         <label class="vh" for="q-hero">¿Qué estás buscando?</label>
         <input id="q-hero" name="q" type="search" placeholder="Buscá yerbas, mieles, harinas…" autocomplete="off" enterkeyhint="search">
@@ -605,6 +647,17 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
       </div>
     </figure>
   </div>
+
+  <nav class="wrap almacen" aria-labelledby="alm-h">
+    <div class="almacen__head"><h2 class="almacen__h" id="alm-h">Mucho más que yerba</h2><a class="link" href="#tienda" data-cat-go="todo">Ver toda la tienda</a></div>
+    <ul class="almacen__list">
+      <li><a class="hc" href="#tienda" data-cat-go="mieles"><span class="hc__img"><img src="https://acdn-us.mitiendanube.com/stores/976/760/products/miel-organica-cremosa-las-quinas-x-500-gr-75d17bc939477c1e3d17435893930322-320-0.webp" width="320" height="320" alt=""></span><span class="hc__t"><span class="hc__n">Mieles y dulces</span><span class="hc__c" data-hc-n="mieles">66 productos</span></span></a></li>
+      <li><a class="hc" href="#tienda" data-cat-go="harinas"><span class="hc__img"><img src="https://acdn-us.mitiendanube.com/stores/976/760/products/avena-arrollada-fina-instantanea-ying-yang-bcf75c8189c05c409017920682407275-320-0.webp" width="320" height="320" alt=""></span><span class="hc__t"><span class="hc__n">Harinas y cereales</span><span class="hc__c" data-hc-n="harinas">57 productos</span></span></a></li>
+      <li><a class="hc" href="#tienda" data-cat-go="aceites"><span class="hc__img"><img src="https://acdn-us.mitiendanube.com/stores/976/760/products/aceite-de-coco-virgen-prensado-en-frio-napus-x-360-ml-04810b7d5b08b9438617309083511465-320-0.webp" width="320" height="320" alt=""></span><span class="hc__t"><span class="hc__n">Aceites y vinagres</span><span class="hc__c" data-hc-n="aceites">23 productos</span></span></a></li>
+      <li><a class="hc" href="#tienda" data-cat-go="snacks"><span class="hc__img"><img src="https://acdn-us.mitiendanube.com/stores/976/760/products/ki-bar-de-cacao-907fbeb50a1b3af59217418958095787-320-0.webp" width="320" height="320" alt=""></span><span class="hc__t"><span class="hc__n">Snacks y funcionales</span><span class="hc__c" data-hc-n="snacks">41 productos</span></span></a></li>
+      <li><a class="hc" href="#tienda" data-cat-go="bebidas"><span class="hc__img"><img src="https://acdn-us.mitiendanube.com/stores/976/760/products/kombucha-booch-jengibre-885d6efb06d89686c017664291804434-320-0.webp" width="320" height="320" alt=""></span><span class="hc__t"><span class="hc__n">Kombucha y bebidas</span><span class="hc__c" data-hc-n="bebidas">28 productos</span></span></a></li>
+    </ul>
+  </nav>
 
   <div class="finder" data-finder>
     <div class="wrap finder__head">
@@ -760,10 +813,11 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
         <li>Atención para comercios de Buenos Aires y del interior.</li>
       </ul>
       <div class="acts">
-        <button class="btn" type="button" data-modo-go="comercio">Armar pedido mayorista</button>
-        <button class="btn btn--line" type="button" data-abrir="dlg-mayorista">Conocer la propuesta</button>
+        <button class="btn" type="button" data-abrir="dlg-solicitar">Solicitar catálogo y condiciones mayoristas</button>
+        <button class="btn btn--line" type="button" data-modo-go="comercio">Armar un pedido</button>
       </div>
-      <p class="com__prov">¿Sos productor o elaborador? <button class="link" type="button" data-abrir="dlg-proveedores">Presentá tu producto</button></p>
+      <p class="com__prov"><button class="link" type="button" data-abrir="dlg-mayorista">Conocer la propuesta mayorista</button></p>
+      <p class="com__prov com__prov--2">¿Sos productor o elaborador? <button class="link" type="button" data-abrir="dlg-proveedores">Presentá tu producto</button></p>
     </div>
     <ol class="steps" data-reveal style="--i: 1" aria-label="Cómo empezar">
       <li><b>Contanos qué tipo de cliente sos</b><span>Dietética, almacén, tienda online, comercio o emprendimiento.</span></li>
@@ -824,6 +878,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
         <li><a href="#tienda">La tienda</a></li>
         <li><a href="#tienda" data-go-tag="f">Ofertas</a></li>
         <li><a href="#comercios">Para comercios</a></li>
+        <li><button type="button" data-abrir="dlg-solicitar">Catálogo mayorista</button></li>
         <li><a href="https://minorista.semillaviva.com.ar/">Tienda online</a></li>
         <li><a href="https://www.mercadolibre.com.ar/tienda/semilla-viva">Mercado Libre</a></li>
       </ul></div>
@@ -929,7 +984,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
       <a class="btn btn--line" href="https://minorista.semillaviva.com.ar/account/register/">Crear cuenta</a>
       <a class="link" href="https://minorista.semillaviva.com.ar/account/">Ver mis pedidos</a>
     </div>
-    <p class="fine">¿Comprás por mayor? El alta de tu comercio se hace por el <a href="https://wa.me/5491168690196">WhatsApp mayorista</a>.</p>
+    <p class="fine">¿Comprás por mayor? <button class="link" type="button" data-abrir="dlg-solicitar">Solicitá el catálogo y las condiciones mayoristas</button>.</p>
   </div>
 </dialog>
 
@@ -1091,9 +1146,44 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
       <details><summary>¿Cómo puedo conocer las condiciones mayoristas?</summary><p>Escribinos por WhatsApp indicando tipo de comercio, localidad y código postal, y productos o categorías de interés.</p></details>
     </div>
     <div class="acts">
-      <button class="btn" type="button" data-modo-go="comercio">Armar pedido mayorista</button>
-      <a class="btn btn--line" href="https://wa.me/5491168690196?text=Hola%2C%20quiero%20recibir%20informaci%C3%B3n%20mayorista%20de%20SEMILLA%20VIVA.">Pedir información por WhatsApp</a>
+      <button class="btn" type="button" data-abrir="dlg-solicitar">Solicitar catálogo y condiciones</button>
+      <button class="btn btn--line" type="button" data-modo-go="comercio">Armar un pedido</button>
     </div>
+  </div>
+</dialog>
+
+<dialog class="panel" id="dlg-solicitar" aria-labelledby="sol-h">
+  <div class="panel__bar"><h2 id="sol-h">Catálogo y condiciones mayoristas</h2><button class="x" type="button" data-cerrar aria-label="Cerrar"><svg class="ico"><use href="#i-x"/></svg></button></div>
+  <div class="panel__body">
+    <form class="form sol" novalidate data-form-sol>
+      <p class="sol__lead">Contanos sobre tu comercio y te enviamos por WhatsApp el catálogo y las condiciones vigentes para tu zona. No hace falta tener un pedido armado.</p>
+      <div class="row2">
+        <div class="field"><label for="s-tipo">Tipo de negocio</label><select id="s-tipo" name="tipo"><option>Dietética o almacén natural</option><option>Tienda de productos orgánicos</option><option>Comercio especializado</option><option>Tienda online</option><option>Emprendimiento gastronómico</option><option>Nuevo proyecto comercial</option><option>Otro</option></select></div>
+        <div class="field"><label for="s-comercio">Nombre del comercio</label><input id="s-comercio" name="comercio" autocomplete="organization" required></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="s-zona">Localidad y código postal</label><input id="s-zona" name="zona" autocomplete="address-level2" placeholder="Morón, 1708" required></div>
+        <div class="field"><label for="s-cuit">CUIT (opcional)</label><input id="s-cuit" name="cuit" inputmode="numeric" autocomplete="off" placeholder="30-12345678-9" aria-describedby="s-cuit-help"><p class="help" id="s-cuit-help"></p></div>
+      </div>
+      <fieldset class="sol__cats" aria-describedby="s-cats-help">
+        <legend>Categorías que te interesan</legend>
+        <div class="sol__opts">
+          <label class="opt"><input type="checkbox" name="cats" value="Yerba mate e infusiones"><span>Yerba mate e infusiones</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Harinas y cereales"><span>Harinas y cereales</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Mieles y dulces"><span>Mieles y dulces</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Aceites y vinagres"><span>Aceites y vinagres</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Snacks y almacén natural"><span>Snacks y almacén natural</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Kombucha y bebidas"><span>Kombucha y bebidas</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Gourmet y conservas"><span>Gourmet y conservas</span></label>
+          <label class="opt"><input type="checkbox" name="cats" value="Suplementos"><span>Suplementos</span></label>
+        </div>
+        <p class="help" id="s-cats-help">Elegí al menos una.</p>
+      </fieldset>
+      <div class="field"><label for="s-com">Comentario (opcional)</label><textarea id="s-com" name="comentario" rows="2" placeholder="Por ejemplo: abrimos en marzo, buscamos yerbas barbacuá"></textarea></div>
+      <button class="btn" type="submit"><svg class="ico" aria-hidden="true"><use href="#i-wa"/></svg>Enviar solicitud por WhatsApp</button>
+      <p class="help help--error" data-sol-help aria-live="polite"></p>
+      <p class="fine">Te responde el equipo mayorista desde el 11 6869-0196.</p>
+    </form>
   </div>
 </dialog>
 
@@ -2203,6 +2293,24 @@ Has cargado la política de cookies sin compatibilidad con JavaScript. En AMP, p
   svDlg.addEventListener('close', () => { cancelAnimationFrame(raf); const b = $(`[data-story="${cur}"]`); if (b) b.focus({ preventScroll: true }); });
   document.addEventListener('visibilitychange', () => setPausa(document.hidden));
 
+  /* ---------- solicitud de catálogo mayorista ---------- */
+  const fs = $('[data-form-sol]');
+  fs.addEventListener('change', (e) => { if (e.target.name === 'cats') { $('.sol__cats', fs).removeAttribute('aria-invalid'); $('#s-cats-help').classList.remove('is-error'); } });
+  fs.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const help = $('[data-sol-help]'), cuitHelp = $('#s-cuit-help'), cats = $$('input[name="cats"]:checked', fs).map((c) => c.value);
+    const dig = fs.cuit.value.replace(/\D/g, ''), okCuit = !dig || dig.length === 11;
+    fs.cuit.toggleAttribute('aria-invalid', !okCuit);
+    cuitHelp.textContent = okCuit ? '' : 'El CUIT tiene 11 números, por ejemplo 30-12345678-9.'; cuitHelp.classList.toggle('is-error', !okCuit);
+    const okCats = cats.length > 0;
+    $('.sol__cats', fs).toggleAttribute('aria-invalid', !okCats); $('#s-cats-help').classList.toggle('is-error', !okCats);
+    const ok = validar(fs, ['comercio', 'zona']);
+    if (!ok || !okCuit || !okCats) { help.textContent = 'Revisá los datos marcados.'; if (ok && !okCuit) fs.cuit.focus(); else if (ok && okCuit) $('input[name="cats"]', fs).focus(); return; }
+    help.textContent = '';
+    const texto = ['Hola, quiero recibir el catálogo y las condiciones mayoristas de SEMILLA VIVA.', `• Tipo de negocio: ${fs.tipo.value}`, `• Comercio: ${fs.comercio.value.trim()}`, `• Localidad y código postal: ${fs.zona.value.trim()}`, dig ? `• CUIT: ${fs.cuit.value.trim()}` : '', `• Categorías de interés: ${cats.join(', ')}`, fs.comentario.value.trim() ? `• Comentario: ${fs.comentario.value.trim()}` : ''].filter(Boolean).join('\n');
+    window.open(wa(WA_MAY, texto), '_blank', 'noopener');
+  });
+
   /* ---------- contacto ---------- */
   const fk = $('[data-form-contacto]');
   fk.addEventListener('submit', (e) => {
@@ -2232,6 +2340,8 @@ Has cargado la política de cookies sin compatibilidad con JavaScript. En AMP, p
   const conStock = D.productos.filter((p) => p.s !== 0).length;
   const f = new Date(D.actualizado + 'T12:00:00');
   $('[data-fuente]').textContent = `${D.productos.length} productos, ${conStock} con stock. Precios y stock al ${f.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}.`;
+  $$('[data-hc-n]').forEach((el) => { const n = D.productos.filter((p) => p.c === el.dataset.hcN && p.s !== 0).length; el.textContent = `${n} productos`; });
+  $$('[data-hc-total]').forEach((el) => { el.textContent = `${conStock} productos`; });
   pintarCats(); render(); pintarStrip(); pintarPedido();
 })();
 

@@ -10,7 +10,7 @@
 <link rel="icon" href="img/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://acdn-us.mitiendanube.com">
 <link rel="preload" as="image" href="img/todas-nuestras-yerbas.jpg">
 <script>document.documentElement.classList.add('js');</script>
@@ -595,6 +595,65 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
   [data-loop-toggle], [data-strip-toggle] { display: none; }
 }
 
+/* ---------- afinado 27/11: almacén de pizarra y kraft, menos plantilla ----------
+   Letra Jost (geométrica, como el logo), esquinas rectas, reglas finas en vez de sombras,
+   kraft de los carteles de la vidriera, el logo real como sello. */
+:root {
+  --f-disp: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --f-text: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --r-s: 2px; --r-m: 3px; --r-l: 4px;
+  --sombra: none;
+  --blanco: #fcfbf7;
+  --kraft: #cfb68e; --kraft-2: #ebe1cd; --kraft-tinta: #3a2e1d;
+  --regla: #bcb5a5;
+  --tiza-linea: rgb(243 242 234 / 0.22); --tiza-borde: rgb(243 242 234 / 0.45);
+}
+body { font-size: 1.0625rem; }
+h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
+#hero-h, #alm-h, #finder-h, #shop-h, #origen-h, #com-h, #local-h { text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; overflow-wrap: break-word; min-width: 0; }
+.hero h1 { font-size: clamp(2.3rem, 1rem + 3.9vw, 4.5rem); line-height: 1; }
+.hero h1 span { display: block; margin-top: 0.35em; color: var(--tinta-2); font-size: 0.46em; font-weight: 500; letter-spacing: 0.08em; }
+
+/* esquinas rectas: las píldoras quedan para nada */
+.btn, .top__nav a, .top__nav button, .search, .top__search button, .top__acct, .top__cart, .live, .hero__tag, .chip,
+.modo, .modo span, .bar select, .pc__off, .qty, .qty button, .pie__nets a, .top__com, .tabs__list [role="tab"],
+.bbar .bbar__pedir, .hc, .opt span, .add, .cat__img, .marcas__track button, .marcas__track img, .hc__img, .x,
+.wa-float, .steps li::before, .top__cart b, .bbar__n, .hours tr.is-today th::after, .promo code, .sv__head img { border-radius: var(--r-s); }
+.btn:active { transform: none; }
+
+/* sin vidrio ni sombras: superficies lisas y reglas finas */
+.top, .bbar { background: var(--papel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.yc, .pc, .card, .steps { box-shadow: none; border: 1px solid var(--regla); }
+.almacen { padding-inline: 0; border-block: 1.5px solid var(--tinta); border-radius: 0; background: transparent; box-shadow: none; }
+.hero__search { box-shadow: none; border-color: var(--tinta); }
+.search:focus-within { box-shadow: none; }
+.facts { background: transparent; }
+.facts .ico { display: none; }
+.facts__list li { grid-template-columns: minmax(0, 1fr); }
+.steps li::before { background: transparent; color: var(--cielo-3); border: 1.5px solid currentColor; }
+
+/* nada se agranda al pasar el mouse */
+.pc:hover .pc__img img, .story:hover .story__ring, .marcas__track button:hover, .wa-float:hover { transform: none; }
+
+/* historias: fichas cuadradas, sin el anillo de colores */
+.story__ring { padding: 0; border-radius: var(--r-s); background: none; }
+.story.is-seen .story__ring { background: none; opacity: 0.7; }
+.story__ring img { border: 0; border-radius: var(--r-s); }
+
+/* kraft, como los carteles de la vidriera */
+.live { background: var(--kraft-2); color: var(--kraft-tinta); }
+.live .ico { color: var(--kraft-tinta); }
+.promo { background: var(--kraft-2); color: var(--kraft-tinta); border-left: 4px solid var(--kraft); }
+.ticker { color: var(--tiza); }
+
+/* la foto de portada con su epígrafe abajo, y el logo como sello pegado */
+.hero__fig > img { border-radius: var(--r-s); }
+.hero__tag { position: static; display: block; margin-top: 10px; padding: 0; background: none; color: var(--tinta-2); font-size: 0.9375rem; }
+.hero__tag b { color: var(--tinta); font: 600 1.0625rem/1 var(--f-disp); }
+.sticker { top: -18px; right: -10px; width: clamp(84px, 8vw, 116px); }
+.sticker img { width: 100%; height: auto; border-radius: 50%; transform: rotate(calc(-12deg + var(--giro, 0deg))); }
+.story__ring img[src$="logo.jpg"] { border-radius: 50%; }
+
 </style>
 </head>
 <body data-modo="casa">
@@ -648,8 +707,8 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
   <div class="wrap hero__grid">
     <div class="hero__txt">
       <p class="live"><svg class="ico" aria-hidden="true"><use href="#i-reloj"/></svg><span data-estado role="status">Lunes a viernes de 8 a 17 h y sábados de 10 a 14 h.</span></p>
-      <h1 id="hero-h">Especialistas en yerba <em>con origen.</em></h1>
-      <p class="hero__lead">Yerbas, mieles, harinas, aceites y almacén natural, directo de productores. Comprá online o pasá por el local de Mataderos.</p>
+      <h1 id="hero-h">Yerba mate de productores <span>y almacén natural</span></h1>
+      <p class="hero__lead">Hoy hay 434 productos con stock. Comprá online o pasá por el local, en Av. Eva Perón 5161, Mataderos.</p>
       <form class="search hero__search" role="search" data-buscar data-hero-search>
         <label class="vh" for="q-hero">¿Qué estás buscando?</label>
         <input id="q-hero" name="q" type="search" placeholder="Buscá yerbas, mieles, harinas…" autocomplete="off" enterkeyhint="search">
@@ -661,7 +720,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
       <img src="img/todas-nuestras-yerbas.jpg" width="900" height="674" alt="Todas las yerbas de SEMILLA VIVA en una sola foto: decenas de paquetes apilados en el local: Lapacho Rosa, Tres Generaciones, Anna Park, Jesper y más" fetchpriority="high">
       <figcaption class="hero__tag"><b data-n-yerbas>63</b> yerbas con stock hoy</figcaption>
       <div class="sticker" aria-hidden="true">
-        <svg viewBox="0 0 128 128"><defs><path id="circ" d="M64,64 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0"/></defs><circle class="sticker__disc" cx="64" cy="64" r="62"/><text class="sticker__text"><textPath href="#circ">del productor a tu mate · semilla viva ·</textPath></text><circle class="sticker__seed" cx="64" cy="64" r="10"/></svg>
+        <img src="img/logo.jpg" width="500" height="500" alt="">
       </div>
     </figure>
   </div>
@@ -790,7 +849,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
   <div class="wrap">
     <div class="origen__head">
       <div data-reveal>
-        <h2 id="origen-h">Conocé de dónde viene.</h2>
+        <h2 id="origen-h">De dónde viene</h2>
         <p class="origen__p">Trabajamos directo con productores, cooperativas y elaboradores. Tocá una historia.</p>
       </div>
       <p class="origen__q" data-reveal style="--i: 1">“No buscamos acumular productos. Buscamos construir una selección con identidad.”</p>
@@ -862,7 +921,7 @@ dialog[open] { animation: aparecer 0.28s var(--ease); }
       <img src="img/local-mataderos.jpg" width="878" height="1170" alt="El mostrador del local de Mataderos, con estantes de yerbas, conservas, aceites y vinos" loading="lazy">
     </figure>
     <div class="local__txt" data-reveal style="--i: 1">
-      <h2 id="local-h">Pasá por Mataderos.</h2>
+      <h2 id="local-h">El local de Mataderos</h2>
       <p class="local__dir">Av. Eva Perón 5161, CABA.</p>
       <p class="estado" data-estado>Lunes a viernes de 8 a 17 h y sábados de 10 a 14 h.</p>
       <table class="hours">
@@ -1898,6 +1957,16 @@ Has cargado la política de cookies sin compatibilidad con JavaScript. En AMP, p
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const wa = (num, texto) => `https://wa.me/${num}?text=${encodeURIComponent(texto)}`;
   const irA = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth' }); };
+
+  /* ---------- el sello del logo gira con el scroll ---------- */
+  const sello = document.querySelector('.sticker');
+  if (sello && !reduce.matches) {
+    let pend = false;
+    addEventListener('scroll', () => {
+      if (pend) return; pend = true;
+      requestAnimationFrame(() => { pend = false; sello.style.setProperty('--giro', `${(scrollY * 0.15) % 360}deg`); });
+    }, { passive: true });
+  }
 
   /* ---------- horario en vivo (hora de Buenos Aires) ---------- */
   const HORAS = { 0: null, 1: [8, 17], 2: [8, 17], 3: [8, 17], 4: [8, 17], 5: [8, 17], 6: [10, 14] };
